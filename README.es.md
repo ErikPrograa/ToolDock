@@ -21,31 +21,36 @@ Estos clips son solo una muestra. ToolDock es muy personalizable: la posición, 
 
 Arrastra un `.exe` o un `.lnk` desde el Explorador y suéltalo en el dock para agregarlo.
 
-<!-- Drop DragAndDrop.gif on the next line -->
+<img width="854" height="480" alt="DragAndDrop" src="https://github.com/user-attachments/assets/b98df9ed-031d-4cf9-a191-51ae95ad5cc5" />
+
 
 ### Posición del dock
 
 Ancla el dock al borde superior, inferior, izquierdo o derecho del monitor. En los laterales pasa a una disposición vertical.
 
-<!-- Drop ChangePosition.gif on the next line -->
+<img width="854" height="480" alt="ChangePosition" src="https://github.com/user-attachments/assets/248a84ad-e8df-4b1b-8748-f658dd7adaa6" />
+
 
 ### Autoocultar
 
 El dock puede esconderse en su borde y volver cuando el cursor se acerca. También puede quedarse visible hasta que una ventana de ese monitor se maximice.
 
-<!-- Drop Autohide.gif on the next line -->
+<img width="854" height="480" alt="Autohide" src="https://github.com/user-attachments/assets/e1a67af2-547c-4d2b-b34b-80c84bb6583e" />
+
 
 ### Reservar el área de trabajo
 
 El dock puede reservar espacio en el escritorio, como la barra de tareas, para que las ventanas maximizadas se detengan junto a él en lugar de cubrirlo.
 
-<!-- Drop ReserveWorkArea.gif on the next line -->
+<img width="854" height="480" alt="ReserveWorkArea" src="https://github.com/user-attachments/assets/8c69ab22-c06b-4396-a68a-994e7c3c7731" />
+
 
 ### Abrir las apps en la pantalla del dock
 
 Al abrir un acceso, esa ventana puede moverse al monitor donde está el dock.
 
-<!-- Drop ForceDisplay.gif on the next line -->
+<img width="1707" height="480" alt="ForceDisplay" src="https://github.com/user-attachments/assets/6e594cd4-5d84-4aa9-b08c-2e50320be2eb" />
+
 
 ## Qué incluye
 
