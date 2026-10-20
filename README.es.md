@@ -126,4 +126,4 @@ Puedes ejecutar varias instancias a la vez. Cada una guarda su configuración en
 
 ## Licencia
 
-Este repositorio todavía no incluye un archivo de licencia. Si se publica, conviene añadir uno antes de que otras personas reutilicen el código.
+ToolDock se publica bajo la licencia MIT. El texto está en [LICENSE](LICENSE).

@@ -126,4 +126,4 @@ You can run several instances at once. Each one keeps its own settings in the sa
 
 ## License
 
-This repository does not include a license file yet. If it is published, add one before other people reuse the code.
+ToolDock is released under the MIT License. See [LICENSE](LICENSE).
