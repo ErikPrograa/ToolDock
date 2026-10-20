@@ -1,0 +1,129 @@
+<p align="center">
+  <img src="TDicons/td_icon.png" alt="" width="128">
+</p>
+
+# ToolDock
+
+[![English](https://img.shields.io/badge/English-3A3D48?style=for-the-badge)](README.md)
+[![Español](https://img.shields.io/badge/Espa%C3%B1ol-2F6F8F?style=for-the-badge)](README.es.md)
+
+Un lanzador tipo dock para Windows que complementa la barra de tareas con sus propios accesos, posición, apariencia y comportamiento.
+
+Es una aplicación de escritorio en C# y WPF (.NET 9), pensada para usarse en portable: un `.exe` en su propia carpeta, sin instalador y sin escribir en el Registro de Windows. Coloca el ejecutable en una carpeta propia. Los archivos de configuración se escriben junto a él, así los datos quedan separados y puedes copiar o mover esa carpeta a otro equipo.
+
+> ToolDock sigue en desarrollo. Pueden quedar errores o comportamientos inestables.
+
+## Algunos comportamientos
+
+Estos clips son solo una muestra. ToolDock es muy personalizable: la posición, la apariencia, los accesos y el comportamiento se cambian desde Configuración.
+
+### Arrastrar y soltar accesos
+
+Arrastra un `.exe` o un `.lnk` desde el Explorador y suéltalo en el dock para agregarlo.
+
+<!-- Drop DragAndDrop.gif on the next line -->
+
+### Posición del dock
+
+Ancla el dock al borde superior, inferior, izquierdo o derecho del monitor. En los laterales pasa a una disposición vertical.
+
+<!-- Drop ChangePosition.gif on the next line -->
+
+### Autoocultar
+
+El dock puede esconderse en su borde y volver cuando el cursor se acerca. También puede quedarse visible hasta que una ventana de ese monitor se maximice.
+
+<!-- Drop Autohide.gif on the next line -->
+
+### Reservar el área de trabajo
+
+El dock puede reservar espacio en el escritorio, como la barra de tareas, para que las ventanas maximizadas se detengan junto a él en lugar de cubrirlo.
+
+<!-- Drop ReserveWorkArea.gif on the next line -->
+
+### Abrir las apps en la pantalla del dock
+
+Al abrir un acceso, esa ventana puede moverse al monitor donde está el dock.
+
+<!-- Drop ForceDisplay.gif on the next line -->
+
+## Qué incluye
+
+- Anclaje a los cuatro bordes, con orientación vertical en izquierda y derecha.
+- Accesos a `.exe`, `.lnk` y aplicaciones de Microsoft Store (UWP).
+- Reordenar, bloquear el orden, icono personalizado y efecto de ampliación al pasar el cursor.
+- Color, opacidad, contorno por lado, esquinas redondeadas y presets.
+- Autoocultar, siempre encima, reserva del área de trabajo y ocultar sobre pantalla completa o ventanas maximizadas.
+- Varias instancias, atajos de teclado globales e interfaz en español e inglés.
+
+## Requisitos
+
+- Windows 11
+- Para compilar: [.NET SDK 9](https://dotnet.microsoft.com/download) o superior
+- Visual Studio 2022 o posterior, opcional
+
+## Compilar y ejecutar
+
+Desde la carpeta `ToolDock`:
+
+```powershell
+dotnet restore
+dotnet build
+dotnet run
+```
+
+Publicación portable (un solo ejecutable, autocontenido, win-x64):
+
+```powershell
+dotnet publish -c Release -r win-x64 --self-contained true
+```
+
+El ejecutable queda en:
+
+`ToolDock\bin\Release\net9.0-windows\win-x64\publish\ToolDock.exe`
+
+Coloca ese `.exe` en una carpeta dedicada. La configuración se crea junto a él.
+
+## Uso rápido
+
+1. Ejecuta `ToolDock.exe`.
+2. Clic derecho en el icono de la bandeja y abre **Configuración**.
+3. Arrastra un `.exe` o un `.lnk` al dock, o agrégalos desde **Accesos de apps**.
+4. Clic izquierdo en un icono para abrirlo. Clic derecho para quitarlo o cambiar su icono.
+
+La guía completa está en [Docs/Español/DOCUMENTACION_USUARIO.md](Docs/Español/DOCUMENTACION_USUARIO.md).
+
+## Documentación
+
+| | English | Español |
+|---|---|---|
+| Uso | [User documentation](Docs/English/USER_DOCUMENTATION_EN.md) | [Documentación de usuario](Docs/Español/DOCUMENTACION_USUARIO.md) |
+| Técnica | [Technical log](Docs/English/TECHNICAL_LOG_EN.md) | [Bitácora técnica](Docs/Español/BITACORA_TECNICA.md) |
+
+## Datos junto al ejecutable
+
+| Archivo | Contenido |
+|---|---|
+| `config.json` | Ajustes y accesos de la primera instancia |
+| `config.instanceN.json` | Ajustes de la instancia N (N ≥ 2) |
+| `Presets_TD.json` | Presets guardados por el usuario |
+| `Colors_TD.json` | Colores personalizados |
+| `Shortcuts_TD.json` | Nombre sugerido al exportar solo los accesos |
+| `Backups_TD/` | Copia anterior de `config.json` (y de `config.instanceN.json`), guardada como `.bak` |
+
+`config.json` está en `.gitignore`. El resto aparece al usar la aplicación y tampoco forma parte del código fuente. Si un archivo de configuración queda a medias, ToolDock intenta recuperar la copia que está en `Backups_TD`.
+
+## Inicio con Windows
+
+ToolDock no incluye la opción de «iniciar con Windows». Activar eso desde una aplicación suele significar escribir una clave en el Registro, crear una tarea en el Programador de tareas, instalar un servicio de Windows o añadir otro punto de arranque. ToolDock no hace nada de eso. No se registra en Windows, así que sigue siendo portable y no deja rastro: si mueves o borras su carpeta, la aplicación desaparece.
+
+Para que arranque al iniciar sesión, crea tú el acceso directo:
+
+1. Pulsa `Win + R`, escribe `shell:startup` y acepta.
+2. Coloca en esa carpeta un acceso directo a `ToolDock.exe`.
+
+Puedes ejecutar varias instancias a la vez. Cada una guarda su configuración en la misma carpeta: la primera usa `config.json` y cada instancia adicional usa `config.instanceN.json`. Para abrir más de una al iniciar Windows, añade `--instances 2` (o `--instances=2`) al destino del acceso directo. Usa el número de instancias que quieras.
+
+## Licencia
+
+Este repositorio todavía no incluye un archivo de licencia. Si se publica, conviene añadir uno antes de que otras personas reutilicen el código.

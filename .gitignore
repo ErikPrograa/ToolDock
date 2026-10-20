@@ -1,0 +1,50 @@
+# Build outputs
+bin/
+obj/
+out/
+publish/
+publish-ramtest/
+
+# User-specific files
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio / Rider / VS Code
+.vs/
+.idea/
+.vscode/
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+
+# Logs and temp files
+*.log
+*.tmp
+*.temp
+*.cache
+*.pid
+
+# OS generated
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Local environment / secrets
+.env
+.env.*
+*.pfx
+*.snk
+
+# Test and coverage artifacts
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+
+# Keep portable app config out of repo by default
+config.json

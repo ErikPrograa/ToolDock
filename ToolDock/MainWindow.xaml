@@ -1,0 +1,179 @@
+﻿<Window x:Class="ToolDock.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:models="clr-namespace:ToolDock.Models"
+        mc:Ignorable="d"
+        Title="ToolDock"
+        Width="620"
+        Height="92"
+        ResizeMode="NoResize"
+        WindowStyle="None"
+        Background="Transparent"
+        ShowInTaskbar="False"
+        Topmost="True"
+        AllowsTransparency="True"
+        AllowDrop="True"
+        Loaded="Window_Loaded"
+        MouseEnter="Window_MouseEnter"
+        MouseLeave="Window_MouseLeave"
+        DragEnter="Window_DragOver"
+        DragOver="Window_DragOver">
+    <Window.Resources>
+        <Style x:Key="DockToolTipStyle" TargetType="ToolTip">
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToolTip">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter Margin="2,1,2,1" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Padding" Value="8,4" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+    </Window.Resources>
+    <!--
+        La ventana siempre se mantiene dentro del monitor asignado; el desplazamiento del dock
+        (autohide y compensación de recorte) se aplica sobre este contenedor, no moviendo la ventana.
+    -->
+    <Grid x:Name="DockRoot" ClipToBounds="False">
+        <Grid.RenderTransform>
+            <TranslateTransform x:Name="DockContentTranslate" />
+        </Grid.RenderTransform>
+        <Border x:Name="DockFrame"
+                Width="{Binding DockFrameWidth}"
+                Height="{Binding DockFrameHeight}"
+                HorizontalAlignment="{Binding DockFrameHorizontalAlignment}"
+                VerticalAlignment="{Binding DockFrameVerticalAlignment}"
+                SnapsToDevicePixels="True"
+                UseLayoutRounding="True"
+                CornerRadius="{Binding DockCornerRadius}"
+                Background="{Binding DockBackgroundBrush}">
+            <!--
+                El contorno vive en su propia capa sin redondeo de layout: así admite grosores
+                fraccionarios (por debajo de 1 px lógico), que WPF colapsaría a 0 px si los
+                redondeara. El marco ya está ajustado a píxeles físicos enteros, así que el trazo
+                sigue apoyándose en bordes alineados y a 1 px se dibuja nítido.
+            -->
+            <Border x:Name="DockOutline"
+                    SnapsToDevicePixels="False"
+                    UseLayoutRounding="False"
+                    CornerRadius="{Binding DockCornerRadius}"
+                    BorderBrush="{Binding DockBorderBrush}"
+                    BorderThickness="{Binding DockBorderThickness}" />
+        </Border>
+        <ListBox x:Name="DockList"
+                 Width="{Binding IconLayerWidth}"
+                 Height="{Binding IconLayerHeight}"
+                 HorizontalAlignment="{Binding DockFrameHorizontalAlignment}"
+                 VerticalAlignment="{Binding DockFrameVerticalAlignment}"
+                 HorizontalContentAlignment="{Binding ItemsHorizontalAlignment}"
+                 VerticalContentAlignment="{Binding ItemsVerticalAlignment}"
+                 Background="Transparent"
+                 BorderThickness="0"
+                 ClipToBounds="False"
+                 ItemsSource="{Binding Items}"
+                 AllowDrop="True"
+                 PreviewMouseLeftButtonDown="DockList_PreviewMouseLeftButtonDown"
+                 PreviewMouseMove="DockList_PreviewMouseMove"
+                 MouseMove="DockList_MouseMove"
+                 MouseLeave="DockList_MouseLeave"
+                 ContextMenuOpening="DockList_ContextMenuOpening"
+                 MouseDoubleClick="DockList_MouseDoubleClick"
+                 DragOver="DockList_DragOver"
+                 Drop="DockList_Drop">
+            <ListBox.Style>
+                <Style TargetType="ListBox">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ListBox">
+                                <Border Background="{TemplateBinding Background}"
+                                        SnapsToDevicePixels="True"
+                                        ClipToBounds="False">
+                                    <ItemsPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                    Margin="{Binding DockItemsPresenterMargin, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListBox.Style>
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="Focusable" Value="False" />
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="Padding" Value="0" />
+                    <Setter Property="Margin" Value="0" />
+                    <Setter Property="Background" Value="Transparent" />
+                    <Setter Property="ClipToBounds" Value="False" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ListBoxItem">
+                                <ContentPresenter />
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel x:Name="ItemsHostPanel"
+                                Orientation="{Binding DockItemsOrientation, RelativeSource={RelativeSource AncestorType=Window}}" />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="{x:Type models:DockItemViewModel}">
+                    <Border Margin="{Binding DataContext.ItemMargin, RelativeSource={RelativeSource AncestorType=Window}}"
+                            Background="Transparent"
+                            ClipToBounds="False"
+                            RenderTransformOrigin="0.5,0.5"
+                            ToolTipOpening="DockItem_ToolTipOpening"
+                            ContextMenuOpening="DockItem_ContextMenuOpening"
+                            MouseLeftButtonUp="DockItem_MouseLeftButtonUp">
+                        <Border.ToolTip>
+                            <ToolTip Content="{Binding Name}"
+                                     Opened="DockItemToolTip_Opened"
+                                     Closed="DockItemToolTip_Closed"
+                                     Style="{StaticResource DockToolTipStyle}"
+                                     Placement="{Binding DockToolTipPlacement, RelativeSource={RelativeSource AncestorType=Window}}"
+                                     Background="{Binding DockToolTipBackgroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                     Foreground="{Binding DockToolTipForegroundBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                     BorderBrush="{Binding DockToolTipBorderBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                     BorderThickness="1"
+                                     Padding="8,4" />
+                        </Border.ToolTip>
+                        <Border.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform ScaleX="{Binding Scale}" ScaleY="{Binding Scale}" />
+                                <TranslateTransform X="{Binding OffsetX}" Y="{Binding OffsetY}" />
+                            </TransformGroup>
+                        </Border.RenderTransform>
+                        <Border.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Remover del dock"
+                                          Click="RemoveItem_Click"
+                                          CommandParameter="{Binding}" />
+                            </ContextMenu>
+                        </Border.ContextMenu>
+                        <Image Width="{Binding DataContext.Config.IconSize, RelativeSource={RelativeSource AncestorType=Window}}"
+                               Height="{Binding DataContext.Config.IconSize, RelativeSource={RelativeSource AncestorType=Window}}"
+                               Source="{Binding Icon}"
+                               Stretch="Uniform"
+                               RenderOptions.BitmapScalingMode="Fant"
+                               SnapsToDevicePixels="True"
+                               UseLayoutRounding="True" />
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </Grid>
+</Window>
