@@ -21,31 +21,36 @@ These clips are only a sample. ToolDock is highly customizable: placement, appea
 
 Drag an `.exe` or a `.lnk` from File Explorer and drop it on the dock to add it.
 
-<!-- Drop DragAndDrop.gif on the next line -->
+<img width="854" height="480" alt="DragAndDrop" src="https://github.com/user-attachments/assets/c4b7428c-6550-4be1-b752-a378c82f9cbe" />
+
 
 ### Dock position
 
 Anchor the dock to the top, bottom, left, or right edge of the monitor. On the left and right it switches to a vertical layout.
 
-<!-- Drop ChangePosition.gif on the next line -->
+<img width="854" height="480" alt="ChangePosition" src="https://github.com/user-attachments/assets/00b26908-8727-4d99-b4c1-670eaa4530fb" />
+
 
 ### Autohide
 
 The dock can hide at its edge and come back when the pointer gets close. It can also stay visible until a window on that monitor is maximized.
 
-<!-- Drop Autohide.gif on the next line -->
+<img width="854" height="480" alt="Autohide" src="https://github.com/user-attachments/assets/360231a9-adbf-4870-a3ab-2db91700c661" />
+
 
 ### Reserve work area
 
 The dock can reserve desktop space, like the taskbar, so maximized windows stop beside it instead of covering it.
 
-<!-- Drop ReserveWorkArea.gif on the next line -->
+<img width="854" height="480" alt="ReserveWorkArea" src="https://github.com/user-attachments/assets/0412b0b8-deda-40b6-976c-50d6417a96b4" />
+
 
 ### Open apps on the dock's display
 
 Launching a shortcut can move that window onto the monitor where the dock is.
 
-<!-- Drop ForceDisplay.gif on the next line -->
+<img width="1707" height="480" alt="ForceDisplay" src="https://github.com/user-attachments/assets/1a860beb-fd46-4db5-b66f-bed0dde7cb76" />
+
 
 ## What it includes
 
