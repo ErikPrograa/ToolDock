@@ -47,6 +47,7 @@ public partial class App : System.Windows.Application
             LaunchAdditionalInstances(startupOptions.RequestedInstances - 1);
         }
         var dataDirectory = AppPaths.DataDirectory;
+        DurableFile.ClearStaleTemps(dataDirectory);
         var configPath = _instanceIndex == 1
             ? Path.Combine(dataDirectory, "config.json")
             : Path.Combine(dataDirectory, $"config.instance{_instanceIndex}.json");

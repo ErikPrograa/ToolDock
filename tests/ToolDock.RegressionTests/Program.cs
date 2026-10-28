@@ -136,6 +136,8 @@ internal static class Program
             var service = new ConfigService(path);
             var config = IndependentConfig();
             service.Save(config);
+            Check(!File.Exists(Path.Combine(directory.FullName, "Temp_TD")), "A finished save removes the temp folder");
+            Check(Directory.GetFiles(directory.FullName, "*.tmp").Length == 0, "A finished save leaves no temp next to the JSON");
             var loaded = service.Load();
             Check(loaded.HideWhenWindowIntersects && !loaded.HideWhenMaximized, "The selected condition survives save/load");
             Equal(400, loaded.HoverEffectRadius, "Saved hover radius survives");

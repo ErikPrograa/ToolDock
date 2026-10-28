@@ -23,6 +23,7 @@ internal readonly record struct TextRead(string? Text, TextReadStatus Status);
 internal static class DurableFile
 {
     public const string BackupDirectoryName = "Backups_TD";
+    public const string TempDirectoryName = "Temp_TD";
 
     private static readonly UTF8Encoding Utf8 = new(encoderShouldEmitUTF8Identifier: false);
     private const int ReadAttempts = 8;
@@ -103,12 +104,15 @@ internal static class DurableFile
 
         using var gate = new FileGate(path);
         Directory.CreateDirectory(directory);
-        var tempPath = Path.Combine(directory, $".{Path.GetFileName(path)}.{Environment.ProcessId}.tmp");
+        // Temps stay in Temp_TD so a killed write can be removed on the next launch.
+        var tempDirectory = Path.Combine(directory, TempDirectoryName);
+        var tempPath = Path.Combine(tempDirectory, $".{Path.GetFileName(path)}.{Environment.ProcessId}.tmp");
 
         for (var attempt = 0; attempt < ReadAttempts; attempt++)
         {
             try
             {
+                Directory.CreateDirectory(tempDirectory);
                 using (var stream = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, FileOptions.WriteThrough))
                 using (var writer = new StreamWriter(stream, Utf8))
                 {
@@ -141,6 +145,7 @@ internal static class DurableFile
                     File.Move(tempPath, path);
                 }
 
+                TryDeleteDirectoryIfEmpty(tempDirectory);
                 return true;
             }
             catch (Exception ex) when (IsTransient(ex) && attempt < ReadAttempts - 1)
@@ -150,12 +155,43 @@ internal static class DurableFile
             catch (Exception ex) when (IsTransient(ex))
             {
                 TryDelete(tempPath);
+                TryDeleteDirectoryIfEmpty(tempDirectory);
                 return false;
             }
         }
 
         TryDelete(tempPath);
+        TryDeleteDirectoryIfEmpty(tempDirectory);
         return false;
+    }
+
+    /// <summary>Deletes leftover write temps. A temp still open by another instance is left alone.</summary>
+    public static void ClearStaleTemps(string dataDirectory)
+    {
+        if (string.IsNullOrWhiteSpace(dataDirectory))
+        {
+            return;
+        }
+
+        var tempDirectory = Path.Combine(dataDirectory, TempDirectoryName);
+        if (!Directory.Exists(tempDirectory))
+        {
+            return;
+        }
+
+        try
+        {
+            foreach (var file in Directory.EnumerateFiles(tempDirectory, "*.tmp"))
+            {
+                TryDelete(file);
+            }
+        }
+        catch
+        {
+            return;
+        }
+
+        TryDeleteDirectoryIfEmpty(tempDirectory);
     }
 
     public static void Quarantine(string path)
@@ -183,6 +219,27 @@ internal static class DurableFile
         TryDelete(GetBackupPath(path));
         TryDelete(path + ".bak");
         TryDelete(path + ".corrupt");
+    }
+
+    private static void TryDeleteDirectoryIfEmpty(string directory)
+    {
+        try
+        {
+            if (!Directory.Exists(directory))
+            {
+                return;
+            }
+
+            using var entries = Directory.EnumerateFileSystemEntries(directory).GetEnumerator();
+            if (!entries.MoveNext())
+            {
+                Directory.Delete(directory);
+            }
+        }
+        catch
+        {
+            // ignore
+        }
     }
 
     private static void TryDelete(string path)
