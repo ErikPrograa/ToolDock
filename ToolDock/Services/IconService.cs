@@ -37,9 +37,9 @@ public static class IconService
     private const uint SHGFI_LARGEICON = 0x000000000;
 
     /// <summary>
-    /// Tamaño de extracción en píxeles físicos: cubre DPI y hover, sin inflar a 256 px
-    /// cuando el dock pinta el icono a 16–32 px lógicos. Con <paramref name="highQuality"/>
-    /// se usa siempre 256 px (mejor hover, más RAM).
+    /// Extraction size in physical pixels: covers DPI and hover without inflating to 256 px
+    /// when the dock paints the icon at 16–32 logical px. With <paramref name="highQuality"/>
+    /// 256 px is always used (better hover, more RAM).
     /// </summary>
     public static int GetExtractionPixelSize(
         double logicalIconSize,
@@ -65,8 +65,8 @@ public static class IconService
     }
 
     /// <summary>
-    /// Carga el icono para un item respetando: icono personalizado &gt; logo UWP &gt; icono del .lnk &gt;
-    /// .ico en la carpeta del ejecutable &gt; icono asociado al ejecutable.
+    /// Loads an item icon in this order: custom icon &gt; UWP logo &gt; .lnk icon &gt;
+    /// .ico in the executable folder &gt; icon associated with the executable.
     /// </summary>
     public static ImageSource? LoadIconForItem(ToolDock.Models.DockItemConfig item, int size = 64)
     {
@@ -91,7 +91,7 @@ public static class IconService
         return TryLoadIcon(item.Path, size);
     }
 
-    /// <summary>Carga un .ico/.png/.jpg o extrae el icono de un .exe/.dll de la ruta indicada.</summary>
+    /// <summary>Loads a .ico/.png/.jpg or extracts the icon from an .exe/.dll at the given path.</summary>
     public static ImageSource? TryLoadFromImageOrIcon(string path, int size = 64)
     {
         try
@@ -128,7 +128,7 @@ public static class IconService
     {
         var iconPath = ResolveIconSourcePath(path);
 
-        // Caso "icono propio del shortcut" (p. ej. Discord): si el .lnk define IconLocation, úsalo.
+        // "Shortcut's own icon" case (for example Discord): if the .lnk sets IconLocation, use it.
         if (path.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
         {
             var shortcutIcon = TryResolveShortcutIconLocation(path);
@@ -155,7 +155,7 @@ public static class IconService
                 return extracted;
             }
 
-            // Si el ejecutable no tiene icono incrustado, buscar un .ico en su carpeta.
+            // If the executable has no embedded icon, look for a .ico in its folder.
             var folderIco = TryFindFolderIcon(iconPath);
             if (folderIco is not null)
             {

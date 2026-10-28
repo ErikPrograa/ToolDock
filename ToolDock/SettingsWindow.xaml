@@ -210,7 +210,7 @@
             </Setter>
         </Style>
 
-        <!-- Oculto a propósito: el sistema de Pin se conserva para poder reactivarlo. -->
+        <!-- Hidden on purpose: the Pin system is kept so it can be turned back on. -->
         <Style x:Key="PinButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
             <Setter Property="chrome:FluentChrome.Icon" Value="&#xE718;" />
             <Setter Property="MinWidth" Value="34" />
@@ -770,7 +770,7 @@
                             </DockPanel>
                                 </StackPanel>
                             </Border>
-                            <!-- Oculto a propósito: ajustes fijados de Quick Access, conservados para reactivarlos. -->
+                            <!-- Hidden on purpose: pinned Quick Access settings, kept so they can be turned back on. -->
                             <StackPanel Visibility="Collapsed">
                             <TextBlock x:Name="QuickAccessEmptyText" Opacity="0.8" Margin="0,0,0,8" />
                             <Button x:Name="UnpinAllQuickAccessButton"
@@ -1774,7 +1774,7 @@
                             Margin="3,2"
                             Click="ReloadAppButton_Click"
                             chrome:FluentChrome.Icon="&#xE72C;" />
-                    <!-- Oculto: la X de la ventana hace lo mismo. El botón y su handler se conservan. -->
+                    <!-- Hidden: the window close button does the same thing. The button and its handler are kept. -->
                     <Button x:Name="CloseButton"
                             Visibility="Collapsed"
                             FontSize="12"

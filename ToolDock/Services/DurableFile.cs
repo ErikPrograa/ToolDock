@@ -16,9 +16,9 @@ internal enum TextReadStatus
 internal readonly record struct TextRead(string? Text, TextReadStatus Status);
 
 /// <summary>
-/// Lectura con reintentos y escritura atómica (archivo temporal + reemplazo) con copia .bak.
-/// Un WriteAllText interrumpido al apagar Windows deja el JSON a medias; al siguiente
-/// arranque ese archivo no se puede leer y, si se guarda encima, los ajustes desaparecen.
+/// Read with retries and atomic write (temp file plus replace) with a .bak copy.
+/// A WriteAllText interrupted when Windows shuts down leaves the JSON half-written; on the
+/// next launch that file cannot be read and, if it is saved over, the settings disappear.
 /// </summary>
 internal static class DurableFile
 {
@@ -27,7 +27,7 @@ internal static class DurableFile
     private static readonly UTF8Encoding Utf8 = new(encoderShouldEmitUTF8Identifier: false);
     private const int ReadAttempts = 8;
 
-    /// <summary>Copia .bak dentro de Backups_TD, junto a la carpeta del archivo original.</summary>
+    /// <summary>.bak copy inside Backups_TD, next to the original file's folder.</summary>
     public static string GetBackupPath(string path)
     {
         var full = Path.GetFullPath(path);
@@ -40,7 +40,7 @@ internal static class DurableFile
         return Path.Combine(directory, BackupDirectoryName, Path.GetFileName(full) + ".bak");
     }
 
-    /// <summary>Lee la copia en Backups_TD. Si aún no existe, usa el .bak antiguo junto al archivo.</summary>
+    /// <summary>Reads the copy in Backups_TD. If it does not exist yet, uses the old .bak next to the file.</summary>
     public static TextRead ReadBackup(string path)
     {
         var current = Read(GetBackupPath(path));
@@ -173,7 +173,7 @@ internal static class DurableFile
         }
         catch
         {
-            // Si no se puede apartar, el llamador decidirá si es seguro volver a escribir.
+            // If it cannot be moved aside, the caller decides whether it is safe to write again.
         }
     }
 

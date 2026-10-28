@@ -45,22 +45,22 @@ public sealed class DockItemConfig
 
     public string Name { get; set; } = string.Empty;
 
-    /// <summary>Ruta opcional a un icono personalizado (.ico/.png/.exe/.dll) asignado por el usuario.</summary>
+    /// <summary>Optional path to a custom icon (.ico/.png/.exe/.dll) chosen by the user.</summary>
     public string? IconPath { get; set; }
 
-    /// <summary>AppUserModelID para apps UWP/Microsoft Store (cuando <see cref="IsUwp"/> es verdadero).</summary>
+    /// <summary>AppUserModelID for UWP/Microsoft Store apps (when <see cref="IsUwp"/> is true).</summary>
     public string? AppUserModelId { get; set; }
 
     public bool IsUwp { get; set; }
 }
 
-/// <summary>Combinación de tecla + modificadores para un hotkey global.</summary>
+/// <summary>Key plus modifiers for a global hotkey.</summary>
 public sealed class HotkeyConfig
 {
     /// <summary>Modificadores MOD_ALT(1)|MOD_CONTROL(2)|MOD_SHIFT(4)|MOD_WIN(8).</summary>
     public int Modifiers { get; set; }
 
-    /// <summary>Virtual-key code (0 = sin asignar).</summary>
+    /// <summary>Virtual-key code (0 = unassigned).</summary>
     public int Key { get; set; }
 
     [JsonIgnore]
@@ -76,10 +76,10 @@ public sealed class DockConfig : INotifyPropertyChanged
     private static int _loadDepth;
     private bool _raisingShellMetricRefresh;
 
-    /// <summary>True mientras se deserializa. Los setters no deben recortar con datos aún incompletos.</summary>
+    /// <summary>True while deserializing. Setters must not clamp against still-incomplete data.</summary>
     public static bool IsLoading => _loadDepth > 0;
 
-    /// <summary>Notificaciones de solo lectura (cm, %) que no deben reescribir el JSON.</summary>
+    /// <summary>Read-only notifications (cm, %) that must not rewrite the JSON.</summary>
     public bool IsRaisingShellMetricRefresh => _raisingShellMetricRefresh;
 
     public static void BeginLoad() => _loadDepth++;
@@ -176,17 +176,17 @@ public sealed class DockConfig : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    /// <summary>Versión del modelo serializado. ≥3 = unidad canónica píxel lógico.</summary>
+    /// <summary>Serialized model version. ≥3 = logical pixel as the canonical unit.</summary>
     public int ConfigSchemaVersion { get; set; } = CurrentSchemaVersion;
 
-    /// <summary>Preset que la UI debe mostrar: Default, Custom o el nombre de un preset guardado.</summary>
+    /// <summary>Preset the UI should show: Default, Custom, or the name of a saved preset.</summary>
     public string ActivePresetName
     {
         get => _activePresetName;
         set => SetField(ref _activePresetName, NormalizePresetName(value, allowCustom: true));
     }
 
-    /// <summary>Último preset real (no Custom). Restablecer vuelve a este, no a Default por adivinar.</summary>
+    /// <summary>Last real preset (not Custom). Reset returns to this one, not to a guessed Default.</summary>
     public string LastNonCustomPresetName
     {
         get => _lastNonCustomPresetName;
@@ -194,7 +194,7 @@ public sealed class DockConfig : INotifyPropertyChanged
     }
 
     // ---------------------------------------------------------------------
-    // Tamaños en píxeles lógicos (DIP @96). WPF los escala según DPI del monitor.
+    // Sizes in logical pixels (DIP at 96). WPF scales them with the monitor DPI.
     // ---------------------------------------------------------------------
 
     public double IconSize
@@ -267,7 +267,7 @@ public sealed class DockConfig : INotifyPropertyChanged
         }
     }
 
-    /// <summary>Ancho del dock expresado como porcentaje del span del monitor (solo presentación/selector de unidad).</summary>
+    /// <summary>Dock width as a percentage of the monitor span (presentation and unit picker only).</summary>
     [JsonIgnore]
     public double DockWidthPercent
     {
@@ -309,7 +309,7 @@ public sealed class DockConfig : INotifyPropertyChanged
         }
     }
 
-    /// <summary>Radio de hover en cm (solo presentación; almacenado en px lógicos).</summary>
+    /// <summary>Hover radius in cm (presentation only; stored in logical px).</summary>
     [JsonIgnore]
     public double HoverEffectRadiusCm
     {
@@ -332,7 +332,7 @@ public sealed class DockConfig : INotifyPropertyChanged
         }
     }
 
-    /// <summary>Distancia de proximidad en cm (solo presentación; almacenada en px lógicos).</summary>
+    /// <summary>Proximity distance in cm (presentation only; stored in logical px).</summary>
     [JsonIgnore]
     public double AutoHideProximityDistanceCm
     {
@@ -346,7 +346,7 @@ public sealed class DockConfig : INotifyPropertyChanged
         set => SetField(ref _offset, Math.Clamp(Math.Round(value), -4000, 4000));
     }
 
-    /// <summary>Separación del dock respecto al borde (px lógicos).</summary>
+    /// <summary>Gap between the dock and the screen edge (logical px).</summary>
     public double AlignmentOffset
     {
         get => _alignmentOffset;
@@ -383,7 +383,7 @@ public sealed class DockConfig : INotifyPropertyChanged
         set => SetField(ref _roundedCorners, value);
     }
 
-    /// <summary>Radio de las esquinas redondeadas (px lógicos). Solo aplica con <see cref="RoundedCorners"/>.</summary>
+    /// <summary>Rounded-corner radius (logical px). Applies only when <see cref="RoundedCorners"/> is on.</summary>
     public double CornerRadius
     {
         get => _cornerRadius;
@@ -506,7 +506,7 @@ public sealed class DockConfig : INotifyPropertyChanged
         }
     }
 
-    /// <summary>Reserva espacio en el área de trabajo (como la barra de tareas). Excluyente con autohide.</summary>
+    /// <summary>Reserves work-area space (like the taskbar). Mutually exclusive with autohide.</summary>
     public bool ReserveWorkArea
     {
         get => _reserveWorkArea;
@@ -527,7 +527,7 @@ public sealed class DockConfig : INotifyPropertyChanged
         set => SetField(ref _doNotShowOverFullscreen, value);
     }
 
-    /// <summary>Al abrir un acceso del dock, mueve esa ventana al monitor donde está el dock.</summary>
+    /// <summary>When a dock shortcut opens, moves that window to the monitor where the dock is.</summary>
     public bool OpenAppsOnDockMonitor
     {
         get => _openAppsOnDockMonitor;
@@ -535,7 +535,7 @@ public sealed class DockConfig : INotifyPropertyChanged
     }
 
     /// <summary>
-    /// Con autohide: permite ocultar si hay una ventana maximizada en su monitor.
+    /// With autohide: allows hiding when a window is maximized on its monitor.
     /// </summary>
     public bool HideWhenMaximized
     {
@@ -556,7 +556,7 @@ public sealed class DockConfig : INotifyPropertyChanged
         }
     }
 
-    /// <summary>Con autohide: permite ocultar si una ventana se superpone al dock visible.</summary>
+    /// <summary>With autohide: allows hiding when a window overlaps the visible dock.</summary>
     public bool HideWhenWindowIntersects
     {
         get => _hideWhenWindowIntersects;
@@ -576,7 +576,7 @@ public sealed class DockConfig : INotifyPropertyChanged
         }
     }
 
-    /// <summary>Oculta el dock en esta sesión (no se serializa). Al reiniciar vuelve a activo.</summary>
+    /// <summary>Hides the dock for this session (not serialized). It is active again after restart.</summary>
     [JsonIgnore]
     public bool DockDisabled
     {
@@ -584,7 +584,7 @@ public sealed class DockConfig : INotifyPropertyChanged
         set => SetField(ref _dockDisabled, value);
     }
 
-    /// <summary>Bloquea el orden de los accesos del dock (impide reordenar con drag &amp; drop).</summary>
+    /// <summary>Locks dock shortcut order (blocks reordering by drag and drop).</summary>
     public bool LockShortcuts
     {
         get => _lockShortcuts;
@@ -592,8 +592,8 @@ public sealed class DockConfig : INotifyPropertyChanged
     }
 
     /// <summary>
-    /// Extrae iconos a 256 px en lugar del tamaño de pantalla. Mejora el hover en algunos
-    /// accesos a costa de un poco más de memoria.
+    /// Extracts icons at 256 px instead of the on-screen size. Improves hover on some
+    /// shortcuts at the cost of a little more memory.
     /// </summary>
     public bool HighQualityIcons
     {
@@ -601,7 +601,7 @@ public sealed class DockConfig : INotifyPropertyChanged
         set => SetField(ref _highQualityIcons, value);
     }
 
-    /// <summary>Nombre del dispositivo de monitor (Screen.DeviceName) asignado, o null para el principal.</summary>
+    /// <summary>Assigned monitor device name (Screen.DeviceName), or null for the primary monitor.</summary>
     public string? MonitorDeviceName
     {
         get => _monitorDeviceName;
@@ -610,10 +610,10 @@ public sealed class DockConfig : INotifyPropertyChanged
 
     public HotkeyConfig ShowHideHotkey { get; set; } = new();
 
-    /// <summary>Hotkey que solo muestra el dock (equivale a «Show Dock» del menú contextual).</summary>
+    /// <summary>Hotkey that only shows the dock (same as «Show Dock» in the context menu).</summary>
     public HotkeyConfig ShowDockHotkey { get; set; } = new();
 
-    /// <summary>Hotkey que activa/desactiva Disable dock (solo esta sesión).</summary>
+    /// <summary>Hotkey that toggles Disable dock (this session only).</summary>
     public HotkeyConfig DisableDockHotkey { get; set; } = new();
 
     private void ClearHideBehindTaskbarIfDisabled()
@@ -670,7 +670,7 @@ public sealed class DockConfig : INotifyPropertyChanged
         ActivePresetName = _activePresetName;
         LastNonCustomPresetName = _lastNonCustomPresetName;
         ClearHideBehindTaskbarIfDisabled();
-        // Las configuraciones anteriores podían activar ambos modos; conservar intersección.
+        // Older configs could enable both modes; keep intersection.
         if (_hideWhenWindowIntersects)
         {
             HideWhenMaximized = false;
@@ -678,8 +678,8 @@ public sealed class DockConfig : INotifyPropertyChanged
     }
 
     /// <summary>
-    /// Durante los primeros segundos el área de trabajo puede ser falsa (shell aún arrancando,
-    /// monitor apagado). No recortar el ancho guardado hasta que quepa o pase el plazo.
+    /// For the first few seconds the work area can be wrong (shell still starting,
+    /// monitor off). Do not clamp the saved width until it fits or the grace period ends.
     /// </summary>
     public void ArmStartupWidthGuard()
     {
@@ -777,8 +777,8 @@ public sealed class DockConfig : INotifyPropertyChanged
         set => SetField(ref _outlineOpacity, Math.Clamp(value, 0, 100));
     }
 
-    /// <summary>Grosor del contorno en px lógicos. Por debajo de 1 el trazo se dibuja con
-    /// antialias (cobertura parcial del píxel físico), que es la única forma de bajar de 1 px real.</summary>
+    /// <summary>Outline thickness in logical px. Below 1 the stroke is drawn with
+    /// antialiasing (partial coverage of the physical pixel), the only way to go under 1 real px.</summary>
     public double OutlineThickness
     {
         get => _outlineThickness;
@@ -896,13 +896,13 @@ public sealed class DockConfig : INotifyPropertyChanged
         return true;
     }
 
-    /// <summary>Recalcula límites/notifica tras cambios de DPI o de configuración de pantalla.</summary>
+    /// <summary>Recomputes limits and notifies after a DPI or display-configuration change.</summary>
     public void NotifyShellMetricsChanged()
     {
         ClampDockWidthToCurrentLimits();
-        // Las equivalencias en cm/% dependen del DPI/área de trabajo, así que se refrescan
-        // explícitamente aunque los valores lógicos no hayan cambiado. No son un cambio de
-        // configuración: reescribir el JSON aquí, al iniciar Windows, pisaba el archivo.
+        // cm/% equivalents depend on DPI and the work area, so they refresh even when the
+        // logical values did not change. They are not a configuration change: rewriting the
+        // JSON here, at Windows startup, used to overwrite the file.
         _raisingShellMetricRefresh = true;
         try
         {
@@ -948,7 +948,7 @@ public sealed class DockConfig : INotifyPropertyChanged
     }
 
     // ---------------------------------------------------------------------
-    // Límites y valores por defecto (todos en píxeles lógicos salvo cm/% indicados).
+    // Limits and defaults (all in logical pixels except where cm/% is noted).
     // ---------------------------------------------------------------------
 
     public static double GetDockWidthMin(double iconSize, double iconSpacing) =>

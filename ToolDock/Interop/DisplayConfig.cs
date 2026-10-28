@@ -3,9 +3,9 @@ using System.Runtime.InteropServices;
 namespace ToolDock.Interop;
 
 /// <summary>
-/// API CCD (Connecting and Configuring Displays) de user32. Se usa solo para obtener el nombre
-/// comercial del monitor (p. ej. «DELL U2412M»), que el nombre GDI (<c>\\.\DISPLAY1</c>) no
-/// incluye.
+/// user32 CCD (Connecting and Configuring Displays) API. Used only to get the monitor's
+/// friendly name (for example «DELL U2412M»), which the GDI name (<c>\\.\DISPLAY1</c>) does
+/// not include.
 /// </summary>
 internal static class DisplayConfig
 {
@@ -15,8 +15,8 @@ internal static class DisplayConfig
     private const uint DEVICE_INFO_GET_TARGET_NAME = 2;
 
     /// <summary>
-    /// Devuelve el nombre comercial de cada monitor activo indexado por su nombre GDI.
-    /// Diccionario vacío si el sistema no puede resolverlos.
+    /// Returns each active monitor's friendly name, keyed by its GDI name.
+    /// Empty dictionary if the system cannot resolve them.
     /// </summary>
     public static Dictionary<string, string> GetFriendlyNamesByGdiDeviceName()
     {
@@ -52,7 +52,7 @@ internal static class DisplayConfig
         }
         catch
         {
-            // sin nombres: el selector cae al formato «índice + resolución»
+            // no names: the picker falls back to «index + resolution»
         }
 
         return map;
@@ -155,7 +155,7 @@ internal static class DisplayConfig
         public uint flags;
     }
 
-    /// <summary>Unión de modo (source/target/desktop image) que no se lee: 48 bytes opacos.</summary>
+    /// <summary>Mode union (source/target/desktop image) that is not read: 48 opaque bytes.</summary>
     [StructLayout(LayoutKind.Sequential, Size = 48)]
     private struct DISPLAYCONFIG_MODE_INFO_UNION
     {

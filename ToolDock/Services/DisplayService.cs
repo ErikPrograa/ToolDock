@@ -5,7 +5,7 @@ using ToolDock.Models;
 
 namespace ToolDock.Services;
 
-/// <summary>Información de un monitor en coordenadas físicas (px) y lógicas (DIP/WPF).</summary>
+/// <summary>Monitor information in physical coordinates (px) and logical coordinates (DIP/WPF).</summary>
 public sealed class MonitorInfo
 {
     public required string DeviceName { get; init; }
@@ -16,18 +16,18 @@ public sealed class MonitorInfo
     public Rect BoundsDip { get; init; }
     public Rect WorkAreaDip { get; init; }
 
-    /// <summary>Etiqueta legible para el selector de monitor.</summary>
+    /// <summary>Readable label for the monitor picker.</summary>
     public string DisplayLabel => FriendlyName;
 }
 
 /// <summary>
-/// Enumera monitores con <c>EnumDisplayMonitors</c> y expone áreas de trabajo en DIP,
-/// para que el posicionamiento sea multi-monitor en lugar de usar únicamente
+/// Enumerates monitors with <c>EnumDisplayMonitors</c> and exposes work areas in DIP,
+/// so placement is multi-monitor instead of using only
 /// <see cref="SystemParameters.WorkArea"/>.
 /// </summary>
 public static class DisplayService
 {
-    /// <summary>Factor físico/DIP del monitor principal (la base que usa WPF para Left/Top).</summary>
+    /// <summary>Physical/DIP factor of the primary monitor (the base WPF uses for Left/Top).</summary>
     public static double GlobalDipScale()
     {
         try
@@ -105,9 +105,9 @@ public static class DisplayService
     }
 
     /// <summary>
-    /// Devuelve el mismo monitor con el área de trabajo releída del sistema.
-    /// Tras registrar un AppBar hay que volver a preguntar: el rectángulo concedido
-    /// cambia el work area y no basta con el valor de la enumeración anterior.
+    /// Returns the same monitor with the work area read again from the system.
+    /// After registering an AppBar it must be queried again: the granted rectangle
+    /// changes the work area, and the previous enumeration is not enough.
     /// </summary>
     public static MonitorInfo WithFreshWorkArea(MonitorInfo monitor)
     {

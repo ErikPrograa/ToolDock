@@ -4,8 +4,8 @@ using ToolDock.Interop;
 namespace ToolDock.Services;
 
 /// <summary>
-/// Tras lanzar un acceso, mueve la ventana nueva (o la que pasa a primer plano) al monitor del dock.
-/// Windows elige el monitor al crear el proceso; no hay forma fiable de pedirlo de antemano, sobre todo en UWP.
+/// After launching a shortcut, moves the new window (or the one that comes to the foreground) to the dock's monitor.
+/// Windows picks the monitor when it creates the process; there is no reliable way to request it ahead of time, especially for UWP.
 /// </summary>
 internal static class DockLaunchPlacement
 {

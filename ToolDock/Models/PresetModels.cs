@@ -7,8 +7,8 @@ public sealed class DockPreset
 }
 
 /// <summary>
-/// Datos de un preset. Todas las medidas se almacenan en píxeles lógicos (DIP @96), salvo
-/// <see cref="HoverMagnification"/> (porcentaje) y opacidades (porcentaje).
+/// Preset data. Every measurement is stored in logical pixels (DIP at 96), except
+/// <see cref="HoverMagnification"/> (percent) and opacities (percent).
 /// </summary>
 public sealed class DockPresetData
 {

@@ -15,7 +15,7 @@ public sealed class PresetService
 
     public string PresetsPath { get; }
 
-    /// <summary>True si el archivo existe pero no se pudo leer. No hay que tratarlo como «sin presets».</summary>
+    /// <summary>True if the file exists but could not be read. It must not be treated as "no presets".</summary>
     public bool LastLoadFailed { get; private set; }
 
     public PresetService()
@@ -82,7 +82,7 @@ public sealed class PresetService
                 return false;
             }
 
-            // Corte limpio de esquema: descarta presets de versiones anteriores (unidades cambiaron a px lógicos).
+            // Clean schema break: discard presets from older versions (units changed to logical px).
             presets = parsed
                 .Where(p => !string.IsNullOrWhiteSpace(p.Name)
                             && p.Data is not null

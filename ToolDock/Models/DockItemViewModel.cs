@@ -18,10 +18,10 @@ public sealed class DockItemViewModel : INotifyPropertyChanged
 
     public ImageSource? Icon { get; }
 
-    /// <summary>Ruta a un icono personalizado asignado por el usuario (opcional).</summary>
+    /// <summary>Path to a custom icon chosen by the user (optional).</summary>
     public string? IconPath { get; }
 
-    /// <summary>AppUserModelID para apps UWP/Store.</summary>
+    /// <summary>AppUserModelID for UWP/Store apps.</summary>
     public string? AppUserModelId { get; }
 
     public bool IsUwp { get; }

@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 
 namespace ToolDock.Interop;
 
-/// <summary>Interop para reservar espacio en el área de trabajo mediante AppBar (estilo barra de tareas).</summary>
+/// <summary>Interop for reserving work-area space through an AppBar (taskbar style).</summary>
 internal static class Shell32
 {
     public const int ABM_NEW = 0x00000000;
@@ -29,7 +29,7 @@ internal static class Shell32
     [DllImport("shell32.dll", SetLastError = true)]
     public static extern uint SHAppBarMessage(int dwMessage, ref APPBARDATA pData);
 
-    /// <summary>Estado que el shell usa para decidir si puede mostrar notificaciones.</summary>
+    /// <summary>State the shell uses to decide whether it can show notifications.</summary>
     public enum QueryUserNotificationState
     {
         NotPresent = 1,
@@ -45,9 +45,9 @@ internal static class Shell32
     private static extern int SHQueryUserNotificationState(out QueryUserNotificationState pquns);
 
     /// <summary>
-    /// Indica si el propio shell considera que hay una app en pantalla completa (fullscreen exclusivo,
-    /// borderless o F11). Es el mismo criterio que usa Windows para silenciar notificaciones, por lo que
-    /// distingue fullscreen real de una ventana simplemente maximizada.
+    /// Reports whether the shell itself considers an app fullscreen (exclusive fullscreen,
+    /// borderless, or F11). Windows uses the same check to silence notifications, so it
+    /// separates real fullscreen from a window that is merely maximized.
     /// </summary>
     public static bool IsShellReportingFullscreenApp()
     {

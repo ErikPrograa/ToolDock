@@ -32,8 +32,8 @@ public sealed class ConfigService
 
         if (primary.Status == TextReadStatus.IoFailure)
         {
-            // El archivo existe pero está bloqueado (típico al iniciar sesión). Guardar ahora
-            // lo sustituiría por los valores por defecto.
+            // The file exists but is locked (typical at sign-in). Saving now would
+            // replace it with the defaults.
             _canPersist = false;
             if (TryLoadBackup() is { } lockedBackup)
             {
@@ -44,7 +44,7 @@ public sealed class ConfigService
             return new DockConfig();
         }
 
-        // Vacío o JSON ilegible: apartarlo antes de reponer la copia, para no pisar el .bak.
+        // Empty or unreadable JSON: move it aside before restoring the copy, so the .bak is not overwritten.
         var corrupt = primary.Status != TextReadStatus.Missing;
         if (corrupt)
         {
@@ -73,7 +73,7 @@ public sealed class ConfigService
         var json = JsonSerializer.Serialize(config, JsonOptions);
         if (!DurableFile.Write(ConfigPath, json))
         {
-            // El archivo anterior sigue intacto. No se relanza: un fallo de disco no debe tumbar el dock.
+            // The previous file is still intact. Do not rethrow: a disk failure must not take down the dock.
         }
     }
 
@@ -112,8 +112,8 @@ public sealed class ConfigService
                 schemaVersion = parsedVersion;
             }
 
-            // Corte limpio de esquema: configuraciones de versiones anteriores se descartan
-            // (las unidades y propiedades cambiaron a píxeles lógicos) y se parte de defaults.
+            // Clean schema break: configs from older versions are discarded
+            // (units and properties changed to logical pixels) and defaults are used.
             if (schemaVersion < DockConfig.CurrentSchemaVersion)
             {
                 return new DockConfig();

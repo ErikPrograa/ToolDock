@@ -8,7 +8,7 @@ using HorizontalAlignment = System.Windows.HorizontalAlignment;
 
 namespace ToolDock;
 
-/// <summary>Diálogo simple para elegir una app UWP/Store instalada.</summary>
+/// <summary>Simple dialog for choosing an installed UWP/Store app.</summary>
 public sealed class UwpAppPickerWindow : Window
 {
     private readonly System.Windows.Controls.ListBox _list;

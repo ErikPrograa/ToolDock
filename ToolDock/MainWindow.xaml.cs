@@ -44,8 +44,8 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private bool _isDraggingInternal;
     private bool _isHiddenByAutohide;
     /// <summary>
-    /// Evita recalcular el ancho en cada paso de Clear()+Add al sincronizar <see cref="DockConfig.Items"/>;
-    /// un Clear intermedio deja la colección vacía y el mínimo pasaba a ser el de 4 iconos (~9.1%), causando parpadeo con auto-ajuste.
+    /// Skips recomputing the width on every Clear()+Add step while syncing <see cref="DockConfig.Items"/>;
+    /// an intermediate Clear leaves the collection empty and the minimum became that of 4 icons (~9.1%), which flickered with auto-fit.
     /// </summary>
     private bool _suppressConfigItemsDockWidthSync;
 
@@ -64,12 +64,12 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private int _requestedAppBarEdge = -1;
     private bool _appBarPositionApplied;
 
-    /// <summary>Rectángulo (px físicos) que el shell concedió al AppBar del dock tras ABM_SETPOS.</summary>
+    /// <summary>Rectangle (physical px) the shell granted to the dock AppBar after ABM_SETPOS.</summary>
     private User32.RECT _grantedAppBarRect;
     private bool _hasGrantedAppBarRect;
     private DateTime _lastAppBarApplyUtc = DateTime.MinValue;
 
-    /// <summary>Tooltips/menús del dock abiertos: deben quedar por encima, así que pausan el Z-order.</summary>
+    /// <summary>Open dock tooltips/menus must stay above, so they pause Z-order updates.</summary>
     private int _openPopupCount;
     private int _zOrderTicksSinceReassert;
     private WpfPoint _lastTrackedPointerWindow;
@@ -81,8 +81,8 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     public DockConfig Config { get; }
 
     /// <summary>
-    /// Área de trabajo usada para posicionar el dock, descontando el espacio que él mismo reservó:
-    /// si no se compensa, la reserva empuja al dock hacia adentro del hueco que acaba de crear.
+    /// Work area used to place the dock, subtracting the space the dock itself reserved:
+    /// without that compensation, the reservation pushes the dock into the gap it just created.
     /// </summary>
     private Rect ActiveWorkArea => CompensateOwnReservation(_activeMonitor.WorkAreaDip);
 
@@ -94,10 +94,10 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     }
 
     /// <summary>
-    /// Devuelve el borde anclado del área de trabajo al hueco que el propio dock reservó, usando el
-    /// rectángulo concedido por el shell. Así el dock vuelve al borde que tenía antes de reservar
-    /// (que puede no ser el borde físico: junto a la barra de tareas el hueco empieza después de
-    /// ella) y solo se toca el eje del borde donde está anclado.
+    /// Puts the anchored work-area edge back into the gap the dock itself reserved, using the
+    /// rectangle granted by the shell. The dock returns to the edge it had before reserving
+    /// (which may not be the physical edge: next to the taskbar the gap starts after the
+    /// taskbar) and only the axis of the anchored edge is touched.
     /// </summary>
     private Rect CompensateOwnReservation(Rect workArea)
     {
@@ -118,7 +118,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             _grantedAppBarRect.Width / scale,
             _grantedAppBarRect.Height / scale);
 
-        // Solo puede ampliar hacia el borde: si el shell no llegó a reservar, no se mueve nada.
+        // It can only grow toward the edge: if the shell did not reserve space, nothing moves.
         var compensated = _reservedEdge switch
         {
             DockEdge.Top => WithTop(workArea, Math.Min(workArea.Top, granted.Top)),
@@ -153,7 +153,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                 return new CornerRadius(0);
             }
 
-            // El radio no puede pasar de la mitad del lado menor del marco o las esquinas se solapan.
+            // The radius cannot exceed half of the frame's shorter side, or the corners overlap.
             var maxRadius = Math.Max(0, Math.Min(DockFrameWidth, DockFrameHeight) / 2.0);
             var r = DockMetrics.SnapLogicalToWholePhysical(Math.Min(Config.CornerRadius, maxRadius));
             return new CornerRadius(
@@ -204,7 +204,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     public bool IsVerticalDock => Config.Edge is DockEdge.Left or DockEdge.Right;
 
-    /// <summary>Coloca el tooltip hacia el escritorio (lado contrario al borde) para que no quede tras el dock.</summary>
+    /// <summary>Places the tooltip toward the desktop (the side opposite the edge) so it does not sit behind the dock.</summary>
     public System.Windows.Controls.Primitives.PlacementMode DockToolTipPlacement => Config.Edge switch
     {
         DockEdge.Top => System.Windows.Controls.Primitives.PlacementMode.Bottom,
@@ -268,7 +268,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     public double IconLayerHeight =>
         DockMetrics.SnapLogicalToWholePhysical(Math.Min(ComputeIconLayerHeightUncapped(), ActiveBounds.Height));
 
-    /// <summary>Tamaño lógico deseado de la capa de iconos sin acotar al monitor (hover/márgenes).</summary>
+    /// <summary>Desired logical size of the icon layer before clamping to the monitor (hover/margins).</summary>
     private double ComputeIconLayerWidthUncapped()
     {
         var maxScale = GetMaxHoverScale();
@@ -286,7 +286,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         return DockFrameWidth + ((Math.Max(0, magnifyOverflow) + neighborShiftOverflow + DockMetrics.IconMajorAxisPaddingForMetrics) * 2.0);
     }
 
-    /// <summary>Tamaño lógico deseado de la capa de iconos sin acotar al monitor (hover/márgenes).</summary>
+    /// <summary>Desired logical size of the icon layer before clamping to the monitor (hover/margins).</summary>
     private double ComputeIconLayerHeightUncapped()
     {
         var maxScale = GetMaxHoverScale();
@@ -539,7 +539,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                 EnsureVisibleFromAutohide();
             }
 
-            // El atajo de mostrar/ocultar solo existe sin autohide.
+            // The show/hide shortcut exists only when autohide is off.
             RefreshHotkeys();
         }
 
@@ -619,8 +619,8 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             ? Visibility.Hidden
             : Visibility.Visible;
 
-        // La reserva se aplica antes de posicionar: cambia el área de trabajo de la que depende la
-        // posición del dock, así que hay que releerla antes de calcular la compensación.
+        // The reservation is applied before placement: it changes the work area the dock
+        // position depends on, so that area must be read again before computing the compensation.
         if (UpdateAppBarReservation())
         {
             RefreshActiveMonitor();
@@ -653,13 +653,13 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(ApplyZOrder));
     }
 
-    /// <summary>El dock debe quedar por debajo de la barra de tareas en lugar de encima de ella.</summary>
+    /// <summary>The dock must sit below the taskbar instead of above it.</summary>
     private bool IsBehindTaskbarMode => Config.HideBehindTaskbar && Config.AlwaysOnTop && Config.AutoHide;
 
     /// <summary>
-    /// Única fuente de verdad del Z-order del dock: banda topmost cuando <c>AlwaysOnTop</c> está
-    /// activo y, si además está activo <c>HideBehindTaskbar</c>, justo por debajo de la barra de
-    /// tareas. El tooltip del dock se coloca aparte, siempre por encima (ver DockItemToolTip_Opened).
+    /// Single source of truth for the dock Z-order: the topmost band when <c>AlwaysOnTop</c> is
+    /// on and, if <c>HideBehindTaskbar</c> is also on, just below the taskbar. The dock tooltip
+    /// is placed separately, always above (see DockItemToolTip_Opened).
     /// </summary>
     private void ApplyZOrder()
     {
@@ -676,8 +676,8 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
         if (!Config.AlwaysOnTop)
         {
-            // Solo si hay que quitar la marca: HWND_NOTOPMOST también sube la ventana al frente de
-            // las normales, y sin AlwaysOnTop el dock no debe adelantarse a nadie.
+            // Only when the flag must be cleared: HWND_NOTOPMOST also raises the window above
+            // normal windows, and without AlwaysOnTop the dock must not jump in front of anyone.
             if (HasTopmostStyle(hwnd))
             {
                 SetDockWindowZOrder(hwnd, User32.HWND_NOTOPMOST);
@@ -686,8 +686,8 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             return;
         }
 
-        // Insertar tras la propia ventana del shell (no tras GW_HWNDNEXT): si la ventana siguiente no
-        // es topmost, Windows le quita WS_EX_TOPMOST al dock y termina detrás de las maximizadas.
+        // Insert after the shell window itself (not after GW_HWNDNEXT): if the next window is not
+        // topmost, Windows strips WS_EX_TOPMOST from the dock and it ends up behind maximized windows.
         var taskbar = IsBehindTaskbarMode ? FindTaskbarWindowForActiveMonitor() : IntPtr.Zero;
         SetDockWindowZOrder(hwnd, taskbar != IntPtr.Zero ? taskbar : User32.HWND_TOPMOST);
     }
@@ -750,9 +750,9 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     }
 
     /// <summary>
-    /// Reafirma el Z-order tras eventos que lo alteran (activar el dock al hacer clic, maximizar o
-    /// cambiar de ventana). Se omite mientras hay un tooltip abierto o el dock está activo, para no
-    /// tapar el tooltip ni los menús contextuales, que deben quedar por encima del dock.
+    /// Reasserts Z-order after events that change it (activating the dock on click, maximizing, or
+    /// switching windows). Skipped while a tooltip is open or the dock is active, so it does not
+    /// cover the tooltip or context menus, which must stay above the dock.
     /// </summary>
     private void MaintainZOrder()
     {
@@ -766,8 +766,8 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     private void MainWindow_Activated(object? sender, EventArgs e)
     {
-        // Activar el dock (por ejemplo al hacer clic en un icono) lo sube al frente de la banda
-        // topmost, lo que dejaría al dock por encima de la barra de tareas: se recoloca de inmediato.
+        // Activating the dock (for example by clicking an icon) raises it to the front of the
+        // topmost band, which would put the dock above the taskbar: it is placed back immediately.
         if (IsBehindTaskbarMode)
         {
             Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(ApplyZOrder));
@@ -786,10 +786,10 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     }
 
     /// <summary>
-    /// Calcula la posición de la ventana y el desplazamiento del contenido dentro de ella.
-    /// La ventana se ancla siempre a la posición visible y nunca sale del monitor asignado, para que
-    /// Windows no le reasigne el DPI de un monitor vecino; ocultar/mostrar el dock solo mueve el
-    /// contenido, y lo que queda fuera de la ventana es exactamente la parte oculta.
+    /// Computes the window position and the content offset inside it.
+    /// The window always stays anchored at the visible position and never leaves the assigned monitor, so
+    /// Windows does not reassign it the DPI of a neighboring monitor; showing or hiding the dock only moves
+    /// the content, and what falls outside the window is exactly the hidden part.
     /// </summary>
     private void GetDockLayout(out double windowLeft, out double windowTop, out double contentOffsetX, out double contentOffsetY)
     {
@@ -858,7 +858,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                 break;
         }
 
-        // Acotar el frame al área de trabajo del monitor asignado (evita salir a monitores adyacentes).
+        // Clamp the frame to the assigned monitor's work area (keeps it off adjacent monitors).
         if (hidden)
         {
             return;
@@ -878,7 +878,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         return monitorOriginDip + DockMetrics.SnapLogicalToWholePhysical(valueDip - monitorOriginDip);
     }
 
-    /// <summary>Limita el dibujado del dock estrictamente a los límites del monitor asignado.</summary>
+    /// <summary>Clips dock drawing strictly to the assigned monitor's bounds.</summary>
     private void UpdateMonitorClip()
     {
         if (!IsLoaded || double.IsNaN(Left) || double.IsNaN(Top) || ActualWidth <= 0 || ActualHeight <= 0)
@@ -1034,7 +1034,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     private void Window_DragOver(object sender, WpfDragEventArgs e) => RevealForDrag(e);
 
-    /// <summary>Muestra el dock oculto cuando se arrastra un archivo o acceso directo hacia él.</summary>
+    /// <summary>Shows the hidden dock when a file or shortcut is dragged toward it.</summary>
     private void RevealForDrag(WpfDragEventArgs e)
     {
         if (!_isHiddenByAutohide || !e.Data.GetDataPresent(WpfDataFormats.FileDrop))
@@ -1454,7 +1454,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             menuItem.Header = LocalizationService.Get(Config.Language, "RemoveDockItem");
         }
 
-        // Reconstruir las opciones de icono personalizado (evita duplicados al reabrir).
+        // Rebuild the custom-icon options (avoids duplicates when the menu opens again).
         for (var i = element.ContextMenu.Items.Count - 1; i >= 1; i--)
         {
             element.ContextMenu.Items.RemoveAt(i);
@@ -1544,9 +1544,9 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     }
 
     /// <summary>
-    /// El nombre de la app debe ser siempre el elemento superior del dock. Con AlwaysOnTop activo el
-    /// dock comparte la banda topmost con el popup, así que se eleva el tooltip y, además, se baja
-    /// explícitamente el dock justo por debajo de él en lugar de reordenar toda la banda.
+    /// The app name must always be the topmost element of the dock. With AlwaysOnTop on, the
+    /// dock shares the topmost band with the popup, so the tooltip is raised and the dock is
+    /// also explicitly lowered just below it instead of reordering the whole band.
     /// </summary>
     private void DockItemToolTip_Opened(object sender, RoutedEventArgs e)
     {
@@ -1564,8 +1564,8 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
         SetDockWindowZOrder(source.Handle, User32.HWND_TOPMOST);
 
-        // Con «detrás de la barra de tareas» el dock ya está por debajo del shell (y del tooltip),
-        // así que no se toca su posición para no sacarlo de ahí.
+        // With "behind the taskbar" the dock is already below the shell (and the tooltip),
+        // so its position is left alone to keep it there.
         if (IsBehindTaskbarMode)
         {
             return;
@@ -1629,7 +1629,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         return true;
     }
 
-    /// <summary>Agrega accesos directos al dock desde rutas elegidas en el explorador (mismas reglas que drag &amp; drop).</summary>
+    /// <summary>Adds shortcuts to the dock from paths chosen in Explorer (same rules as drag and drop).</summary>
     public void AddShortcutsFromPaths(IEnumerable<string> paths)
     {
         var added = false;
@@ -1854,7 +1854,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     private void ApplyDockItemContextMenuTheme(ContextMenu contextMenu)
     {
-        // Idempotente: este método se ejecuta cada vez que se abre el menú.
+        // Idempotent: this method runs every time the menu opens.
         contextMenu.Opened -= DockPopup_Opened;
         contextMenu.Opened += DockPopup_Opened;
         contextMenu.Closed -= DockPopup_Closed;
@@ -1890,7 +1890,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private const double EdgeTouchDistance = 4.0;
     private const double EdgeRevealSpanPadding = 10.0;
 
-    /// <summary>Ticks del tracker (~30 fps en idle) entre reafirmaciones del Z-order.</summary>
+    /// <summary>Tracker ticks (~30 fps when idle) between Z-order reassertions.</summary>
     private const int ZOrderReassertIntervalTicks = 30;
 
     private void PointerTrackerTimer_Tick(object? sender, EventArgs e)
@@ -1918,8 +1918,8 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
         var pointerScreen = new WpfPoint(Left + pointerWindow.X, Top + pointerWindow.Y);
 
-        // "No mostrar sobre apps en pantalla completa": aplica con o sin autohide y con o sin
-        // AlwaysOnTop, pero solo mientras la app fullscreen tenga el foco.
+        // "Don't show over fullscreen apps": applies with or without autohide and with or without
+        // AlwaysOnTop, but only while the fullscreen app has focus.
         UpdateFullscreenSuppression();
         if (_hiddenByFullscreen)
         {
@@ -2036,7 +2036,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                 return false;
             }
 
-            // El escritorio y la barra de tareas también cubren el monitor; no son apps fullscreen.
+            // The desktop and the taskbar also cover the monitor; they are not fullscreen apps.
             if (IsShellWindowClass(foreground))
             {
                 return false;
@@ -2057,10 +2057,10 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                 return false;
             }
 
-            // Cubrir el monitor no basta: una ventana maximizada también lo hace cuando la barra de
-            // tareas se oculta o cuando el dock reserva espacio, y no debe ocultar el dock. Cuenta
-            // como fullscreen real si no tiene marco de ventana (fullscreen exclusivo o borderless)
-            // o si el propio shell reporta una app a pantalla completa (por ejemplo F11).
+            // Covering the monitor is not enough: a maximized window does that too when the taskbar
+            // is hidden or when the dock reserves space, and it must not hide the dock. It counts
+            // as real fullscreen if it has no window frame (exclusive fullscreen or borderless)
+            // or if the shell itself reports a fullscreen app (for example F11).
             return IsBorderlessWindow(foreground) || Shell32.IsShellReportingFullscreenApp();
         }
         catch
@@ -2088,7 +2088,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     }
 
     /// <summary>
-    /// Sin modo condicional se conserva el autohide normal; si hay uno activo, debe cumplirse.
+    /// Without a conditional mode, normal autohide is kept; if one is active, it must be satisfied.
     /// </summary>
     private bool ShouldAutohideHideForWindows()
     {
@@ -2143,7 +2143,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             return false;
         }
 
-        // Los popups y otros docks del mismo proceso no son ventanas que deban ocultarnos.
+        // Popups and other docks in the same process are not windows that should hide us.
         if ((User32.GetWindowLong(hwnd, User32.GWL_EXSTYLE) & User32.WS_EX_TOOLWINDOW) != 0)
         {
             User32.GetWindowThreadProcessId(hwnd, out var processId);
@@ -2161,7 +2161,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     private Rect GetVisibleDockBounds()
     {
-        // Medir siempre la posición de reposo evita alternar mostrar/ocultar durante el deslizamiento.
+        // Always measuring the resting position avoids toggling show/hide during the slide.
         GetFrameTargetPosition(ActiveWorkArea, DockFrameWidth, DockFrameHeight, hidden: false,
             out var frameLeft, out var frameTop);
         var frameOffsetX = ResolveAlignedOffset(Width, DockFrameWidth, DockFrameHorizontalAlignment);
@@ -2265,7 +2265,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     }
 
     // ---------------------------------------------------------------------
-    // Hotkeys globales
+    // Global hotkeys
     // ---------------------------------------------------------------------
 
     private void RegisterHotkeys()
@@ -2278,7 +2278,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
         UnregisterHotkeys();
 
-        // Con autohide el dock lo gobierna el puntero: la combinación se guarda, pero no se registra.
+        // With autohide the pointer owns the dock: the shortcut is saved, but it is not registered.
         if (!Config.AutoHide && Config.ShowHideHotkey.IsAssigned)
         {
             User32.RegisterHotKey(hwnd, HotkeyShowHideId,
@@ -2344,7 +2344,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     }
 
     /// <summary>
-    /// Muestra el dock sin alternar su estado (misma acción que «Show Dock» del menú de la bandeja).
+    /// Shows the dock without toggling its state (same action as "Show Dock" in the tray menu).
     /// </summary>
     public void ShowDock()
     {
@@ -2367,10 +2367,10 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     }
 
     // ---------------------------------------------------------------------
-    // Reserva de área de trabajo (AppBar, estilo barra de tareas)
+    // Work-area reservation (AppBar, taskbar style)
     // ---------------------------------------------------------------------
 
-    /// <summary>Devuelve true si la reserva cambió, para releer el área de trabajo antes de posicionar.</summary>
+    /// <summary>Returns true if the reservation changed, so the work area is read again before placement.</summary>
     private bool UpdateAppBarReservation()
     {
         var shouldReserve = Config.ReserveWorkArea && !Config.AutoHide && !Config.DockDisabled;
@@ -2406,7 +2406,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             scale = 1.0;
         }
 
-        // El grosor del dock es siempre Dock Height: horizontal en Top/Bottom, ancho en Left/Right.
+        // Dock thickness is always Dock Height: horizontal on Top/Bottom, width on Left/Right.
         var thicknessPx = (int)Math.Round((IsVerticalDock ? DockFrameWidth : DockFrameHeight) * scale);
 
         var edge = Config.Edge switch
@@ -2443,8 +2443,8 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
         _reservedEdge = Config.Edge;
 
-        // Sin este corte, cada ABM_SETPOS provoca un WM_SETTINGCHANGE que vuelve a recalcular el
-        // layout y a reservar, en bucle.
+        // Without this cutoff, every ABM_SETPOS raises a WM_SETTINGCHANGE that recomputes the
+        // layout and reserves again, in a loop.
         if (_appBarPositionApplied &&
             !justRegistered &&
             _requestedAppBarEdge == edge &&
@@ -2464,9 +2464,9 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         data.rc = rc;
         Shell32.SHAppBarMessage(Shell32.ABM_QUERYPOS, ref data);
 
-        // ABM_QUERYPOS recorta el lado libre contra la barra de tareas y otras appbars en lugar de
-        // desplazar el rectángulo, así que puede devolverlo con grosor 0 (y entonces no se reserva
-        // nada). Hay que reponer el grosor sobre el borde ya ajustado antes de ABM_SETPOS.
+        // ABM_QUERYPOS clips the free side against the taskbar and other appbars instead of
+        // shifting the rectangle, so it can return a thickness of 0 (and then nothing is
+        // reserved). The thickness must be restored on the already-adjusted edge before ABM_SETPOS.
         var granted = data.rc;
         switch (Config.Edge)
         {
@@ -2494,9 +2494,9 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     }
 
     /// <summary>
-    /// Fuerza recalcular la reserva cuando el área de trabajo cambia por causas externas (la barra de
-    /// tareas se mueve, otra app reserva espacio). La ventana temporal evita realimentarse con el
-    /// WM_SETTINGCHANGE que provoca nuestro propio ABM_SETPOS.
+    /// Forces the reservation to be recomputed when the work area changes for an external reason (the
+    /// taskbar moves, another app reserves space). The time window avoids feeding back on the
+    /// WM_SETTINGCHANGE raised by our own ABM_SETPOS.
     /// </summary>
     private void InvalidateAppBarPosition()
     {
@@ -2535,7 +2535,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         return true;
     }
 
-    /// <summary>Genera un informe de diagnóstico (config, monitores, DPI, áreas de trabajo, estado).</summary>
+    /// <summary>Builds a diagnostic report (config, monitors, DPI, work areas, state).</summary>
     public string BuildDiagnosticReport()
     {
         var sb = new System.Text.StringBuilder();

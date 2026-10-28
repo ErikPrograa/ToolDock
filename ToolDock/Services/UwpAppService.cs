@@ -10,8 +10,8 @@ namespace ToolDock.Services;
 public sealed record UwpApp(string Name, string Aumid);
 
 /// <summary>
-/// Soporte para aplicaciones UWP / Microsoft Store: enumeración (carpeta de aplicaciones del shell),
-/// lanzamiento por AppUserModelID e icono del paquete (IShellItemImageFactory).
+/// Support for UWP / Microsoft Store apps: enumeration (shell applications folder),
+/// launch by AppUserModelID, and package icon (IShellItemImageFactory).
 /// </summary>
 public static class UwpAppService
 {
@@ -68,7 +68,7 @@ public static class UwpAppService
                     string aumid = item.Path;
                     if (!string.IsNullOrWhiteSpace(aumid) && aumid.Contains('!'))
                     {
-                        // Solo apps empaquetadas (AUMID contiene '!'): excluye accesos Win32 clásicos.
+                        // Packaged apps only (AUMID contains '!'): excludes classic Win32 shortcuts.
                         apps.Add(new UwpApp(name, aumid));
                     }
                 }

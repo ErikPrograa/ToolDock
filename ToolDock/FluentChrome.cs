@@ -2,7 +2,7 @@ using System.Windows;
 
 namespace ToolDock;
 
-/// <summary>Marcas visuales (icono Fluent y estado activo) que no alteran la lógica de los controles.</summary>
+/// <summary>Visual marks (Fluent icon and active state) that do not change control logic.</summary>
 public static class FluentChrome
 {
     public static readonly DependencyProperty IconProperty = DependencyProperty.RegisterAttached(

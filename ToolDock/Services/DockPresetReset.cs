@@ -3,7 +3,7 @@ using ToolDock.Models;
 namespace ToolDock.Services;
 
 /// <summary>
-/// Aplica el preset "Default" al <see cref="DockConfig"/> como el botón «Restablecer todo a predeterminado» en Configuración.
+/// Applies the "Default" preset to <see cref="DockConfig"/> the same way as the "Reset everything to default" button in Settings.
 /// </summary>
 public static class DockPresetReset
 {

@@ -15,7 +15,7 @@ public sealed class CustomColorService
 
     public string ColorsPath { get; }
 
-    /// <summary>True si el archivo existe pero no se pudo leer. No hay que sustituir los colores activos.</summary>
+    /// <summary>True if the file exists but could not be read. Active colors must not be replaced.</summary>
     public bool LastLoadFailed { get; private set; }
 
     public CustomColorService()

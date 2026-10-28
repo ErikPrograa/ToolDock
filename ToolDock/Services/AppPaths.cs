@@ -3,9 +3,9 @@ using System.IO;
 namespace ToolDock.Services;
 
 /// <summary>
-/// Carpeta de datos junto al ejecutable. En el .exe de un solo archivo no se usa el
-/// directorio temporal de extracción: si cambiara en cada arranque, la app crearía un
-/// config.json nuevo con valores por defecto.
+/// Data folder next to the executable. The single-file .exe does not use the extraction
+/// temp directory: if that path changed on every launch, the app would create a new
+/// config.json with default values.
 /// </summary>
 public static class AppPaths
 {

@@ -8,7 +8,7 @@ using ToolDock.Interop;
 namespace ToolDock.Services;
 
 /// <summary>
-/// Icono de bandeja vía <c>Shell_NotifyIcon</c>, sin arrastrar WinForms.
+/// Tray icon via <c>Shell_NotifyIcon</c>, without pulling in WinForms.
 /// </summary>
 internal sealed class NativeTrayIcon : IDisposable
 {

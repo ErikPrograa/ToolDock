@@ -161,8 +161,8 @@ public partial class SettingsWindow : Window, INotifyPropertyChanged
 
     private void ApplyPercentSliderRanges()
     {
-        // Las medidas de tamaño ahora son px lógicos; los Min/Max se enlazan en XAML. Solo fijamos
-        // el valor por defecto (Tag) usado al hacer doble clic en el slider.
+        // Size measurements are now logical px; Min/Max are bound in XAML. Only the
+        // default value (Tag) used on slider double-click is set here.
         DockHeightSlider.Tag = DockConfig.GetDockHeightDefault().ToString(CultureInfo.InvariantCulture);
         IconSizeSlider.Tag = DockConfig.GetIconSizeDefault().ToString(CultureInfo.InvariantCulture);
         IconSpacingSlider.Tag = DockConfig.GetIconSpacingDefault().ToString(CultureInfo.InvariantCulture);
@@ -201,7 +201,7 @@ public partial class SettingsWindow : Window, INotifyPropertyChanged
         DetailsScreenResolution.Text = FormatScreenResolutionLine();
         DetailsDpi.Text = $"{EffectiveDpiX:0.#} dpi — {LocalizationService.Get(l, "DpiEffective")}";
 
-        // Las filas antes en % ahora muestran la equivalencia en píxeles reales (físicos según DPI).
+        // Rows that used to be in % now show the equivalent in real pixels (physical, by DPI).
         DetailsDockWidthPercent.Text = Real(Config.DockWidth);
         DetailsDockHeightPercent.Text = Real(Config.DockHeight);
         DetailsIconSizePercent.Text = Real(Config.IconSize);
@@ -341,7 +341,7 @@ public partial class SettingsWindow : Window, INotifyPropertyChanged
         System.Windows.Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
 
     // ---------------------------------------------------------------------
-    // Selector de monitor
+    // Monitor picker
     // ---------------------------------------------------------------------
 
     private bool _suppressMonitorSelection;
@@ -519,7 +519,7 @@ public partial class SettingsWindow : Window, INotifyPropertyChanged
     }
 
     // ---------------------------------------------------------------------
-    // Agregar accesos directos
+    // Add shortcuts
     // ---------------------------------------------------------------------
 
     private void AddShortcutButton_Click(object sender, RoutedEventArgs e)
@@ -559,7 +559,7 @@ public partial class SettingsWindow : Window, INotifyPropertyChanged
     }
 
     // ---------------------------------------------------------------------
-    // Registro detallado
+    // Detailed log
     // ---------------------------------------------------------------------
 
     private void GenerateDetailedLogButton_Click(object sender, RoutedEventArgs e)
@@ -1054,7 +1054,7 @@ public partial class SettingsWindow : Window, INotifyPropertyChanged
                 .FirstOrDefault(item => item.Tag is string tag && string.Equals(tag, nameToSelect, StringComparison.OrdinalIgnoreCase));
             if (match is null)
             {
-                // El archivo de presets no se pudo leer: conservar el nombre guardado en pantalla.
+                // The presets file could not be read: keep the name shown on screen.
                 match = new ComboBoxItem
                 {
                     Content = nameToSelect,
@@ -1654,8 +1654,8 @@ public partial class SettingsWindow : Window, INotifyPropertyChanged
             return true;
         }
 
-        // Sin lista cargada no hay que tratar el preset recordado como inválido: Restablecer
-        // acabaría aplicando Default y guardando esos valores.
+        // Without a loaded list the remembered preset must not be treated as invalid: Reset
+        // would apply Default and save those values.
         return _presetService.LastLoadFailed &&
                (string.Equals(presetName, _selectedPresetName, StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(presetName, _lastNonCustomPresetName, StringComparison.OrdinalIgnoreCase));
@@ -2483,8 +2483,8 @@ public partial class SettingsWindow : Window, INotifyPropertyChanged
 
     private void SyncTextBoxWithSlider(WpfTextBox textBox, NumericBinding binding, bool force = false)
     {
-        // No pisar el texto mientras el usuario lo edita; las sincronizaciones de fondo
-        // (presets, recargas, cambios de otros controles) esperan a que pierda el foco.
+        // Do not overwrite the text while the user is editing it; background syncs
+        // (presets, reloads, changes from other controls) wait until it loses focus.
         if (!force && textBox.IsKeyboardFocusWithin)
         {
             return;

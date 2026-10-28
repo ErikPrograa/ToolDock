@@ -41,8 +41,8 @@
         </Style>
     </Window.Resources>
     <!--
-        La ventana siempre se mantiene dentro del monitor asignado; el desplazamiento del dock
-        (autohide y compensación de recorte) se aplica sobre este contenedor, no moviendo la ventana.
+        The window always stays inside the assigned monitor; dock movement
+        (autohide and clip compensation) is applied to this container, not by moving the window.
     -->
     <Grid x:Name="DockRoot" ClipToBounds="False">
         <Grid.RenderTransform>
@@ -58,10 +58,10 @@
                 CornerRadius="{Binding DockCornerRadius}"
                 Background="{Binding DockBackgroundBrush}">
             <!--
-                El contorno vive en su propia capa sin redondeo de layout: así admite grosores
-                fraccionarios (por debajo de 1 px lógico), que WPF colapsaría a 0 px si los
-                redondeara. El marco ya está ajustado a píxeles físicos enteros, así que el trazo
-                sigue apoyándose en bordes alineados y a 1 px se dibuja nítido.
+                The outline lives on its own layer without layout rounding, so it can use fractional
+                thicknesses (below 1 logical px) that WPF would collapse to 0 px if it rounded
+                them. The frame is already snapped to whole physical pixels, so the stroke
+                still sits on aligned edges and draws sharp at 1 px.
             -->
             <Border x:Name="DockOutline"
                     SnapsToDevicePixels="False"

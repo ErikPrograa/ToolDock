@@ -6,7 +6,7 @@ using ToolDock.Models;
 
 namespace ToolDock.Services;
 
-/// <summary>Estilo compartido de los menús contextuales del dock y de la bandeja.</summary>
+/// <summary>Shared style for the dock and tray context menus.</summary>
 internal static class DockContextMenuTheme
 {
     public static void Apply(ContextMenu contextMenu, AppTheme theme)

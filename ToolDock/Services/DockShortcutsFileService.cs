@@ -23,7 +23,7 @@ public static class DockShortcutsFileService
         File.WriteAllText(path, json);
     }
 
-    /// <summary><paramref name="errorKey"/> es clave de localización si falla.</summary>
+    /// <summary><paramref name="errorKey"/> is a localization key when this fails.</summary>
     public static bool TryLoad(string json, out DockShortcutsFileExport? export, out string? errorKey)
     {
         export = null;

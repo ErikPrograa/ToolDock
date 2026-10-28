@@ -22,7 +22,7 @@
     <SelfContained>true</SelfContained>
     <PublishSingleFile>true</PublishSingleFile>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-    <!-- Comprimir el bundle obliga a descomprimir ensamblados en RAM privada. -->
+    <!-- Compressing the bundle forces assemblies to be decompressed into private RAM. -->
     <EnableCompressionInSingleFile>false</EnableCompressionInSingleFile>
     <PublishReadyToRun>true</PublishReadyToRun>
     <DebugType>none</DebugType>

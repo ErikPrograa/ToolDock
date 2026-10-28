@@ -13,7 +13,7 @@ internal static class User32
     public const uint SWP_NOACTIVATE = 0x0010;
     public const uint SWP_FRAMECHANGED = 0x0020;
 
-    // Estilos de ventana
+    // Window styles
     public const int GWL_STYLE = -16;
     public const int GWL_EXSTYLE = -20;
     public const int WS_CAPTION = 0x00C00000;
@@ -90,7 +90,7 @@ internal static class User32
     private const int DwmwaCaptionColor = 35;
     private const int DwmwaTextColor = 36;
 
-    /// <summary>Iguala la barra de título al lienzo Fluent, sin cambiar el comportamiento de la ventana.</summary>
+    /// <summary>Matches the title bar to the Fluent canvas without changing window behavior.</summary>
     public static void ApplyCaptionTheme(IntPtr hwnd, bool dark)
     {
         if (hwnd == IntPtr.Zero)
@@ -110,7 +110,7 @@ internal static class User32
         }
         catch
         {
-            // dwmapi puede no exponer el color de caption en builds antiguos.
+            // dwmapi may not expose the caption color on older builds.
         }
     }
 
@@ -132,7 +132,7 @@ internal static class User32
     {
         try
         {
-            // DWM excluye los bordes invisibles de redimensionado que devuelve GetWindowRect.
+            // DWM excludes the invisible resize borders that GetWindowRect returns.
             if (DwmGetWindowAttribute(hwnd, DwmwaExtendedFrameBounds, out rect, Marshal.SizeOf<RECT>()) == 0 &&
                 rect.Width > 0 && rect.Height > 0)
             {
@@ -141,7 +141,7 @@ internal static class User32
         }
         catch
         {
-            // Usar el rectángulo Win32 si DWM no está disponible.
+            // Use the Win32 rectangle when DWM is unavailable.
         }
 
         return GetWindowRect(hwnd, out rect);

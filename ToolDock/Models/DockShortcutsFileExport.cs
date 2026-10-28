@@ -1,13 +1,13 @@
 namespace ToolDock.Models;
 
-/// <summary>Formato Shortcuts_TD.json: solo iconos del dock (rutas a .exe/.lnk), sin ajustes de UI ni presets.</summary>
+/// <summary>Shortcuts_TD.json format: dock icons only (paths to .exe/.lnk), no UI settings or presets.</summary>
 public sealed class DockShortcutsFileExport
 {
     public const int CurrentSchemaVersion = 1;
 
     public int SchemaVersion { get; set; } = CurrentSchemaVersion;
 
-    /// <summary>Rutas y nombres mostrados; el dock solo carga archivos que existan.</summary>
+    /// <summary>Paths and display names; the dock only loads files that exist.</summary>
     public List<DockItemConfig> Items { get; set; } = [];
 
     public static DockShortcutsFileExport FromConfig(DockConfig config) =>
