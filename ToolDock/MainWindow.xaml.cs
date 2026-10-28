@@ -2278,8 +2278,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
         UnregisterHotkeys();
 
-        // Con autohide el dock lo gobierna la proximidad del puntero: el atajo de mostrar/ocultar
-        // queda deshabilitado por completo, no solo su configuración.
+        // Con autohide el dock lo gobierna el puntero: la combinación se guarda, pero no se registra.
         if (!Config.AutoHide && Config.ShowHideHotkey.IsAssigned)
         {
             User32.RegisterHotKey(hwnd, HotkeyShowHideId,

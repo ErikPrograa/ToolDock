@@ -749,10 +749,12 @@
                             <Border Style="{StaticResource SettingsCard}">
                                 <StackPanel>
                             <TextBlock x:Name="HotkeysSectionLabel" Style="{StaticResource CardTitle}" />
-                            <DockPanel Margin="0,2,0,8"
-                                       IsEnabled="{Binding IsShowHideHotkeyEnabled}"
-                                       Style="{StaticResource RowDimWhenDisabled}">
-                                <TextBlock x:Name="HotkeyShowHideLabel" DockPanel.Dock="Left" VerticalAlignment="Center" />
+                            <DockPanel Margin="0,2,0,8">
+                                <TextBlock x:Name="HotkeyShowHideLabel"
+                                           DockPanel.Dock="Left"
+                                           VerticalAlignment="Center"
+                                           IsEnabled="{Binding IsShowHideHotkeyEnabled}"
+                                           Style="{StaticResource RowDimWhenDisabled}" />
                                 <Button x:Name="HotkeyShowHideClearButton" DockPanel.Dock="Right" Margin="6,0,0,0" Padding="8,2" Click="HotkeyClear_Click" Tag="ShowHide" chrome:FluentChrome.Icon="&#xE74D;" />
                                 <Button x:Name="HotkeyShowHideButton" HorizontalAlignment="Stretch" Margin="8,0,0,0" Padding="8,2" Click="HotkeyCapture_Click" Tag="ShowHide" />
                             </DockPanel>
