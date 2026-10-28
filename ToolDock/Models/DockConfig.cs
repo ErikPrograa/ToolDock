@@ -141,7 +141,7 @@ public sealed class DockConfig : INotifyPropertyChanged
     private bool _alwaysOnTop = true;
     private bool _hideBehindTaskbar;
     private bool _reserveWorkArea;
-    private bool _doNotShowOverFullscreen;
+    private bool _doNotShowOverFullscreen = true;
     private bool _openAppsOnDockMonitor;
     private bool _hideWhenMaximized;
     private bool _hideWhenWindowIntersects;
@@ -857,7 +857,7 @@ public sealed class DockConfig : INotifyPropertyChanged
         AlwaysOnTop = true;
         HideBehindTaskbar = false;
         ReserveWorkArea = false;
-        DoNotShowOverFullscreen = false;
+        DoNotShowOverFullscreen = true;
         OpenAppsOnDockMonitor = false;
         HideWhenMaximized = false;
         HideWhenWindowIntersects = false;

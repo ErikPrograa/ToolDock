@@ -125,6 +125,7 @@ internal static class Program
         config.ResetBehaviour();
         Check(!config.AutoHide && !config.HideWhenWindowIntersects, "Behaviour reset clears the new option");
         Check(!DockPresetData.CreateDefault().HideWhenWindowIntersects, "Default presets preserve previous behaviour");
+        Check(new DockConfig().DoNotShowOverFullscreen && DockPresetData.CreateDefault().DoNotShowOverFullscreen, "Fullscreen suppression is on by default");
     }
 
     private static void ConfigurationRoundtrip()

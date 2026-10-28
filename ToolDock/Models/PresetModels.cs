@@ -107,7 +107,7 @@ public sealed class DockPresetData
             AlwaysOnTop = true,
             HideBehindTaskbar = false,
             ReserveWorkArea = false,
-            DoNotShowOverFullscreen = false,
+            DoNotShowOverFullscreen = true,
             OpenAppsOnDockMonitor = false,
             HideWhenMaximized = false,
             HideWhenWindowIntersects = false,
