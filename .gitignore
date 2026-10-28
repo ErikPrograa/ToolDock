@@ -48,3 +48,6 @@ coverage/
 
 # Keep portable app config out of repo by default
 config.json
+
+# Local Graphify analysis artifacts
+/graphify-out/

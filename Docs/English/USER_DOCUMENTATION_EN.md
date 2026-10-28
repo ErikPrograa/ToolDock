@@ -32,7 +32,7 @@ The interface language is under **General**. The factory default is English with
 
 Left-click an icon. If the path no longer exists, ToolDock reports that and does not launch it.
 
-With **Open apps on the dock's monitor** (Behaviour), ToolDock tries to move the new window onto the monitor that holds the dock. Windows picks a monitor when the process starts; the move happens afterwards and is not always possible, especially for Store apps.
+With **Open apps on the dock's display** (Behaviour), ToolDock tries to move the new window onto the display that holds the dock. Windows picks a display when the process starts; the move happens afterwards and is not always possible, especially for Store apps.
 
 ### Adding shortcuts
 
@@ -75,7 +75,7 @@ Left-click opens **Hotkeys**. Right-click opens the menu:
 | Item | What it does |
 |---|---|
 | Settings | Opens the settings window |
-| Show dock | Shows the dock and brings it forward |
+| Set on top | Shows the dock and brings it forward |
 | Disable dock | Hides it for this session only. It comes back the next time you start the app |
 | Reload dock | Reloads icons, DPI, and position without exiting |
 | Reload app | Saves, exits, and starts ToolDock again (settings open on startup) |
@@ -108,7 +108,7 @@ Summarizes usage, lists the configuration files, and shows how to start with Win
 - **Language:** Spanish or English. Tray text follows the same choice.
 - **Dark mode:** theme for Settings and menus. The dock's own color is chosen under Appearance.
 - **Disable dock:** same as the tray item. It is not saved: the dock is active again after a restart.
-- **Monitor:** which display the dock anchors to. **Default (primary)** follows the primary monitor.
+- **Display:** which display the dock anchors to. **Default (primary)** follows the primary display.
 - **Configuration presets:** see [Presets](#presets).
 
 ### Hotkeys
@@ -118,7 +118,7 @@ Three global hotkeys. Click the button, then press the combination (Ctrl, Alt, S
 | Hotkey | Effect |
 |---|---|
 | Show/hide dock | Toggles visibility |
-| Bring dock forward | Same as tray **Show dock** |
+| Set dock on top | Same as tray **Set on top** |
 | Disable dock | Toggles the session-only disabled state |
 
 If another program already registered the same combination, ToolDock cannot take it. The show/hide control is dimmed in that case.
@@ -168,9 +168,9 @@ Type a HEX color (`#RRGGBB` or `#RGB`; a missing `#` is added), give it a name, 
 | Option | Effect |
 |---|---|
 | Always on top | The dock stays above normal windows |
-| Open apps on the dock's monitor | Tries to move the launched window to the dock's monitor |
+| Open apps on the dock's display | Tries to move the launched window to the dock's display |
 | Autohide | The dock slides into its edge and comes back according to the chosen mode |
-| Hide when a window is maximized | With autohide on, the dock stays visible unless a window is maximized on its monitor |
+| Hide when a window is maximized | With autohide on, the dock stays visible unless a window is maximized on its display |
 | Hide behind the taskbar | Available only when autohide and always-on-top are both on |
 | Reserve work-area space | Windows treats the dock like a bar: maximized windows do not cover it. Cannot be combined with autohide |
 | Do not show over fullscreen apps | The dock is not drawn over a fullscreen program |
@@ -184,14 +184,14 @@ With autohide on you can also set:
 
 ### Details
 
-Read-only. For the current monitor and DPI it shows the effective dock, icon, and hover sizes, plus the work area and resolution.
+Read-only. For the current display and DPI it shows the effective dock, icon, and hover sizes, plus the work area and resolution.
 
 ### Troubleshooting
 
 | Action | What it changes |
 |---|---|
 | Open program folder | Opens the `.exe` folder in File Explorer |
-| Generate detailed log | Writes a `.txt` with configuration, monitors, DPI, and dock state, for a bug report |
+| Generate detailed log | Writes a `.txt` with configuration, displays, DPI, and dock state, for a bug report |
 | Delete all custom colors | Removes `Colors_TD.json`. Built-in colors stay |
 | Delete all custom presets | Removes `Presets_TD.json` and applies the Default preset |
 | Soft reset | Applies defaults, saves, exits, and applies defaults once more on the next start |
@@ -252,6 +252,6 @@ If you want it at sign-in:
 - Aimed at Windows 11.
 - Dropped files must be `.exe` or `.lnk`. Anything else is ignored. Store apps are added from the UWP picker.
 - Visual effects and the thin outline depend on DPI and on how Windows composes the desktop.
-- Moving an app to the dock's monitor is not guaranteed: some windows choose their own monitor.
+- Moving an app to the dock's display is not guaranteed: some windows choose their own monitor.
 - **Disable dock** lasts only until you exit.
 - A “pin settings to a quick-access panel” feature exists in the code, but it is hidden in the interface.

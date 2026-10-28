@@ -172,7 +172,6 @@ This is not a commitment. It is what the code still leaves open:
 - `DockLaunchPlacement` is heuristic: not every app can be moved.
 - Hover has no configurable easing; scale is assigned on mouse move.
 - The repository has no automated test suite.
-- There is no `LICENSE` file.
 
 ## How to extend this log
 

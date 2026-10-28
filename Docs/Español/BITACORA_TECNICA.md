@@ -172,7 +172,6 @@ No es un compromiso de roadmap. Es lo que el código deja abierto:
 - `DockLaunchPlacement` es heurístico: no todas las apps se dejan mover.
 - El efecto hover no tiene easing configurable; la escala se asigna en el movimiento del ratón.
 - No hay batería de pruebas automatizadas en el repositorio.
-- No hay archivo `LICENSE`.
 
 ## Cómo seguir esta bitácora
 
