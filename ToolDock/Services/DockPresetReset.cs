@@ -73,6 +73,7 @@ public static class DockPresetReset
             DoNotShowOverFullscreen = source.DoNotShowOverFullscreen,
             OpenAppsOnDockMonitor = source.OpenAppsOnDockMonitor,
             HideWhenMaximized = source.HideWhenMaximized,
+            HideWhenWindowIntersects = source.HideWhenWindowIntersects,
             DataSchemaVersion = source.DataSchemaVersion
         };
     }

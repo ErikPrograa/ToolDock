@@ -104,7 +104,7 @@ public partial class SettingsWindow : Window, INotifyPropertyChanged
         DockMetrics.LogicalToCm(DockConfig.GetHoverRadiusMin());
 
     public double HoverRadiusMaxCm =>
-        DockMetrics.LogicalToCm(Math.Min(DockConfig.GetHoverRadiusHardMax(), Config.AutoHideProximityDistance));
+        DockMetrics.LogicalToCm(DockConfig.GetHoverRadiusHardMax());
 
     public double AutoHideProximityMinCm =>
         DockMetrics.LogicalToCm(DockConfig.GetAutoHideProximityDistanceMin());
@@ -283,9 +283,6 @@ public partial class SettingsWindow : Window, INotifyPropertyChanged
         }
         else if (e.PropertyName is nameof(DockConfig.AutoHideProximityDistance) or nameof(DockConfig.AutoHideProximityDistanceCm))
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HoverRadiusMaxCm)));
-            HoverRadiusSlider.Minimum = HoverRadiusMinCm;
-            HoverRadiusSlider.Maximum = HoverRadiusMaxCm;
             SyncAllNumericBoxes();
         }
         else if (e.PropertyName == nameof(DockConfig.AutoHideRevealDelayMs))
@@ -1377,6 +1374,7 @@ public partial class SettingsWindow : Window, INotifyPropertyChanged
                a.DoNotShowOverFullscreen == b.DoNotShowOverFullscreen &&
                a.OpenAppsOnDockMonitor == b.OpenAppsOnDockMonitor &&
                a.HideWhenMaximized == b.HideWhenMaximized &&
+               a.HideWhenWindowIntersects == b.HideWhenWindowIntersects &&
                a.RoundedCornerTopLeft == b.RoundedCornerTopLeft &&
                a.RoundedCornerTopRight == b.RoundedCornerTopRight &&
                a.RoundedCornerBottomLeft == b.RoundedCornerBottomLeft &&
@@ -1397,7 +1395,8 @@ public partial class SettingsWindow : Window, INotifyPropertyChanged
                nameof(DockConfig.AutoHideRevealDelayMs) or nameof(DockConfig.AutoHideHideDelayMs) or nameof(DockConfig.AutoHideRevealMode) or
                nameof(DockConfig.AutoHideProximityDistance) or nameof(DockConfig.AlwaysOnTop) or
                nameof(DockConfig.HideBehindTaskbar) or nameof(DockConfig.ReserveWorkArea) or nameof(DockConfig.DoNotShowOverFullscreen) or
-               nameof(DockConfig.OpenAppsOnDockMonitor) or nameof(DockConfig.HideWhenMaximized);
+               nameof(DockConfig.OpenAppsOnDockMonitor) or nameof(DockConfig.HideWhenMaximized) or
+               nameof(DockConfig.HideWhenWindowIntersects);
     }
 
     private static bool IsSizeDetailProperty(string propertyName) =>
@@ -1722,6 +1721,7 @@ public partial class SettingsWindow : Window, INotifyPropertyChanged
             DoNotShowOverFullscreen = source.DoNotShowOverFullscreen,
             OpenAppsOnDockMonitor = source.OpenAppsOnDockMonitor,
             HideWhenMaximized = source.HideWhenMaximized,
+            HideWhenWindowIntersects = source.HideWhenWindowIntersects,
             DataSchemaVersion = source.DataSchemaVersion
         };
     }
@@ -1817,6 +1817,7 @@ public partial class SettingsWindow : Window, INotifyPropertyChanged
                 Config.DoNotShowOverFullscreen = data.DoNotShowOverFullscreen;
                 Config.OpenAppsOnDockMonitor = data.OpenAppsOnDockMonitor;
                 Config.HideWhenMaximized = data.HideWhenMaximized;
+                Config.HideWhenWindowIntersects = data.HideWhenWindowIntersects;
                 break;
         }
     }
@@ -2166,6 +2167,7 @@ public partial class SettingsWindow : Window, INotifyPropertyChanged
         CornerRadiusLabel.Text = LocalizationService.Get(l, "CornerRadius");
         AutohideCheck.Content = LocalizationService.Get(l, "AutoHide");
         HideWhenMaximizedCheck.Content = LocalizationService.Get(l, "HideWhenMaximized");
+        HideWhenWindowIntersectsCheck.Content = LocalizationService.Get(l, "HideWhenWindowIntersects");
         AutoHideRevealModeLabel.Text = LocalizationService.Get(l, "AutoHideRevealMode");
         AutoHideRevealModeEdgeTouchOption.Content = LocalizationService.Get(l, "AutoHideRevealModeEdgeTouch");
         AutoHideRevealModeProximityOption.Content = LocalizationService.Get(l, "AutoHideRevealModeProximity");
@@ -2304,6 +2306,7 @@ public partial class SettingsWindow : Window, INotifyPropertyChanged
         HoverEffectsCheck.Foreground = Foreground;
         AutohideCheck.Foreground = Foreground;
         HideWhenMaximizedCheck.Foreground = Foreground;
+        HideWhenWindowIntersectsCheck.Foreground = Foreground;
         AutoHideSlideCheck.Foreground = Foreground;
         AlwaysOnTopCheck.Foreground = Foreground;
         OpenAppsOnDockMonitorCheck.Foreground = Foreground;

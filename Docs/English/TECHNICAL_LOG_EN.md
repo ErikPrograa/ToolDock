@@ -96,8 +96,8 @@ Ranges enforced by the model (not only by the UI):
 | OutlineThickness | 0.25 | 6 | 1 |
 | OutlineOpacity | 0 | 100 | 20 |
 | HoverMagnification | 0 | 150 | 90 |
-| HoverEffectRadius | 20 | min(400, proximity distance) | 40 |
-| AutoHideProximityDistance | 20 | 400 | 60 |
+| HoverEffectRadius | 20 | 400 | 40 |
+| AutoHideProximityDistance | 1 | 400 | 60 |
 | Offset | −4000 | 4000 | 0 |
 | AlignmentOffset | 0 | 2000 | 0 |
 | Autohide slide | 0 | 1200 ms | 150 |
@@ -109,7 +109,7 @@ Combinations the model rejects outside of load:
 
 - Hide-behind-taskbar requires autohide and always-on-top.
 - Reserving the work area is incompatible with autohide.
-- Hide-when-maximized requires autohide.
+- Hide-when-maximized and hide-when-intersecting require autohide.
 
 Invalid HEX is not applied: `NormalizeColorInput` adds `#` and `IsValidHexColor` accepts `#RGB` or `#RRGGBB`. There is no error state on the text box; the previous value stays.
 
@@ -137,7 +137,9 @@ Z-order (`ApplyZOrder` / `SetDockWindowZOrder`):
 
 Autohide: show and hide timers, edge or proximity mode, optional slide animation. A file drag from Explorer reveals the dock when it is hidden.
 
-Hover is not a `Storyboard`. On `MouseMove`, each icon gets a scale from its distance to the pointer and an offset so growth does not overlap (`UpdateFisheyeScale`). The dynamic radius cap does not exceed the autohide proximity distance.
+`HideWhenMaximized` and `HideWhenWindowIntersects` are mutually exclusive opt-in modes: selecting one clears the other in the model. Legacy configurations and presets with both enabled prefer intersection, regardless of JSON property order. With neither enabled, normal autohide applies. Window detection ignores invisible, minimized, cloaked, and shell windows. Intersection uses the visible dock frame at its resting position, even while its content is hidden or sliding, and compares screen coordinates so it also handles windows spanning displays. Without overlap, this mode keeps the dock visible even if a window is maximized.
+
+Hover is not a `Storyboard`. On `MouseMove`, each icon gets a scale from its distance to the pointer and an offset so growth does not overlap (`UpdateFisheyeScale`). Its radius has a fixed 20–400 DIP range, independent of the 1–400 DIP autohide activation distance, including after loading settings, applying presets, or refreshing DPI metrics.
 
 Launch: `UseShellExecute` for disk paths. UWP uses `shell:AppsFolder\<AUMID>`. When `OpenAppsOnDockMonitor` is on, `DockLaunchPlacement` watches new top-level windows (or the one that becomes foreground) for 5 seconds and moves them to the dock monitor, at most twice per window.
 
@@ -171,7 +173,7 @@ This is not a commitment. It is what the code still leaves open:
 - Invalid HEX has no visual error; the box simply does not apply the change.
 - `DockLaunchPlacement` is heuristic: not every app can be moved.
 - Hover has no configurable easing; scale is assigned on mouse move.
-- The repository has no automated test suite.
+- Focused regression checks are available in `tests/ToolDock.RegressionTests`; interactive checks on real displays remain necessary for window movement and animation.
 
 ## How to extend this log
 
@@ -191,3 +193,12 @@ When a change affects behavior, persistence, or limits, add a dated entry. Do no
 - Files: `README.md`, `Docs/Español/BITACORA_TECNICA.md`, `Docs/Español/DOCUMENTACION_USUARIO.md`, `Docs/English/TECHNICAL_LOG_EN.md`, `Docs/English/USER_DOCUMENTATION_EN.md`. The four markdown files at the repo root were removed. `ToolDock/README.md` is now a pointer so it does not contradict this guide.
 - Risks: none at runtime. Links that pointed at the root markdown files should use `Docs/English/` or `Docs/Español/`.
 - Validation: checked against `DockConfig`, `App.xaml.cs`, `SettingsWindow.xaml`, `LocalizationService`, and the persistence services. The app was not run for this documentation pass.
+
+## 2026-10-28 — Window overlap and independent distances
+
+- Changes: added optional hide-on-intersection alongside hide-on-maximize; lowered activation distance to 1 DIP and removed its cap on hover radius. Both settings keep their own bounds. The configuration and preset schemas stay at version 3; existing files default the new condition to off.
+- Files: configuration and preset models, main/settings windows, Win32 interop, localization, preset reset, and `tests/ToolDock.RegressionTests`.
+- Risks: window geometry across displays and slide animation need interactive checks; overlap must use the resting frame to avoid hide/reveal oscillation.
+- Validation command from the repository root: `dotnet run --project tests/ToolDock.RegressionTests` (no external test packages).
+- Follow-up: made the window conditions mutually exclusive and reordered Behaviour toggles. Regression checks cover switching from either checkbox, legacy conflicting JSON/presets, the requested row order, and maximized windows without intersection.
+- Result: Debug and Release rebuilds passed with 0 warnings and 0 errors; all 8 regression groups passed, including native window filters, condition combinations, edge contact, and stable visible/hidden bounds on all four edges. Mixed-DPI hardware and visual animation remain manual checks.

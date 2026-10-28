@@ -1429,21 +1429,18 @@
                           IsChecked="{Binding Config.AlwaysOnTop}"
                           Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Window}}" />
             </DockPanel>
+            <CheckBox x:Name="DoNotShowOverFullscreenCheck"
+                      Margin="0,2,0,8"
+                      IsChecked="{Binding Config.DoNotShowOverFullscreen}"
+                      Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Window}}" />
             <CheckBox x:Name="OpenAppsOnDockMonitorCheck"
                       Margin="0,2,0,8"
                       IsChecked="{Binding Config.OpenAppsOnDockMonitor}"
                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Window}}" />
-                            <DockPanel Margin="0,2,0,8">
-                                <CheckBox x:Name="AutohideCheck"
-                                          DockPanel.Dock="Left"
-                                          IsChecked="{Binding Config.AutoHide}"
-                                          Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Window}}" />
-                                <Button Style="{StaticResource PinButton}" Click="PinOption_Click" Tag="Pin:AutoHide" />
-                            </DockPanel>
-                            <CheckBox x:Name="HideWhenMaximizedCheck"
+                            <CheckBox x:Name="ReserveWorkAreaCheck"
                                       Margin="0,2,0,8"
-                                      IsEnabled="{Binding Config.AutoHide}"
-                                      IsChecked="{Binding Config.HideWhenMaximized}">
+                                      IsEnabled="{Binding IsReserveWorkAreaEnabled}"
+                                      IsChecked="{Binding Config.ReserveWorkArea}">
                                 <CheckBox.Style>
                                     <Style TargetType="CheckBox" BasedOn="{StaticResource FluentCheckBox}">
                                         <Setter Property="Foreground"
@@ -1456,6 +1453,13 @@
                                     </Style>
                                 </CheckBox.Style>
                             </CheckBox>
+                            <DockPanel Margin="0,2,0,8">
+                                <CheckBox x:Name="AutohideCheck"
+                                          DockPanel.Dock="Left"
+                                          IsChecked="{Binding Config.AutoHide}"
+                                          Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                <Button Style="{StaticResource PinButton}" Click="PinOption_Click" Tag="Pin:AutoHide" />
+                            </DockPanel>
                             <CheckBox x:Name="HideBehindTaskbarCheck"
                                       Margin="0,2,0,8"
                                       IsEnabled="{Binding IsHideBehindTaskbarToggleEnabled}"
@@ -1475,11 +1479,10 @@
                                     </Style>
                                 </CheckBox.Style>
                             </CheckBox>
-
-                            <CheckBox x:Name="ReserveWorkAreaCheck"
+                            <CheckBox x:Name="HideWhenMaximizedCheck"
                                       Margin="0,2,0,8"
-                                      IsEnabled="{Binding IsReserveWorkAreaEnabled}"
-                                      IsChecked="{Binding Config.ReserveWorkArea}">
+                                      IsEnabled="{Binding Config.AutoHide}"
+                                      IsChecked="{Binding Config.HideWhenMaximized}">
                                 <CheckBox.Style>
                                     <Style TargetType="CheckBox" BasedOn="{StaticResource FluentCheckBox}">
                                         <Setter Property="Foreground"
@@ -1492,11 +1495,22 @@
                                     </Style>
                                 </CheckBox.Style>
                             </CheckBox>
-                            <CheckBox x:Name="DoNotShowOverFullscreenCheck"
-                                      Margin="0,2,0,12"
-                                      IsChecked="{Binding Config.DoNotShowOverFullscreen}"
-                                      Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Window}}" />
-
+                            <CheckBox x:Name="HideWhenWindowIntersectsCheck"
+                                      Margin="0,2,0,8"
+                                      IsEnabled="{Binding Config.AutoHide}"
+                                      IsChecked="{Binding Config.HideWhenWindowIntersects}">
+                                <CheckBox.Style>
+                                    <Style TargetType="CheckBox" BasedOn="{StaticResource FluentCheckBox}">
+                                        <Setter Property="Foreground"
+                                                Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                        <Style.Triggers>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter Property="Opacity" Value="0.42" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </CheckBox.Style>
+                            </CheckBox>
                             <StackPanel IsEnabled="{Binding Config.AutoHide}"
                                         Style="{StaticResource RowDimWhenDisabled}">
                                 <TextBlock x:Name="AutoHideRevealModeLabel" />

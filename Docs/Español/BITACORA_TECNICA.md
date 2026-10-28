@@ -96,8 +96,8 @@ Rangos que impone el modelo (no solo la UI):
 | OutlineThickness | 0,25 | 6 | 1 |
 | OutlineOpacity | 0 | 100 | 20 |
 | HoverMagnification | 0 | 150 | 90 |
-| HoverEffectRadius | 20 | min(400, distancia de proximidad) | 40 |
-| AutoHideProximityDistance | 20 | 400 | 60 |
+| HoverEffectRadius | 20 | 400 | 40 |
+| AutoHideProximityDistance | 1 | 400 | 60 |
 | Offset | −4000 | 4000 | 0 |
 | AlignmentOffset | 0 | 2000 | 0 |
 | Deslizamiento autohide | 0 | 1200 ms | 150 |
@@ -109,7 +109,7 @@ Combinaciones que el modelo rechaza si no está cargando:
 
 - Ocultar detrás de la barra de tareas exige autohide y siempre encima.
 - Reservar el área de trabajo es incompatible con autohide.
-- Ocultar con ventana maximizada exige autohide.
+- Ocultar con ventana maximizada y ocultar por superposición exigen autohide.
 
 El HEX inválido no se aplica: `NormalizeColorInput` añade `#` y `IsValidHexColor` acepta `#RGB` o `#RRGGBB`. No hay estado visual de error en el cuadro; el valor anterior se conserva.
 
@@ -137,7 +137,9 @@ Z-order (`ApplyZOrder` / `SetDockWindowZOrder`):
 
 Autohide: temporizadores de mostrar y ocultar, modo borde o proximidad, animación de deslizamiento opcional. Un arrastre de archivos desde el Explorador revela el dock si está oculto.
 
-Hover: no es un `Storyboard`. En `MouseMove` se calcula una escala por icono según la distancia al puntero y un desplazamiento para que el crecimiento no se superponga (`UpdateFisheyeScale`). El radio máximo dinámico no supera la distancia de proximidad del autohide.
+`HideWhenMaximized` y `HideWhenWindowIntersects` son modos excluyentes, desactivados por defecto: seleccionar uno desactiva el otro en el modelo. Las configuraciones y presets anteriores con ambos activos conservan intersección, independientemente del orden de las propiedades JSON. Sin ninguno activo, funciona el autoocultado normal. La detección ignora ventanas invisibles, minimizadas, cloaked y del shell. La intersección usa el marco visible del dock en su posición de reposo, incluso cuando el contenido está oculto o deslizándose, y compara coordenadas de pantalla para admitir ventanas que cruzan monitores. Sin superposición, este modo mantiene visible el dock aunque haya una ventana maximizada.
+
+Hover: no es un `Storyboard`. En `MouseMove` se calcula una escala por icono según la distancia al puntero y un desplazamiento para que el crecimiento no se superponga (`UpdateFisheyeScale`). Su radio tiene un rango fijo de 20–400 DIP, independiente de la distancia de activación del autohide de 1–400 DIP, también después de cargar ajustes, aplicar presets o refrescar las métricas DPI.
 
 Lanzamiento: `UseShellExecute` para rutas de disco. UWP usa `shell:AppsFolder\<AUMID>`. Si `OpenAppsOnDockMonitor` está activo, `DockLaunchPlacement` observa durante 5 segundos las ventanas de primer nivel nuevas (o la que pasa a primer plano) y las mueve al monitor del dock, con un tope de dos movimientos por ventana.
 
@@ -171,7 +173,7 @@ No es un compromiso de roadmap. Es lo que el código deja abierto:
 - No hay feedback visual cuando el HEX es inválido; el cuadro simplemente no aplica el cambio.
 - `DockLaunchPlacement` es heurístico: no todas las apps se dejan mover.
 - El efecto hover no tiene easing configurable; la escala se asigna en el movimiento del ratón.
-- No hay batería de pruebas automatizadas en el repositorio.
+- Hay comprobaciones de regresión en `tests/ToolDock.RegressionTests`; el movimiento de ventanas y las animaciones aún requieren comprobaciones interactivas en pantallas reales.
 
 ## Cómo seguir esta bitácora
 
@@ -191,3 +193,12 @@ En cada cambio que altere comportamiento, persistencia o límites, añade una en
 - Archivos: `README.md`, `Docs/Español/BITACORA_TECNICA.md`, `Docs/Español/DOCUMENTACION_USUARIO.md`, `Docs/English/TECHNICAL_LOG_EN.md`, `Docs/English/USER_DOCUMENTATION_EN.md`. Se retiraron los cuatro Markdown que estaban en la raíz. `ToolDock/README.md` quedó como puntero para no contradecir esta guía.
 - Riesgos: ninguno de ejecución. Quien tuviera enlaces a los Markdown de la raíz debe usar `Docs/English/` o `Docs/Español/`.
 - Validación: contraste con `DockConfig`, `App.xaml.cs`, `SettingsWindow.xaml`, `LocalizationService` y los servicios de persistencia. No se ejecutó la aplicación para esta pasada de documentación.
+
+## 2026-10-28 — Superposición de ventanas y distancias independientes
+
+- Cambios: nueva opción de ocultar por intersección junto a ocultar con ventana maximizada; distancia de activación desde 1 DIP y eliminación de su límite sobre el radio del hover. Cada ajuste conserva su propio rango. Los esquemas de configuración y presets siguen en versión 3; en archivos existentes, la nueva condición queda desactivada.
+- Archivos: modelos de configuración y presets, ventanas principal y de ajustes, interoperabilidad Win32, localización, restablecimiento de presets y `tests/ToolDock.RegressionTests`.
+- Riesgos: la geometría entre monitores y las animaciones necesitan comprobaciones interactivas; la intersección debe usar el marco en reposo para evitar ciclos de ocultar/mostrar.
+- Comando de validación desde la raíz del repositorio: `dotnet run --project tests/ToolDock.RegressionTests` (sin paquetes externos de pruebas).
+- Ajuste posterior: modos de ventana excluyentes y nuevo orden de toggles en Comportamiento. Las pruebas cubren el cambio desde ambos controles, JSON/presets anteriores con ambos activos, el orden solicitado y ventanas maximizadas sin intersección.
+- Resultado: recompilaciones Debug y Release correctas, con 0 advertencias y 0 errores; los 8 grupos de regresión pasaron, incluidos filtros de ventanas nativas, combinación de condiciones, contacto entre bordes y estabilidad del área visible/oculta en los cuatro bordes. El hardware con DPI mixto y la animación visual quedan como comprobaciones manuales.

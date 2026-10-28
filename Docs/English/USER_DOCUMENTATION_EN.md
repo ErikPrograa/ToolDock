@@ -66,7 +66,7 @@ The same file is not added twice. A UWP app is identified by its AppUserModelID,
 
 With **Enable hover effects**, nearby icons grow and shift apart so they do not overlap. Magnification runs from 0% to 150%. Radius is edited in centimeters and stored internally as logical pixels.
 
-When autohide uses proximity, the hover radius cannot be larger than that trigger distance.
+Hover radius is independent of the autohide activation distance. Its range is 20–400 logical pixels (about 0.53–10.58 cm), even when the activation distance is smaller.
 
 ## System tray
 
@@ -168,17 +168,20 @@ Type a HEX color (`#RRGGBB` or `#RGB`; a missing `#` is added), give it a name, 
 | Option | Effect |
 |---|---|
 | Always on top | The dock stays above normal windows |
-| Open apps on the dock's display | Tries to move the launched window to the dock's display |
-| Autohide | The dock slides into its edge and comes back according to the chosen mode |
-| Hide when a window is maximized | With autohide on, the dock stays visible unless a window is maximized on its display |
-| Hide behind the taskbar | Available only when autohide and always-on-top are both on |
-| Reserve work-area space | Windows treats the dock like a bar: maximized windows do not cover it. Cannot be combined with autohide |
 | Do not show over fullscreen apps | The dock is not drawn over a fullscreen program |
+| Open apps on the dock's display | Tries to move the launched window to the dock's display |
+| Reserve work-area space | Windows treats the dock like a bar: maximized windows do not cover it. Cannot be combined with autohide |
+| Autohide | The dock slides into its edge and comes back according to the chosen mode |
+| Hide behind the taskbar | Available only when autohide and always-on-top are both on |
+| Hide when a window is maximized | With autohide on, a maximized window on the dock's display allows it to hide |
+| Hide when a window intersects the dock | With autohide on, a window overlapping the dock allows it to hide, even if that window is not maximized |
+
+Both window conditions are off by default. Enabling one turns the other off. In intersection mode, the dock stays visible when no window overlaps it, including when a maximized window does not touch it. With neither enabled, normal autohide applies. The pointer can still reveal the dock using the selected mode and delays. Minimized or hidden windows, the desktop, and the taskbar do not trigger these conditions.
 
 With autohide on you can also set:
 
 - **Show dock when…** the pointer touches the edge, or comes near it (proximity).
-- Trigger distance, in centimeters. Factory: about 1.6 cm (60 logical pixels at 96 DPI).
+- Activation distance, in centimeters: 1–400 logical pixels (about 0.03–10.58 cm), independent of hover radius. Factory: about 1.6 cm (60 logical pixels at 96 DPI).
 - Slide animation and its duration (0–1200 ms; factory 150).
 - Delay before show (0–4000 ms; factory 150) and before hide (factory 250).
 

@@ -78,8 +78,12 @@ internal static class User32
     private static extern int DwmGetWindowAttribute(IntPtr hwnd, int dwAttribute, out int pvAttribute, int cbAttribute);
 
     [DllImport("dwmapi.dll")]
+    private static extern int DwmGetWindowAttribute(IntPtr hwnd, int dwAttribute, out RECT pvAttribute, int cbAttribute);
+
+    [DllImport("dwmapi.dll")]
     private static extern int DwmSetWindowAttribute(IntPtr hwnd, int dwAttribute, ref int pvAttribute, int cbAttribute);
 
+    private const int DwmwaExtendedFrameBounds = 9;
     private const int DwmwaCloaked = 14;
     private const int DwmwaUseImmersiveDarkMode = 20;
     private const int DwmwaBorderColor = 34;
@@ -116,12 +120,31 @@ internal static class User32
     {
         try
         {
-            return DwmGetWindowAttribute(hwnd, DwmwaCloaked, out var cloaked, sizeof(int)) == 0 && cloaked != 0;
+            return DwmGetWindowAttribute(hwnd, DwmwaCloaked, out int cloaked, sizeof(int)) == 0 && cloaked != 0;
         }
         catch
         {
             return false;
         }
+    }
+
+    public static bool TryGetVisibleWindowRect(IntPtr hwnd, out RECT rect)
+    {
+        try
+        {
+            // DWM excluye los bordes invisibles de redimensionado que devuelve GetWindowRect.
+            if (DwmGetWindowAttribute(hwnd, DwmwaExtendedFrameBounds, out rect, Marshal.SizeOf<RECT>()) == 0 &&
+                rect.Width > 0 && rect.Height > 0)
+            {
+                return true;
+            }
+        }
+        catch
+        {
+            // Usar el rectángulo Win32 si DWM no está disponible.
+        }
+
+        return GetWindowRect(hwnd, out rect);
     }
 
     [DllImport("user32.dll", SetLastError = true)]

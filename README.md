@@ -33,7 +33,7 @@ Anchor the dock to the top, bottom, left, or right edge of the monitor. On the l
 
 ### Autohide
 
-The dock can hide at its edge and come back when the pointer gets close. It can also stay visible until a window on that monitor is maximized.
+The dock can hide at its edge and come back when the pointer gets close. It can also stay visible until a window on that monitor is maximized or a window overlaps the dock. These modes are mutually exclusive: enabling one turns the other off.
 
 <img width="854" height="480" alt="Autohide" src="https://github.com/user-attachments/assets/360231a9-adbf-4870-a3ab-2db91700c661" />
 
@@ -58,7 +58,7 @@ Launching a shortcut can move that window onto the monitor where the dock is.
 - Shortcuts to `.exe`, `.lnk`, and Microsoft Store (UWP) apps.
 - Reordering, locking the order, custom icons, and a magnification effect on hover.
 - Color, opacity, per-side outline, rounded corners, and presets.
-- Autohide, always on top, work-area reservation, and hiding over fullscreen or maximized windows.
+- Autohide, always on top, work-area reservation, and hiding over fullscreen, maximized, or overlapping windows.
 - Multiple instances, global hotkeys, and a Spanish / English interface.
 
 ## Requirements
@@ -88,6 +88,12 @@ The executable is written to:
 `ToolDock\bin\Release\net9.0-windows\win-x64\publish\ToolDock.exe`
 
 Put that `.exe` in its own folder. Settings are created next to it.
+
+Run the focused regression checks from the repository root:
+
+```powershell
+dotnet run --project tests/ToolDock.RegressionTests
+```
 
 ## Quick start
 

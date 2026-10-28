@@ -66,7 +66,7 @@ Un mismo archivo no se agrega dos veces. Una app UWP se identifica por su identi
 
 Con **Activar efectos al pasar el cursor**, los iconos cercanos al puntero crecen y se separan para no montarse. La magnificación va de 0 % a 150 %. El radio se ajusta en centímetros; por dentro se guarda en píxeles lógicos.
 
-Si el autoocultado usa proximidad, el radio del hover no puede ser mayor que esa distancia de activación.
+El radio del hover es independiente de la distancia de activación del autoocultado. Su rango es de 20–400 píxeles lógicos (aproximadamente 0,53–10,58 cm), aunque la distancia de activación sea menor.
 
 ## Bandeja del sistema
 
@@ -168,17 +168,20 @@ Escribe un color HEX (`#RRGGBB` o `#RGB`; si omites `#`, se añade), ponle un no
 | Opción | Efecto |
 |---|---|
 | Siempre encima | El dock queda por encima de las ventanas normales |
-| Abrir las apps en la pantalla del dock | Intenta mover la ventana abierta al monitor del dock |
-| Autoocultar | El dock se esconde en su borde y vuelve a salir según el modo elegido |
-| Ocultar cuando hay una ventana maximizada | Con autoocultar activo, el dock se queda visible salvo que haya una ventana maximizada en su monitor |
-| Ocultar detrás de la barra de tareas | Solo si autoocultar y siempre encima están activos |
-| Reservar espacio en el área de trabajo | Windows trata el dock como una barra: las ventanas maximizadas no lo cubren. No se puede combinar con autoocultar |
 | No mostrar sobre apps en pantalla completa | El dock no se dibuja encima de un programa a pantalla completa |
+| Abrir las apps en la pantalla del dock | Intenta mover la ventana abierta al monitor del dock |
+| Reservar espacio en el área de trabajo | Windows trata el dock como una barra: las ventanas maximizadas no lo cubren. No se puede combinar con autoocultar |
+| Autoocultar | El dock se esconde en su borde y vuelve a salir según el modo elegido |
+| Ocultar detrás de la barra de tareas | Solo si autoocultar y siempre encima están activos |
+| Ocultar cuando hay una ventana maximizada | Con autoocultar activo, una ventana maximizada en el monitor del dock permite que se oculte |
+| Ocultar cuando una ventana se superpone al dock | Con autoocultar activo, una ventana superpuesta al dock permite que se oculte, aunque no esté maximizada |
+
+Las dos condiciones de ventana están desactivadas por defecto. Activar una desactiva la otra. En modo intersección, el dock permanece visible cuando ninguna ventana se superpone con él, incluso si hay una ventana maximizada que no lo toca. Sin ninguna activada, funciona el autoocultado normal. El cursor sigue mostrando el dock según el modo y los retrasos elegidos. Las ventanas minimizadas u ocultas, el escritorio y la barra de tareas no activan estas condiciones.
 
 Con autoocultar activo también puedes ajustar:
 
 - **Mostrar dock al…** tocar el borde, o acercar el cursor (proximidad).
-- Distancia de activación, en centímetros. Fábrica: unos 1,6 cm (60 px lógicos a 96 DPI).
+- Distancia de activación, en centímetros: 1–400 píxeles lógicos (aproximadamente 0,03–10,58 cm), independiente del radio del hover. Fábrica: unos 1,6 cm (60 px lógicos a 96 DPI).
 - Animación de deslizamiento y su duración (0–1200 ms; fábrica 150).
 - Espera para mostrar (0–4000 ms; fábrica 150) y para ocultar (fábrica 250).
 

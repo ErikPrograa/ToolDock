@@ -33,7 +33,7 @@ Ancla el dock al borde superior, inferior, izquierdo o derecho del monitor. En l
 
 ### Autoocultar
 
-El dock puede esconderse en su borde y volver cuando el cursor se acerca. También puede quedarse visible hasta que una ventana de ese monitor se maximice.
+El dock puede esconderse en su borde y volver cuando el cursor se acerca. También puede quedarse visible hasta que una ventana de ese monitor se maximice o una ventana se superponga al dock. Estos modos son excluyentes: activar uno desactiva el otro.
 
 <img width="854" height="480" alt="Autohide" src="https://github.com/user-attachments/assets/e1a67af2-547c-4d2b-b34b-80c84bb6583e" />
 
@@ -58,7 +58,7 @@ Al abrir un acceso, esa ventana puede moverse al monitor donde está el dock.
 - Accesos a `.exe`, `.lnk` y aplicaciones de Microsoft Store (UWP).
 - Reordenar, bloquear el orden, icono personalizado y efecto de ampliación al pasar el cursor.
 - Color, opacidad, contorno por lado, esquinas redondeadas y presets.
-- Autoocultar, siempre encima, reserva del área de trabajo y ocultar sobre pantalla completa o ventanas maximizadas.
+- Autoocultar, siempre encima, reserva del área de trabajo y ocultar sobre pantalla completa, ventanas maximizadas o superpuestas.
 - Varias instancias, atajos de teclado globales e interfaz en español e inglés.
 
 ## Requisitos
@@ -88,6 +88,12 @@ El ejecutable queda en:
 `ToolDock\bin\Release\net9.0-windows\win-x64\publish\ToolDock.exe`
 
 Coloca ese `.exe` en una carpeta dedicada. La configuración se crea junto a él.
+
+Ejecuta las comprobaciones de regresión desde la raíz del repositorio:
+
+```powershell
+dotnet run --project tests/ToolDock.RegressionTests
+```
 
 ## Uso rápido
 

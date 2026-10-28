@@ -1,0 +1,15 @@
+# ToolDock regression checks
+
+Run on Windows with the .NET 9 SDK or newer:
+
+```powershell
+dotnet run --project tests/ToolDock.RegressionTests/ToolDock.RegressionTests.csproj -c Debug
+```
+
+This dependency-free console runner returns a nonzero exit code on failure. It checks independent distance limits, DPI refresh, configuration compatibility, presets, numeric editors, sliders, checkbox bindings and localization. Settings windows are constructed but never shown or loaded. Configuration persistence uses a temporary directory that is removed after the test; the user's portable configuration is not used.
+
+These checks do not replace an interactive check of autohide animation, cursor reveal, or mixed-DPI monitors.
+
+Native checks also create a temporary window outside the virtual desktop without activating it. They exercise window filtering, both hide conditions, overlap versus edge contact, one-DIP activation and stable intersection bounds on all four dock edges. The dock itself is never shown. All test windows are closed afterwards.
+
+If stale WPF intermediates cause missing `*.g.cs` errors after switching build configurations, regenerate them with `dotnet build tests/ToolDock.RegressionTests -c Debug -t:Rebuild`, then run the checks again.

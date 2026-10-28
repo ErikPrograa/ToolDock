@@ -108,7 +108,7 @@ public sealed class DockConfig : INotifyPropertyChanged
     private const int HoverRadiusMin = 20;
     private const int HoverRadiusHardMax = 400;
     private const int HoverRadiusDefault = 40;
-    private const int AutoHideProximityDistanceMin = 20;
+    private const int AutoHideProximityDistanceMin = 1;
     private const int AutoHideProximityDistanceMax = 400;
     private const int AutoHideProximityDistanceDefault = 60;
     private const int CornerRadiusMin = 0;
@@ -144,6 +144,7 @@ public sealed class DockConfig : INotifyPropertyChanged
     private bool _doNotShowOverFullscreen;
     private bool _openAppsOnDockMonitor;
     private bool _hideWhenMaximized;
+    private bool _hideWhenWindowIntersects;
     private bool _dockDisabled;
     private bool _lockShortcuts;
     private bool _highQualityIcons;
@@ -298,8 +299,7 @@ public sealed class DockConfig : INotifyPropertyChanged
         get => _hoverEffectRadius;
         set
         {
-            var max = IsLoading ? GetHoverRadiusHardMax() : GetHoverRadiusMaxDynamic();
-            var clamped = Math.Clamp(value, GetHoverRadiusMin(), max);
+            var clamped = Math.Clamp(value, GetHoverRadiusMin(), GetHoverRadiusHardMax());
             if (!SetField(ref _hoverEffectRadius, clamped))
             {
                 return;
@@ -329,10 +329,6 @@ public sealed class DockConfig : INotifyPropertyChanged
             }
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AutoHideProximityDistanceCm)));
-            if (!IsLoading)
-            {
-                ClampHoverRadiusToCurrentLimits();
-            }
         }
     }
 
@@ -539,7 +535,7 @@ public sealed class DockConfig : INotifyPropertyChanged
     }
 
     /// <summary>
-    /// Con autohide: el dock permanece visible salvo que haya una ventana maximizada en su monitor.
+    /// Con autohide: permite ocultar si hay una ventana maximizada en su monitor.
     /// </summary>
     public bool HideWhenMaximized
     {
@@ -551,7 +547,32 @@ public sealed class DockConfig : INotifyPropertyChanged
                 return;
             }
 
+            if (!IsLoading && value)
+            {
+                HideWhenWindowIntersects = false;
+            }
+
             SetField(ref _hideWhenMaximized, value);
+        }
+    }
+
+    /// <summary>Con autohide: permite ocultar si una ventana se superpone al dock visible.</summary>
+    public bool HideWhenWindowIntersects
+    {
+        get => _hideWhenWindowIntersects;
+        set
+        {
+            if (!IsLoading && value && !_autoHide)
+            {
+                return;
+            }
+
+            if (!IsLoading && value)
+            {
+                HideWhenMaximized = false;
+            }
+
+            SetField(ref _hideWhenWindowIntersects, value);
         }
     }
 
@@ -612,6 +633,11 @@ public sealed class DockConfig : INotifyPropertyChanged
             SetField(ref _hideWhenMaximized, false, nameof(HideWhenMaximized));
         }
 
+        if (_hideWhenWindowIntersects && !_autoHide)
+        {
+            SetField(ref _hideWhenWindowIntersects, false, nameof(HideWhenWindowIntersects));
+        }
+
         if (_reserveWorkArea && _autoHide)
         {
             SetField(ref _reserveWorkArea, false, nameof(ReserveWorkArea));
@@ -644,6 +670,11 @@ public sealed class DockConfig : INotifyPropertyChanged
         ActivePresetName = _activePresetName;
         LastNonCustomPresetName = _lastNonCustomPresetName;
         ClearHideBehindTaskbarIfDisabled();
+        // Las configuraciones anteriores podían activar ambos modos; conservar intersección.
+        if (_hideWhenWindowIntersects)
+        {
+            HideWhenMaximized = false;
+        }
     }
 
     /// <summary>
@@ -829,32 +860,7 @@ public sealed class DockConfig : INotifyPropertyChanged
         DoNotShowOverFullscreen = false;
         OpenAppsOnDockMonitor = false;
         HideWhenMaximized = false;
-    }
-
-    private int GetHoverRadiusMaxDynamic()
-    {
-        return Math.Min(GetHoverRadiusHardMax(), _autoHideProximityDistance);
-    }
-
-    // Nota: estos clamps solo notifican cuando el valor realmente cambia. Notificar siempre creaba un
-    // bucle infinito de guardado (cada guardado reconstruye Items → clamp → PropertyChanged → guardar de
-    // nuevo cada 250 ms) que re-sincronizaba los campos numéricos de Configuración y borraba lo escrito.
-    private void ClampHoverRadiusToCurrentLimits()
-    {
-        if (IsLoading)
-        {
-            return;
-        }
-
-        var clamped = Math.Clamp(_hoverEffectRadius, GetHoverRadiusMin(), GetHoverRadiusMaxDynamic());
-        if (clamped == _hoverEffectRadius)
-        {
-            return;
-        }
-
-        _hoverEffectRadius = clamped;
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HoverEffectRadius)));
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HoverEffectRadiusCm)));
+        HideWhenWindowIntersects = false;
     }
 
     private static string NormalizeColorInput(string? value, string fallback)
@@ -893,7 +899,6 @@ public sealed class DockConfig : INotifyPropertyChanged
     /// <summary>Recalcula límites/notifica tras cambios de DPI o de configuración de pantalla.</summary>
     public void NotifyShellMetricsChanged()
     {
-        ClampHoverRadiusToCurrentLimits();
         ClampDockWidthToCurrentLimits();
         // Las equivalencias en cm/% dependen del DPI/área de trabajo, así que se refrescan
         // explícitamente aunque los valores lógicos no hayan cambiado. No son un cambio de

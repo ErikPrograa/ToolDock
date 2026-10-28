@@ -88,6 +88,14 @@ public sealed class PresetService
                             && p.Data is not null
                             && p.Data.DataSchemaVersion >= DockConfig.CurrentSchemaVersion)
                 .ToList();
+            foreach (var preset in presets)
+            {
+                if (preset.Data.HideWhenWindowIntersects)
+                {
+                    preset.Data.HideWhenMaximized = false;
+                }
+            }
+
             return true;
         }
         catch (Exception ex) when (ex is JsonException or NotSupportedException or InvalidOperationException)

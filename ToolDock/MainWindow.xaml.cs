@@ -2088,21 +2088,15 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     }
 
     /// <summary>
-    /// Con autohide normal siempre hay que poder ocultar. Con HideWhenMaximized, solo si hay
-    /// alguna ventana maximizada en el monitor del dock.
+    /// Sin modo condicional se conserva el autohide normal; si hay uno activo, debe cumplirse.
     /// </summary>
     private bool ShouldAutohideHideForWindows()
     {
-        if (!Config.HideWhenMaximized)
+        if (!Config.HideWhenMaximized && !Config.HideWhenWindowIntersects)
         {
             return true;
         }
 
-        return HasMaximizedWindowOnActiveMonitor();
-    }
-
-    private bool HasMaximizedWindowOnActiveMonitor()
-    {
         var self = new WindowInteropHelper(this).Handle;
         var monitor = self != IntPtr.Zero
             ? User32.MonitorFromWindow(self, User32.MONITOR_DEFAULTTONEAREST)
@@ -2118,40 +2112,67 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             monitor = User32.MonitorFromPoint(center, User32.MONITOR_DEFAULTTONEAREST);
         }
 
+        var dockBounds = Config.HideWhenWindowIntersects ? GetVisibleDockBounds() : Rect.Empty;
         var found = false;
         User32.EnumWindows((hwnd, _) =>
         {
-            if (found || hwnd == self)
-            {
-                return !found;
-            }
-
-            if (!User32.IsWindowVisible(hwnd) || User32.IsIconic(hwnd) || User32.IsWindowCloaked(hwnd))
-            {
-                return true;
-            }
-
-            if (IsShellWindowClass(hwnd))
-            {
-                return true;
-            }
-
-            var style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
-            if ((style & User32.WS_MAXIMIZE) == 0)
-            {
-                return true;
-            }
-
-            if (User32.MonitorFromWindow(hwnd, User32.MONITOR_DEFAULTTONEAREST) != monitor)
-            {
-                return true;
-            }
-
-            found = true;
-            return false;
+            found = WindowRequiresAutohide(hwnd, self, monitor, dockBounds);
+            return !found;
         }, IntPtr.Zero);
 
         return found;
+    }
+
+    private bool WindowRequiresAutohide(IntPtr hwnd, IntPtr self, IntPtr monitor, Rect dockBounds)
+    {
+        if (hwnd == self || !User32.IsWindowVisible(hwnd) || User32.IsIconic(hwnd) ||
+            User32.IsWindowCloaked(hwnd) || IsShellWindowClass(hwnd))
+        {
+            return false;
+        }
+
+        if (Config.HideWhenMaximized &&
+            (User32.GetWindowLong(hwnd, User32.GWL_STYLE) & User32.WS_MAXIMIZE) != 0 &&
+            User32.MonitorFromWindow(hwnd, User32.MONITOR_DEFAULTTONEAREST) == monitor)
+        {
+            return true;
+        }
+
+        if (!Config.HideWhenWindowIntersects || dockBounds.IsEmpty)
+        {
+            return false;
+        }
+
+        // Los popups y otros docks del mismo proceso no son ventanas que deban ocultarnos.
+        if ((User32.GetWindowLong(hwnd, User32.GWL_EXSTYLE) & User32.WS_EX_TOOLWINDOW) != 0)
+        {
+            User32.GetWindowThreadProcessId(hwnd, out var processId);
+            if (processId == (uint)Environment.ProcessId)
+            {
+                return false;
+            }
+        }
+
+        return User32.TryGetVisibleWindowRect(hwnd, out var rect) &&
+               rect.Width > 0 && rect.Height > 0 &&
+               rect.Left < dockBounds.Right && rect.Right > dockBounds.Left &&
+               rect.Top < dockBounds.Bottom && rect.Bottom > dockBounds.Top;
+    }
+
+    private Rect GetVisibleDockBounds()
+    {
+        // Medir siempre la posición de reposo evita alternar mostrar/ocultar durante el deslizamiento.
+        GetFrameTargetPosition(ActiveWorkArea, DockFrameWidth, DockFrameHeight, hidden: false,
+            out var frameLeft, out var frameTop);
+        var frameOffsetX = ResolveAlignedOffset(Width, DockFrameWidth, DockFrameHorizontalAlignment);
+        var frameOffsetY = ResolveAlignedOffset(Height, DockFrameHeight, DockFrameVerticalAlignment);
+        var localLeft = frameOffsetX + DockMetrics.SnapLogicalToWholePhysical(frameLeft - (Left + frameOffsetX));
+        var localTop = frameOffsetY + DockMetrics.SnapLogicalToWholePhysical(frameTop - (Top + frameOffsetY));
+        var topLeft = PointToScreen(new WpfPoint(localLeft, localTop));
+        var bottomRight = PointToScreen(new WpfPoint(localLeft + DockFrameWidth, localTop + DockFrameHeight));
+        var bounds = new Rect(topLeft, bottomRight);
+        bounds.Intersect(_activeMonitor.BoundsPx);
+        return bounds;
     }
 
     private (double Start, double End) GetDockMajorAxisScreenSpan()

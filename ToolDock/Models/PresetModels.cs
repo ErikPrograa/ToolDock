@@ -62,6 +62,7 @@ public sealed class DockPresetData
     public bool DoNotShowOverFullscreen { get; set; }
     public bool OpenAppsOnDockMonitor { get; set; }
     public bool HideWhenMaximized { get; set; }
+    public bool HideWhenWindowIntersects { get; set; }
 
     public static DockPresetData CreateDefault()
     {
@@ -109,6 +110,7 @@ public sealed class DockPresetData
             DoNotShowOverFullscreen = false,
             OpenAppsOnDockMonitor = false,
             HideWhenMaximized = false,
+            HideWhenWindowIntersects = false,
             DataSchemaVersion = DockConfig.CurrentSchemaVersion
         };
     }
@@ -159,6 +161,7 @@ public sealed class DockPresetData
             DoNotShowOverFullscreen = config.DoNotShowOverFullscreen,
             OpenAppsOnDockMonitor = config.OpenAppsOnDockMonitor,
             HideWhenMaximized = config.HideWhenMaximized,
+            HideWhenWindowIntersects = config.HideWhenWindowIntersects,
             DataSchemaVersion = DockConfig.CurrentSchemaVersion
         };
     }
@@ -215,6 +218,7 @@ public sealed class DockPresetData
         config.DoNotShowOverFullscreen = DoNotShowOverFullscreen;
         config.OpenAppsOnDockMonitor = OpenAppsOnDockMonitor;
         config.HideWhenMaximized = HideWhenMaximized;
+        config.HideWhenWindowIntersects = HideWhenWindowIntersects;
     }
 }
 
