@@ -27,9 +27,9 @@ public partial class App : System.Windows.Application
     private MenuItem? _reloadAppItem;
     private MenuItem? _troubleshootingRootItem;
     private MenuItem? _troubleshootingOpenFolderItem;
-    private MenuItem? _troubleshootingSoftResetItem;
+    private MenuItem? _troubleshootingResetThisInstanceItem;
+    private MenuItem? _troubleshootingResetAllInstancesItem;
     private MenuItem? _troubleshootingHardResetItem;
-    private MenuItem? _troubleshootingUltraHardResetItem;
     private MenuItem? _exitItem;
     private Mutex? _instanceMutex;
     private int _instanceIndex = 1;
@@ -38,9 +38,14 @@ public partial class App : System.Windows.Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
-        var startupOptions = ParseStartupOptions(e.Args);
-
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
+        if (TroubleshootingReset.TryRunWorker(e.Args))
+        {
+            Shutdown();
+            return;
+        }
+
+        var startupOptions = ParseStartupOptions(e.Args);
         ReserveInstanceSlot();
         if (!startupOptions.IsSpawnedLaunch && startupOptions.RequestedInstances > 1)
         {
@@ -51,16 +56,6 @@ public partial class App : System.Windows.Application
         var configPath = _instanceIndex == 1
             ? Path.Combine(dataDirectory, "config.json")
             : Path.Combine(dataDirectory, $"config.instance{_instanceIndex}.json");
-        if (startupOptions.UltraHardReset)
-        {
-            DurableFile.DeleteFamily(configPath);
-            DurableFile.DeleteFamily(Path.Combine(dataDirectory, PresetService.PresetsFileName));
-            DurableFile.DeleteFamily(Path.Combine(dataDirectory, CustomColorService.ColorsFileName));
-        }
-        else if (startupOptions.HardReset)
-        {
-            DurableFile.DeleteFamily(configPath);
-        }
 
         _configService = new ConfigService(configPath);
         _config = _configService.Load();
@@ -73,13 +68,6 @@ public partial class App : System.Windows.Application
         if (startupOptions.OpenSettingsOnLaunch)
         {
             Dispatcher.BeginInvoke(new Action(() => _mainWindow?.OpenSettings()), System.Windows.Threading.DispatcherPriority.Background);
-        }
-
-        if (startupOptions.SoftReset || startupOptions.HardReset || startupOptions.UltraHardReset)
-        {
-            Dispatcher.BeginInvoke(
-                new Action(() => _mainWindow?.ApplyDefaultPresetAndSave()),
-                System.Windows.Threading.DispatcherPriority.Background);
         }
     }
 
@@ -110,10 +98,26 @@ public partial class App : System.Windows.Application
         }
     }
 
-    public void BeginSoftReset()
+    public void BeginResetThisInstance()
     {
-        _mainWindow?.ApplyDefaultPresetAndSave();
-        RestartApplication(openSettingsAfterRestart: false, extraArgs: "--soft-reset");
+        if (!StartResetWorker("this", _instanceIndex.ToString(), Environment.ProcessId.ToString()))
+        {
+            return;
+        }
+
+        ExitApplication();
+    }
+
+    public void BeginResetAllInstances()
+    {
+        var pids = SnapshotInstancePids();
+        if (!StartResetWorker("all", pids))
+        {
+            return;
+        }
+
+        StopOtherInstances(pids);
+        ExitApplication();
     }
 
     public void BeginHardReset()
@@ -123,19 +127,14 @@ public partial class App : System.Windows.Application
             return;
         }
 
-        _mainWindow?.ApplyDefaultPresetAndSave();
-        RestartApplication(openSettingsAfterRestart: false, extraArgs: "--hard-reset");
-    }
-
-    public void BeginUltraHardReset()
-    {
-        if (!ConfirmUltraHardReset())
+        var pids = SnapshotInstancePids();
+        if (!StartResetWorker("hard", pids))
         {
             return;
         }
 
-        _mainWindow?.ApplyDefaultPresetAndSave();
-        RestartApplication(openSettingsAfterRestart: false, extraArgs: "--ultra-hard-reset");
+        StopOtherInstances(pids);
+        ExitApplication();
     }
 
     private bool ConfirmHardReset()
@@ -149,15 +148,100 @@ public partial class App : System.Windows.Application
         return result == MessageBoxResult.Yes;
     }
 
-    private bool ConfirmUltraHardReset()
+    private static bool StartResetWorker(string mode, params string[] values)
     {
-        var language = _config?.Language ?? AppLanguage.English;
-        var result = MessageBox.Show(
-            LocalizationService.Get(language, "TroubleshootingUltraHardResetConfirmMessage"),
-            LocalizationService.Get(language, "TroubleshootingUltraHardResetConfirmTitle"),
-            MessageBoxButton.YesNo,
-            MessageBoxImage.Warning);
-        return result == MessageBoxResult.Yes;
+        var exePath = ExecutablePath();
+        if (string.IsNullOrWhiteSpace(exePath))
+        {
+            return false;
+        }
+
+        try
+        {
+            var arguments = TroubleshootingReset.WorkerArgument + " " + mode;
+            if (values.Length > 0)
+            {
+                arguments += " " + string.Join(' ', values);
+            }
+
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = exePath,
+                Arguments = arguments,
+                WorkingDirectory = Path.GetDirectoryName(exePath) ?? "",
+                UseShellExecute = false
+            });
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static string[] SnapshotInstancePids()
+    {
+        var exePath = ExecutablePath();
+        var pids = new List<int> { Environment.ProcessId };
+        if (string.IsNullOrWhiteSpace(exePath))
+        {
+            return [Environment.ProcessId.ToString()];
+        }
+
+        var processName = Path.GetFileNameWithoutExtension(exePath);
+        foreach (var process in Process.GetProcessesByName(processName))
+        {
+            try
+            {
+                var path = process.MainModule?.FileName;
+                if (string.Equals(path, exePath, StringComparison.OrdinalIgnoreCase) && !pids.Contains(process.Id))
+                {
+                    pids.Add(process.Id);
+                }
+            }
+            catch
+            {
+                // Another user's process, or one that has already exited.
+            }
+            finally
+            {
+                process.Dispose();
+            }
+        }
+
+        return pids.Select(pid => pid.ToString()).ToArray();
+    }
+
+    private static void StopOtherInstances(IEnumerable<string> pids)
+    {
+        foreach (var value in pids)
+        {
+            if (!int.TryParse(value, out var pid) || pid == Environment.ProcessId)
+            {
+                continue;
+            }
+
+            try
+            {
+                using var process = Process.GetProcessById(pid);
+                process.Kill();
+            }
+            catch
+            {
+                // Already closed, or this process cannot stop it.
+            }
+        }
+    }
+
+    private static string? ExecutablePath()
+    {
+        var exePath = Environment.ProcessPath;
+        if (string.IsNullOrWhiteSpace(exePath))
+        {
+            exePath = Process.GetCurrentProcess().MainModule?.FileName;
+        }
+
+        return exePath;
     }
 
     public void RestartApplication(bool openSettingsAfterRestart, string? extraArgs = null)
@@ -237,17 +321,17 @@ public partial class App : System.Windows.Application
         _troubleshootingOpenFolderItem.Click += (_, _) => OpenExecutableFolder();
         _troubleshootingRootItem.Items.Add(_troubleshootingOpenFolderItem);
 
-        _troubleshootingSoftResetItem = new MenuItem();
-        _troubleshootingSoftResetItem.Click += (_, _) => BeginSoftReset();
-        _troubleshootingRootItem.Items.Add(_troubleshootingSoftResetItem);
+        _troubleshootingResetThisInstanceItem = new MenuItem();
+        _troubleshootingResetThisInstanceItem.Click += (_, _) => BeginResetThisInstance();
+        _troubleshootingRootItem.Items.Add(_troubleshootingResetThisInstanceItem);
+
+        _troubleshootingResetAllInstancesItem = new MenuItem();
+        _troubleshootingResetAllInstancesItem.Click += (_, _) => BeginResetAllInstances();
+        _troubleshootingRootItem.Items.Add(_troubleshootingResetAllInstancesItem);
 
         _troubleshootingHardResetItem = new MenuItem();
         _troubleshootingHardResetItem.Click += (_, _) => BeginHardReset();
         _troubleshootingRootItem.Items.Add(_troubleshootingHardResetItem);
-
-        _troubleshootingUltraHardResetItem = new MenuItem();
-        _troubleshootingUltraHardResetItem.Click += (_, _) => BeginUltraHardReset();
-        _troubleshootingRootItem.Items.Add(_troubleshootingUltraHardResetItem);
 
         _trayMenu.Items.Add(_troubleshootingRootItem);
 
@@ -356,9 +440,6 @@ public partial class App : System.Windows.Application
         var requestedInstances = 1;
         var isSpawnedLaunch = false;
         var openSettingsOnLaunch = false;
-        var softReset = false;
-        var hardReset = false;
-        var ultraHardReset = false;
 
         for (var i = 0; i < args.Length; i++)
         {
@@ -372,24 +453,6 @@ public partial class App : System.Windows.Application
             if (string.Equals(arg, "--open-settings", StringComparison.OrdinalIgnoreCase))
             {
                 openSettingsOnLaunch = true;
-                continue;
-            }
-
-            if (string.Equals(arg, "--soft-reset", StringComparison.OrdinalIgnoreCase))
-            {
-                softReset = true;
-                continue;
-            }
-
-            if (string.Equals(arg, "--hard-reset", StringComparison.OrdinalIgnoreCase))
-            {
-                hardReset = true;
-                continue;
-            }
-
-            if (string.Equals(arg, "--ultra-hard-reset", StringComparison.OrdinalIgnoreCase))
-            {
-                ultraHardReset = true;
                 continue;
             }
 
@@ -416,10 +479,7 @@ public partial class App : System.Windows.Application
         return new StartupOptions(
             requestedInstances,
             isSpawnedLaunch,
-            openSettingsOnLaunch,
-            softReset,
-            hardReset,
-            ultraHardReset);
+            openSettingsOnLaunch);
     }
 
     private static void LaunchAdditionalInstances(int additionalCount)
@@ -462,10 +522,7 @@ public partial class App : System.Windows.Application
     private readonly record struct StartupOptions(
         int RequestedInstances,
         bool IsSpawnedLaunch,
-        bool OpenSettingsOnLaunch,
-        bool SoftReset,
-        bool HardReset,
-        bool UltraHardReset);
+        bool OpenSettingsOnLaunch);
 
     private void Config_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
@@ -533,19 +590,19 @@ public partial class App : System.Windows.Application
             _troubleshootingOpenFolderItem.Header = LocalizationService.Get(language, "TroubleshootingOpenExeFolder");
         }
 
-        if (_troubleshootingSoftResetItem is not null)
+        if (_troubleshootingResetThisInstanceItem is not null)
         {
-            _troubleshootingSoftResetItem.Header = LocalizationService.Get(language, "TroubleshootingSoftReset");
+            _troubleshootingResetThisInstanceItem.Header = LocalizationService.Get(language, "TroubleshootingResetThisInstance");
+        }
+
+        if (_troubleshootingResetAllInstancesItem is not null)
+        {
+            _troubleshootingResetAllInstancesItem.Header = LocalizationService.Get(language, "TroubleshootingResetAllInstances");
         }
 
         if (_troubleshootingHardResetItem is not null)
         {
             _troubleshootingHardResetItem.Header = LocalizationService.Get(language, "TroubleshootingHardReset");
-        }
-
-        if (_troubleshootingUltraHardResetItem is not null)
-        {
-            _troubleshootingUltraHardResetItem.Header = LocalizationService.Get(language, "TroubleshootingUltraHardReset");
         }
     }
 

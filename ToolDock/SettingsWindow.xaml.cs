@@ -2068,12 +2068,12 @@ public partial class SettingsWindow : Window, INotifyPropertyChanged
         DetailsPanelTitle.Text = LocalizationService.Get(l, "CategoryDetails");
         TroubleshootingPanelTitle.Text = LocalizationService.Get(l, "CategoryTroubleshooting");
         OpenExeFolderButton.Content = LocalizationService.Get(l, "TroubleshootingOpenExeFolder");
-        SoftResetButton.Content = LocalizationService.Get(l, "TroubleshootingSoftReset");
-        SoftResetDescriptionText.Text = LocalizationService.Get(l, "TroubleshootingSoftResetDescription");
+        ResetThisInstanceButton.Content = LocalizationService.Get(l, "TroubleshootingResetThisInstance");
+        ResetThisInstanceDescriptionText.Text = LocalizationService.Get(l, "TroubleshootingResetThisInstanceDescription");
+        ResetAllInstancesButton.Content = LocalizationService.Get(l, "TroubleshootingResetAllInstances");
+        ResetAllInstancesDescriptionText.Text = LocalizationService.Get(l, "TroubleshootingResetAllInstancesDescription");
         HardResetButton.Content = LocalizationService.Get(l, "TroubleshootingHardReset");
         HardResetDescriptionText.Text = LocalizationService.Get(l, "TroubleshootingHardResetDescription");
-        UltraHardResetButton.Content = LocalizationService.Get(l, "TroubleshootingUltraHardReset");
-        UltraHardResetDescriptionText.Text = LocalizationService.Get(l, "TroubleshootingUltraHardResetDescription");
         DeleteAllCustomColorsButton.Content = LocalizationService.Get(l, "TroubleshootingDeleteAllCustomColors");
         DeleteAllCustomColorsDescriptionText.Text = LocalizationService.Get(l, "TroubleshootingDeleteAllCustomColorsDescription");
         DeleteAllCustomPresetsButton.Content = LocalizationService.Get(l, "TroubleshootingDeleteAllCustomPresets");
@@ -2379,11 +2379,19 @@ public partial class SettingsWindow : Window, INotifyPropertyChanged
         }
     }
 
-    private void SoftResetButton_Click(object sender, RoutedEventArgs e)
+    private void ResetThisInstanceButton_Click(object sender, RoutedEventArgs e)
     {
         if (System.Windows.Application.Current is App app)
         {
-            app.BeginSoftReset();
+            app.BeginResetThisInstance();
+        }
+    }
+
+    private void ResetAllInstancesButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (System.Windows.Application.Current is App app)
+        {
+            app.BeginResetAllInstances();
         }
     }
 
@@ -2392,14 +2400,6 @@ public partial class SettingsWindow : Window, INotifyPropertyChanged
         if (System.Windows.Application.Current is App app)
         {
             app.BeginHardReset();
-        }
-    }
-
-    private void UltraHardResetButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (System.Windows.Application.Current is App app)
-        {
-            app.BeginUltraHardReset();
         }
     }
 

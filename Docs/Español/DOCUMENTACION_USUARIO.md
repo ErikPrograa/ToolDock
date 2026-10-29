@@ -197,9 +197,9 @@ No edita nada. Muestra, para el monitor y el DPI actuales, el tamaño efectivo d
 | Generar registro detallado | Crea un `.txt` con configuración, monitores, DPI y estado del dock, para adjuntar a un informe |
 | Borrar todos los colores personalizados | Elimina `Colors_TD.json`. Los colores integrados siguen |
 | Borrar todos los presets personalizados | Elimina `Presets_TD.json` y aplica el preset Predeterminado |
-| Reinicio suave | Aplica el predeterminado, guarda, cierra y al abrir lo aplica otra vez |
-| Reinicio completo | Además elimina el `config.json` de esta instancia. Los presets y colores de otros archivos se conservan. Pide confirmación |
-| Reinicio ultra completo | Igual que el completo, y también borra presets y colores personalizados. Pide confirmación |
+| Restablecer esta instancia | Cierra esta instancia, elimina su configuración y la vuelve a abrir en Ajustes. No pide confirmación |
+| Restablecer todas las instancias | Cierra todas, elimina la configuración de cada una y las vuelve a abrir. Ajustes no se abre. No pide confirmación |
+| Reinicio completo | Cierra la aplicación y envía a la Papelera todos los JSON de su carpeta, y las carpetas Backups_TD y Temp_TD. Después abre una instancia. Pide confirmación |
 
 ## Presets
 

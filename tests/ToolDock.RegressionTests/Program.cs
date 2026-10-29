@@ -27,7 +27,8 @@ internal static class Program
             ("Preset JSON and application preserve independent values", PresetRoundtrip),
             ("Settings sliders, numeric editors and checkbox bindings", SettingsControls),
             ("Settings preset tracking, copying and translations", SettingsPresetsAndTranslations),
-            ("Native window filters and visible-frame geometry", NativeAutoHideTests.Run)
+            ("Native window filters and visible-frame geometry", NativeAutoHideTests.Run),
+            ("Instance configuration files stay separate from the other JSON", InstanceConfigFiles)
         ];
 
         var failures = 0;
@@ -304,6 +305,16 @@ internal static class Program
         {
             window.Close();
         }
+    }
+
+    private static void InstanceConfigFiles()
+    {
+        Check(TroubleshootingReset.IsInstanceConfigFile("config.json"), "The first instance uses config.json");
+        Check(TroubleshootingReset.IsInstanceConfigFile("config.instance2.json"), "Later instances use config.instanceN.json");
+        Check(!TroubleshootingReset.IsInstanceConfigFile("Presets_TD.json"), "Presets are not an instance configuration");
+        Check(!TroubleshootingReset.IsInstanceConfigFile("Colors_TD.json"), "Colors are not an instance configuration");
+        Check(!TroubleshootingReset.IsInstanceConfigFile("Shortcuts_TD.json"), "Shortcuts are not an instance configuration");
+        Check(!TroubleshootingReset.IsInstanceConfigFile("config.instance.json"), "An instance file needs a number");
     }
 
     private static DockConfig IndependentConfig() => new()

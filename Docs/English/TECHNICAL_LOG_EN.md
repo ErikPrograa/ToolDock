@@ -67,9 +67,7 @@ Arguments (`App.ParseStartupOptions`):
 | `--instances N` or `--instances=N` | Starts N instances (1–32). Extras are passed `--spawned` |
 | `--spawned` | This instance does not multiply again |
 | `--open-settings` | Opens Settings after startup |
-| `--soft-reset` | Applies the Default preset on startup |
-| `--hard-reset` | Deletes this instance's JSON, then applies Default |
-| `--ultra-hard-reset` | Same, and also deletes `Presets_TD.json` and `Colors_TD.json` |
+| `--reset-worker` | Internal process: waits until the instances exit, deletes or recycles the files, then starts the app again |
 
 Instances take a local `Mutex` whose name includes a hash of the data folder. The first uses `config.json`; instance N (≥ 2) uses `config.instanceN.json`. Practical cap: 32.
 

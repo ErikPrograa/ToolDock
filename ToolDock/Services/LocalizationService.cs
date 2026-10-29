@@ -67,15 +67,15 @@ public static class LocalizationService
             "InfoBodyWip" =>
                 "ToolDock es un trabajo en progreso. Todavía pueden existir errores e inestabilidades.",
             "TroubleshootingOpenExeFolder" => "Abrir carpeta del programa",
-            "TroubleshootingSoftReset" => "Reinicio suave",
-            "TroubleshootingSoftResetDescription" =>
-                "Aplica los valores predeterminados del dock (igual que «Restablecer todo a predeterminado»), guarda, cierra la aplicación y la vuelve a abrir; al iniciar vuelve a aplicar ese restablecimiento una vez más.",
+            "TroubleshootingResetThisInstance" => "Restablecer esta instancia",
+            "TroubleshootingResetThisInstanceDescription" =>
+                "Cierra esta instancia, elimina su archivo de configuración y vuelve a abrir la aplicación en Ajustes.",
+            "TroubleshootingResetAllInstances" => "Restablecer todas las instancias",
+            "TroubleshootingResetAllInstancesDescription" =>
+                "Cierra todas las instancias, elimina el archivo de configuración de cada una y las vuelve a abrir. Ajustes no se abre.",
             "TroubleshootingHardReset" => "Reinicio completo",
             "TroubleshootingHardResetDescription" =>
-                "Primero restablece a predeterminado y guarda. Al cerrar, se elimina el archivo de configuración de esta instancia; al volver a abrir se carga una configuración nueva y se aplica otra vez el predeterminado. Perderás lo guardado en ese JSON.",
-            "TroubleshootingUltraHardReset" => "Reinicio ultra completo",
-            "TroubleshootingUltraHardResetDescription" =>
-                "Igual que el reinicio completo, pero también elimina los archivos JSON que guardan presets personalizados y colores personalizados antes de que la aplicación se reinicie.",
+                "Cierra la aplicación y envía a la Papelera todos los archivos JSON de su carpeta, incluidos los que no haya creado la aplicación, y las carpetas Backups_TD y Temp_TD si existen. Después vuelve a abrir la aplicación.",
             "TroubleshootingDeleteAllCustomColors" => "Borrar todos los colores personalizados",
             "TroubleshootingDeleteAllCustomPresets" => "Borrar todos los presets personalizados",
             "TroubleshootingDeleteAllCustomColorsDescription" =>
@@ -90,10 +90,7 @@ public static class LocalizationService
                 "¿Seguro que quieres borrar el archivo que guarda todos los presets personalizados? Se aplicará el preset Default. Esta acción no se puede deshacer.",
             "TroubleshootingHardResetConfirmTitle" => "Reinicio completo",
             "TroubleshootingHardResetConfirmMessage" =>
-                "Se borrará el archivo de configuración de esta instancia al reiniciar. La aplicación se cerrará y volverá a abrir. ¿Deseas continuar?",
-            "TroubleshootingUltraHardResetConfirmTitle" => "Reinicio ultra completo",
-            "TroubleshootingUltraHardResetConfirmMessage" =>
-                "Se borrarán el archivo de configuración de esta instancia y los JSON de presets y colores personalizados. La aplicación se cerrará y volverá a abrir. ¿Deseas continuar?",
+                "La aplicación se cerrará. Todos los archivos JSON de la carpeta del programa, y las carpetas Backups_TD y Temp_TD, irán a la Papelera de reciclaje. Después la aplicación se volverá a abrir. Puedes recuperar esos archivos desde la Papelera. ¿Deseas continuar?",
             "TrayTroubleshooting" => "Solución de problemas",
             "DockWidthPercent" => "Ancho del dock (%)",
             "AutoAdjustDockWidth" => "Ajustar ancho del dock automáticamente",
@@ -391,15 +388,15 @@ public static class LocalizationService
             "InfoBodyWip" =>
                 "ToolDock is a work in progress. Bugs and instabilities may still exist.",
             "TroubleshootingOpenExeFolder" => "Open app folder",
-            "TroubleshootingSoftReset" => "Soft reset",
-            "TroubleshootingSoftResetDescription" =>
-                "Applies the default dock values (same as \"Reset all to default\"), saves, closes the app and starts it again; on launch it applies that reset once more.",
+            "TroubleshootingResetThisInstance" => "Reset this instance",
+            "TroubleshootingResetThisInstanceDescription" =>
+                "Closes this instance, deletes its configuration file, and opens the app again with Settings.",
+            "TroubleshootingResetAllInstances" => "Reset all instances",
+            "TroubleshootingResetAllInstancesDescription" =>
+                "Closes every instance, deletes each instance’s configuration file, and opens them again. Settings stays closed.",
             "TroubleshootingHardReset" => "Hard reset",
             "TroubleshootingHardResetDescription" =>
-                "First resets to defaults and saves. While closed, this instance’s config file is deleted; on the next launch a fresh config is loaded and defaults are applied again. You will lose settings stored in that JSON file.",
-            "TroubleshootingUltraHardReset" => "Ultra hard reset",
-            "TroubleshootingUltraHardResetDescription" =>
-                "Same as hard reset, but also deletes the JSON files that store custom presets and custom colors before the app restarts.",
+                "Closes the app and moves every JSON file in the app folder to the Recycle Bin, including JSON files the app did not create, plus the Backups_TD and Temp_TD folders. Then it opens the app again.",
             "TroubleshootingDeleteAllCustomColors" => "Delete all custom colors",
             "TroubleshootingDeleteAllCustomPresets" => "Delete all custom presets",
             "TroubleshootingDeleteAllCustomColorsDescription" =>
@@ -414,10 +411,7 @@ public static class LocalizationService
                 "Delete the file that contains all custom presets? The Default preset will be applied. This cannot be undone.",
             "TroubleshootingHardResetConfirmTitle" => "Hard reset",
             "TroubleshootingHardResetConfirmMessage" =>
-                "This instance’s configuration file will be deleted when the app restarts. The application will close and reopen. Do you want to continue?",
-            "TroubleshootingUltraHardResetConfirmTitle" => "Ultra hard reset",
-            "TroubleshootingUltraHardResetConfirmMessage" =>
-                "This instance’s configuration file and the JSON files for custom presets and custom colors will be deleted. The application will close and reopen. Do you want to continue?",
+                "The app will close. Every JSON file in the app folder, and the Backups_TD and Temp_TD folders, will be moved to the Recycle Bin. The app will then open again. You can restore those files from the Recycle Bin. Do you want to continue?",
             "TrayTroubleshooting" => "Troubleshooting",
             "DockWidthPercent" => "Dock width (%)",
             "AutoAdjustDockWidth" => "Auto adjust dock width",

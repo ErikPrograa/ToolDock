@@ -197,9 +197,9 @@ Read-only. For the current display and DPI it shows the effective dock, icon, an
 | Generate detailed log | Writes a `.txt` with configuration, displays, DPI, and dock state, for a bug report |
 | Delete all custom colors | Removes `Colors_TD.json`. Built-in colors stay |
 | Delete all custom presets | Removes `Presets_TD.json` and applies the Default preset |
-| Soft reset | Applies defaults, saves, exits, and applies defaults once more on the next start |
-| Hard reset | Also deletes this instance's `config.json`. Presets and colors in the other files stay. Asks for confirmation |
-| Ultra hard reset | Same as hard reset, and also deletes custom presets and colors. Asks for confirmation |
+| Reset this instance | Closes this instance, deletes its configuration, and opens it again with Settings. No confirmation |
+| Reset all instances | Closes every instance, deletes each configuration, and opens them again. Settings stays closed. No confirmation |
+| Hard reset | Closes the app and moves every JSON file in its folder, plus the Backups_TD and Temp_TD folders, to the Recycle Bin. Then opens one instance. Asks for confirmation |
 
 ## Presets
 

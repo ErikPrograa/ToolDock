@@ -67,9 +67,7 @@ Argumentos (`App.ParseStartupOptions`):
 | `--instances N` o `--instances=N` | Lanza N instancias (1–32). Las extra llevan `--spawned` |
 | `--spawned` | Esta instancia no vuelve a multiplicarse |
 | `--open-settings` | Abre Configuración al terminar de arrancar |
-| `--soft-reset` | Aplica el preset Predeterminado al iniciar |
-| `--hard-reset` | Borra el JSON de esta instancia y luego aplica Predeterminado |
-| `--ultra-hard-reset` | Igual, y también borra `Presets_TD.json` y `Colors_TD.json` |
+| `--reset-worker` | Proceso interno: espera a que las instancias se cierren, borra o recicla los archivos y vuelve a abrir la aplicación |
 
 Las instancias se reservan con un `Mutex` local cuyo nombre incluye un hash de la carpeta de datos. La primera usa `config.json`; la N (≥ 2) usa `config.instanceN.json`. Tope práctico: 32.
 
