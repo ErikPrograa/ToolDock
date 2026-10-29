@@ -33,7 +33,9 @@ Ancla el dock al borde superior, inferior, izquierdo o derecho del monitor. En l
 
 ### Autoocultar
 
-El dock puede esconderse en su borde y volver cuando el cursor se acerca. También puede quedarse visible hasta que una ventana de ese monitor se maximice o una ventana se superponga al dock. Estos modos son excluyentes: activar uno desactiva el otro.
+El dock puede esconderse en su borde y volver cuando el cursor se acerca o toca el borde exacto de la pantalla, según el modo elegido. **Tocar el borde** exige alcanzar el píxel extremo del monitor del dock y permanecer allí durante el retraso configurado para mostrarlo.
+
+También puede quedarse visible hasta que una ventana de ese monitor se maximice o una ventana se superponga al dock. Estos modos son excluyentes: activar uno desactiva el otro.
 
 <img width="854" height="480" alt="Autohide" src="https://github.com/user-attachments/assets/e1a67af2-547c-4d2b-b34b-80c84bb6583e" />
 
@@ -60,6 +62,9 @@ Al abrir un acceso, esa ventana puede moverse al monitor donde está el dock.
 - Color, opacidad, contorno por lado, esquinas redondeadas y presets.
 - Autoocultar, siempre encima, reserva del área de trabajo y ocultar sobre pantalla completa, ventanas maximizadas o superpuestas.
 - Varias instancias, atajos de teclado globales e interfaz en español e inglés.
+- Restablecimiento de una o todas las instancias y un reinicio completo con confirmación que envía los datos a la Papelera.
+
+Las configuraciones nuevas y el preset Predeterminado activan **No mostrar sobre apps en pantalla completa**. Una configuración existente que tenga esta opción apagada conserva esa elección.
 
 ## Requisitos
 
@@ -121,6 +126,7 @@ La guía completa está en [Docs/Español/DOCUMENTACION_USUARIO.md](Docs/Españo
 | `Colors_TD.json` | Colores personalizados |
 | `Shortcuts_TD.json` | Nombre sugerido al exportar solo los accesos |
 | `Backups_TD/` | Copia anterior de `config.json` (y de `config.instanceN.json`), guardada como `.bak` |
+| `Temp_TD/` | Guardados JSON temporales; se elimina al quedar vacía y los `.tmp` sobrantes se limpian al iniciar |
 
 `config.json` está en `.gitignore`. El resto aparece al usar la aplicación y tampoco forma parte del código fuente. Si un archivo de configuración queda a medias, ToolDock intenta recuperar la copia que está en `Backups_TD`.
 

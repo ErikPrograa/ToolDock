@@ -41,6 +41,7 @@ ToolDock/
     AppPaths.cs            carpeta de datos = directorio del proceso, no el temp del single-file
     ConfigService.cs       config.json
     DurableFile.cs         lectura con reintentos, escritura atómica, .bak, cuarentena
+    TroubleshootingReset.cs proceso de restablecimiento, borrado/Papelera y reapertura
     PresetService.cs       Presets_TD.json
     CustomColorService.cs  Colors_TD.json
     DockShortcutsFileService.cs
@@ -60,7 +61,7 @@ ToolDock/
 
 `ShutdownMode` es `OnExplicitShutdown`: cerrar la ventana del dock no sale de la aplicación. La salida es el menú de bandeja, que llama a `SaveNow` antes de `Shutdown`.
 
-Argumentos (`App.ParseStartupOptions`):
+Argumentos (`App.ParseStartupOptions`; `TroubleshootingReset.TryRunWorker` atiende primero las solicitudes de restablecimiento):
 
 | Argumento | Efecto |
 |---|---|
@@ -72,6 +73,8 @@ Argumentos (`App.ParseStartupOptions`):
 Las instancias se reservan con un `Mutex` local cuyo nombre incluye un hash de la carpeta de datos. La primera usa `config.json`; la N (≥ 2) usa `config.instanceN.json`. Tope práctico: 32.
 
 La bandeja es un icono nativo (`NativeTrayIcon`), no `NotifyIcon` de WinForms. El clic izquierdo abre Atajos de teclado. El menú contextual se tematiza con el tema claro/oscuro.
+
+El proceso auxiliar de restablecimiento usa el mismo ejecutable y actúa antes de reservar una instancia. Espera a que salgan los procesos afectados antes de modificar archivos. Los restablecimientos de instancia eliminan la familia de configuración mediante `DurableFile.DeleteFamily`; el de todas busca cada `config.json` / `config.instanceN.json` de la carpeta de datos y vuelve a abrir el número de instancias que estaban ejecutándose. El reinicio completo usa `SHFileOperationW` para enviar a la Papelera todos los JSON de esa carpeta y `Backups_TD/` y `Temp_TD/`, y abre una instancia. La búsqueda de procesos se limita a la misma ruta del ejecutable. Solo el reinicio completo pide confirmación.
 
 ## Modelo de configuración
 
@@ -103,6 +106,8 @@ Rangos que impone el modelo (no solo la UI):
 
 Otros valores de fábrica: borde superior, alineación centrada, esquinas redondeadas en los cuatro lados, fondo `#1F1F1F`, contorno blanco en los cuatro lados, hover activo, autohide apagado, revelación por proximidad, siempre encima activo. Idioma inglés, tema oscuro.
 
+`DoNotShowOverFullscreen` parte de `true` en configuraciones nuevas, `ResetBehaviour` y el preset Predeterminado. Un valor `false` guardado en una configuración existente se conserva al cargar.
+
 Combinaciones que el modelo rechaza si no está cargando:
 
 - Ocultar detrás de la barra de tareas exige autohide y siempre encima.
@@ -118,6 +123,8 @@ El HEX inválido no se aplica: `NormalizeColorInput` añade `#` y `IsValidHexCol
 `DurableFile` lee con reintentos ante bloqueos breves (típico al iniciar sesión). Escribe a un temporal y reemplaza. La configuración anterior queda como `.bak` en `Backups_TD`, junto al ejecutable. Un JSON vacío o ilegible se aparta (`Quarantine`) antes de restaurar la copia, para no pisar el `.bak` bueno. Si el archivo existe pero no se puede leer, `ConfigService` no persiste encima: un guardado en ese momento sustituiría la configuración por los valores por defecto.
 
 El guardado de la ventana principal va con debounce (250 ms) y otro guardado explícito al salir o antes de reiniciar.
+
+Los temporales de escritura JSON usan `Temp_TD/.<archivo>.<pid>.tmp` dentro de la carpeta de datos de destino. El directorio temporal se elimina cuando queda vacío. El arranque llama a `DurableFile.ClearStaleTemps` antes de cargar la configuración de la instancia; borra los `.tmp` sobrantes y conserva los archivos bloqueados por otra escritura.
 
 Presets (`PresetService`): se ignoran los que no traen `DataSchemaVersion >= 3`. Así se descartan unidades de versiones anteriores en lugar de reinterpretarlas.
 
@@ -146,6 +153,8 @@ Drop externo: solo `.exe` y `.lnk`, sin duplicados por ruta. El selector de arch
 Iconos: `IconService` elige un tamaño de extracción según DPI y hover. `HighQualityIcons` sube a 256 px. El orden es icono personalizado, logo UWP, `IconLocation` del `.lnk`, icono del destino del acceso, un `.ico` junto al ejecutable y, al final, el icono asociado del shell. Un `IconPath` opcional (`.ico`, `.png`, `.jpg`, `.exe`, `.dll`) sustituye al icono del destino.
 
 Hotkeys globales: tres ids (`0xB001` mostrar/ocultar, `0xB002` poner encima, `0xB003` desactivar). Modificadores en el formato de `RegisterHotKey` (Alt 1, Control 2, Mayús 4, Win 8).
+
+`ShowHideHotkey` sigue siendo editable y se guarda con autoocultar activo, pero `RegisterHotkeys` omite su registro. En Ajustes solo se atenúa su etiqueta; los botones de asignar y borrar siguen activos. Los otros dos atajos se registran independientemente del autoocultado.
 
 ## Interfaz de ajustes que no está activa
 
@@ -192,11 +201,42 @@ En cada cambio que altere comportamiento, persistencia o límites, añade una en
 - Riesgos: ninguno de ejecución. Quien tuviera enlaces a los Markdown de la raíz debe usar `Docs/English/` o `Docs/Español/`.
 - Validación: contraste con `DockConfig`, `App.xaml.cs`, `SettingsWindow.xaml`, `LocalizationService` y los servicios de persistencia. No se ejecutó la aplicación para esta pasada de documentación.
 
+## 2026-10-27 — Documentación y nombres de la interfaz
+
+- Commit: `d1914f8`. Actualizó los nombres de la interfaz en inglés, retiró la afirmación obsoleta de que no existía licencia e ignoró los artefactos locales de `graphify-out/`. Los README identifican la licencia MIT; estos ajustes no cambian el comportamiento de la aplicación.
+- Validación: revisión del diff del commit y de la documentación actual durante esta pasada documental.
+
 ## 2026-10-28 — Superposición de ventanas y distancias independientes
 
+- Commit: `4ffc2e8`.
 - Cambios: nueva opción de ocultar por intersección junto a ocultar con ventana maximizada; distancia de activación desde 1 DIP y eliminación de su límite sobre el radio del hover. Cada ajuste conserva su propio rango. Los esquemas de configuración y presets siguen en versión 3; en archivos existentes, la nueva condición queda desactivada.
 - Archivos: modelos de configuración y presets, ventanas principal y de ajustes, interoperabilidad Win32, localización, restablecimiento de presets y `tests/ToolDock.RegressionTests`.
 - Riesgos: la geometría entre monitores y las animaciones necesitan comprobaciones interactivas; la intersección debe usar el marco en reposo para evitar ciclos de ocultar/mostrar.
 - Comando de validación desde la raíz del repositorio: `dotnet run --project tests/ToolDock.RegressionTests` (sin paquetes externos de pruebas).
 - Ajuste posterior: modos de ventana excluyentes y nuevo orden de toggles en Comportamiento. Las pruebas cubren el cambio desde ambos controles, JSON/presets anteriores con ambos activos, el orden solicitado y ventanas maximizadas sin intersección.
 - Resultado: recompilaciones Debug y Release correctas, con 0 advertencias y 0 errores; los 8 grupos de regresión pasaron, incluidos filtros de ventanas nativas, combinación de condiciones, contacto entre bordes y estabilidad del área visible/oculta en los cuatro bordes. El hardware con DPI mixto y la animación visual quedan como comprobaciones manuales.
+
+## 2026-10-28 — Atajos, guardados temporales, pantalla completa y restablecimientos
+
+- `a060cda`: habilitó los botones de asignar/borrar el atajo Mostrar/Ocultar con autoocultar activo. La combinación guardada sigue sin registrarse hasta desactivar autoocultar; solo se atenúa la etiqueta.
+- `2245c35`: tradujo al inglés los comentarios del código, XAML y proyecto. Los textos de la interfaz y la documentación en español conservaron su idioma; no cambió el comportamiento.
+- `1c5b719`: movió los temporales de escritura JSON a `Temp_TD/`, elimina la carpeta cuando queda vacía y limpia al iniciar los `.tmp` sobrantes, conservando los archivos que otra instancia todavía tenga abiertos.
+- `1672b14`: activó la ocultación sobre pantalla completa en configuraciones nuevas, restablecimientos de comportamiento del modelo y el preset Predeterminado. Las configuraciones existentes que guardan explícitamente `false` conservan ese valor.
+- `fcda0cf`: sustituyó los antiguos reinicios suave/completo/ultra por Restablecer esta instancia, Restablecer todas las instancias y Reinicio completo. Los restablecimientos de instancia borran las familias de configuración y conservan presets, colores y exportaciones compartidos. El reinicio completo envía a la Papelera todos los JSON de la carpeta de la aplicación, incluidos los ajenos a ToolDock, junto con las carpetas de copias y temporales. El proceso auxiliar del mismo ejecutable cierra las instancias afectadas antes de modificar archivos; esta instancia reabre Ajustes, todas restaura la cantidad en ejecución sin Ajustes y el completo abre una instancia sin Ajustes.
+- Archivos: ciclo de vida de la app, `TroubleshootingReset`, `DurableFile`, interfaz de ajustes, valores predeterminados de configuración/presets, localización y ejecutor de regresiones; la traducción de comentarios también afectó a otros archivos de código.
+- Validación: contraste con los diffs y el código actual. Los registros de los commits indican 8/8 grupos Debug para los temporales y 9/9 para el cambio de restablecimientos. La cobertura automática de restablecimientos comprueba la clasificación de nombres de archivo, no toda la secuencia de cierre/borrado/Papelera/reapertura. No se ejecutaron restablecimientos durante esta pasada documental.
+
+## 2026-10-29 — Alineación estable al cambiar de preset
+
+- Commit: `ad36e81`.
+- Cambios: `UpdateDockVisualsAndLayout` impide actualizaciones de layout WPF reentrantes y encola una solicitud anidada hasta terminar la actual. Evita que un preset que cambia varios tamaños deje el dock desplazado respecto al borde, incluso al volver a Predeterminado con separación cero. Los JSON de presets compatibles no necesitan migración ni sustitución.
+- Archivos: `ToolDock/MainWindow.xaml.cs`.
+- Validación: revisión del commit y de la protección/actualización diferida actual. El cambio visual de presets sigue siendo una comprobación interactiva; no se hizo una nueva validación de ejecución durante esta pasada documental.
+
+## 2026-10-29 — Revelado en el borde exacto de la pantalla
+
+- Commit: `b69fb96`.
+- Cambios: `EdgeTouch` sustituye el margen de activación de 4 DIP por una comparación de la posición original de `GetCursorPos` con `MonitorInfo.BoundsPx`: `Left`, `Top`, `Right - 1` o `Bottom - 1`. La detección usa los límites completos del monitor y el tramo del marco del dock en reposo con su margen existente. `MouseEnter` sobre la franja oculta no puede saltarse esta comprobación; salir del borde cancela el temporizador de aparición, que también verifica el contacto antes de mostrar. Proximidad y las acciones explícitas de mostrar conservan su comportamiento.
+- Archivos: `ToolDock/MainWindow.xaml.cs`, `tests/ToolDock.RegressionTests/NativeAutoHideTests.cs` y su README. Los README de la raíz y las guías de usuario en ambos idiomas describen el comportamiento actualizado.
+- Riesgos: el comportamiento visual en monitores reales con DPI mixto queda como comprobación manual. Al 100 % de escala, la proximidad de 1 DIP puede coincidir con el contacto exacto en el borde inferior/derecho.
+- Validación: compilación Debug y publicación portable Release correctas; los 9 grupos de regresión pasaron. Se cubren los cuatro bordes, píxeles interiores/exteriores, coordenadas negativas de monitor, áreas de trabajo reservadas, métricas DPI simuladas de 96/120/144/192, entrada del ratón y aparición diferida. Las pruebas nativas se ejecutaron fuera del sandbox para leer el cursor sin moverlo. NuGet emitió `NU1900` al consultar vulnerabilidades; no impidió compilar ni probar. Esta actualización documental se contrastó con la implementación; no se repitieron las pruebas por cambios solo de texto.

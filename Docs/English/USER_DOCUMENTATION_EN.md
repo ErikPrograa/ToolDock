@@ -117,11 +117,13 @@ Three global hotkeys. Click the button, then press the combination (Ctrl, Alt, S
 
 | Hotkey | Effect |
 |---|---|
-| Show/hide dock | Toggles visibility |
+| Show/hide dock | Toggles visibility when autohide is off |
 | Set dock on top | Same as tray **Set on top** |
 | Disable dock | Toggles the session-only disabled state |
 
-If another program already registered the same combination, ToolDock cannot take it. The show/hide control is dimmed in that case.
+With autohide on, only the **Show/hide dock** label is dimmed. You can still assign, change, or clear the combination, but it is not active until autohide is turned off. **Set dock on top** and **Disable dock** remain available.
+
+If another program already registered the same combination, ToolDock cannot take it.
 
 ### Size and position
 
@@ -168,7 +170,7 @@ Type a HEX color (`#RRGGBB` or `#RGB`; a missing `#` is added), give it a name, 
 | Option | Effect |
 |---|---|
 | Always on top | The dock stays above normal windows |
-| Do not show over fullscreen apps | The dock is not drawn over a fullscreen program |
+| Do not show over fullscreen apps | Hides the dock while a fullscreen app has focus on the dock's display; on by default |
 | Open apps on the dock's display | Tries to move the launched window to the dock's display |
 | Reserve work-area space | Windows treats the dock like a bar: maximized windows do not cover it. Cannot be combined with autohide |
 | Autohide | The dock slides into its edge and comes back according to the chosen mode |
@@ -176,14 +178,22 @@ Type a HEX color (`#RRGGBB` or `#RGB`; a missing `#` is added), give it a name, 
 | Hide when a window is maximized | With autohide on, a maximized window on the dock's display allows it to hide |
 | Hide when a window intersects the dock | With autohide on, a window overlapping the dock allows it to hide, even if that window is not maximized |
 
+Fullscreen suppression works with autohide on or off. New configurations and the Default preset enable it; loading an existing configuration with this option saved as off preserves that choice.
+
 Both window conditions are off by default. Enabling one turns the other off. In intersection mode, the dock stays visible when no window overlaps it, including when a maximized window does not touch it. With neither enabled, normal autohide applies. The pointer can still reveal the dock using the selected mode and delays. Minimized or hidden windows, the desktop, and the taskbar do not trigger these conditions.
 
 With autohide on you can also set:
 
-- **Show dock when…** the pointer touches the edge, or comes near it (proximity).
-- Activation distance, in centimeters: 1–400 logical pixels (about 0.03–10.58 cm), independent of hover radius. Factory: about 1.6 cm (60 logical pixels at 96 DPI).
+- **Reveal dock when…**: **Touch screen edge** or **Cursor near screen edge** (proximity).
+- Activation distance for proximity, in centimeters: 1–400 logical pixels (about 0.03–10.58 cm), independent of hover radius. Factory: about 1.6 cm (60 logical pixels at 96 DPI).
 - Slide animation and its duration (0–1200 ms; factory 150).
 - Delay before show (0–4000 ms; factory 150) and before hide (factory 250).
+
+**Touch screen edge** requires the pointer's active point (normally the arrow tip) to reach the outermost physical pixel on the selected edge of the dock's monitor, within the dock's activation span. This means the full screen edge, even when the taskbar reduces the work area. Moving over the visible strip of the hidden dock does not trigger this mode.
+
+Keep the pointer at that edge for the reveal delay. Leaving it cancels the pending reveal; touching it again starts the delay again. Dragging files onto the dock and using **Set on top** from the tray or the **Set dock on top** hotkey still work.
+
+At 100% display scaling, a proximity distance of 1 logical pixel can coincide with exact contact on the bottom or right edge. The screen-edge mode always requires the outermost physical pixel, regardless of scaling.
 
 ### Details
 
@@ -197,9 +207,11 @@ Read-only. For the current display and DPI it shows the effective dock, icon, an
 | Generate detailed log | Writes a `.txt` with configuration, displays, DPI, and dock state, for a bug report |
 | Delete all custom colors | Removes `Colors_TD.json`. Built-in colors stay |
 | Delete all custom presets | Removes `Presets_TD.json` and applies the Default preset |
-| Reset this instance | Closes this instance, deletes its configuration, and opens it again with Settings. No confirmation |
-| Reset all instances | Closes every instance, deletes each configuration, and opens them again. Settings stays closed. No confirmation |
-| Hard reset | Closes the app and moves every JSON file in its folder, plus the Backups_TD and Temp_TD folders, to the Recycle Bin. Then opens one instance. Asks for confirmation |
+| Reset this instance | Closes this instance, deletes its configuration and associated backup files, and opens it again with Settings. No confirmation |
+| Reset all instances | Closes all instances of this executable, deletes every instance configuration in its folder and associated backups, and opens the same number of instances again. Settings stays closed. No confirmation |
+| Hard reset | Closes all instances of this executable and sends every JSON file in its folder, plus `Backups_TD/` and `Temp_TD/`, to the Recycle Bin. Then opens one instance without Settings. Asks for confirmation |
+
+Instance resets remove the affected settings and dock shortcut lists, including configurations of instances that are not currently running when resetting all instances. Saved presets, custom colors, and exported shortcut files remain. Hard reset also includes JSON files placed in the program folder by other tools; keep ToolDock in its own folder.
 
 ## Presets
 
@@ -211,6 +223,8 @@ A preset stores size, position, appearance, icon metrics and hover (not the shor
 - **Delete preset** removes the selected preset when it is one you created.
 
 Older presets, from before measurements were stored as logical pixels, are dropped when `Presets_TD.json` is read.
+
+Switching presets recalculates the dock's size and edge placement, including when returning to Default. The fix for displaced docks after preset changes does not require deleting or recreating supported presets.
 
 ## Application files
 
@@ -224,9 +238,12 @@ All of them live in the same folder as `ToolDock.exe`:
 | `Colors_TD.json` | Named colors |
 | `Shortcuts_TD.json` | Only if you export the shortcut list; you can save it under another name |
 | `Backups_TD/` | Previous copy of the configuration, saved as `.bak`. If a JSON file is cut off (for example when the PC shuts down), ToolDock tries to recover this copy |
+| `Temp_TD/` | Temporary files used while saving JSON; removed when empty |
 | `*.corrupt-*` | An unreadable file set aside so it does not overwrite the backup |
 
 Copying that folder backs up your configuration. You do not need to copy the `.exe` if you only want the data.
+
+On launch, ToolDock removes leftover `.tmp` files from interrupted saves in `Temp_TD/`. Files still open by another instance are left alone. This temporary folder is not needed in a backup.
 
 ## Multiple instances
 

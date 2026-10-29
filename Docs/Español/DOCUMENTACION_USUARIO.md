@@ -117,11 +117,13 @@ Tres atajos globales. Pulsa el botón, luego la combinación (puede incluir Ctrl
 
 | Atajo | Efecto |
 |---|---|
-| Mostrar/Ocultar dock | Alterna la visibilidad |
+| Mostrar/Ocultar dock | Alterna la visibilidad cuando autoocultar está apagado |
 | Poner el dock encima | Equivale a **Poner encima** de la bandeja |
 | Desactivar dock | Activa o desactiva el dock en esta sesión |
 
-Si otra aplicación ya registró la misma combinación, ToolDock no puede usarla. El control de mostrar/ocultar se atenúa en ese caso.
+Con autoocultar activo, solo se atenúa la etiqueta **Mostrar/Ocultar dock**. Puedes asignar, cambiar o borrar la combinación, pero no estará activa hasta desactivar autoocultar. **Poner el dock encima** y **Desactivar dock** siguen disponibles.
+
+Si otra aplicación ya registró la misma combinación, ToolDock no puede usarla.
 
 ### Tamaño y posición
 
@@ -168,7 +170,7 @@ Escribe un color HEX (`#RRGGBB` o `#RGB`; si omites `#`, se añade), ponle un no
 | Opción | Efecto |
 |---|---|
 | Siempre encima | El dock queda por encima de las ventanas normales |
-| No mostrar sobre apps en pantalla completa | El dock no se dibuja encima de un programa a pantalla completa |
+| No mostrar sobre apps en pantalla completa | Oculta el dock mientras una app a pantalla completa tiene el foco en el monitor del dock; activa por defecto |
 | Abrir las apps en la pantalla del dock | Intenta mover la ventana abierta al monitor del dock |
 | Reservar espacio en el área de trabajo | Windows trata el dock como una barra: las ventanas maximizadas no lo cubren. No se puede combinar con autoocultar |
 | Autoocultar | El dock se esconde en su borde y vuelve a salir según el modo elegido |
@@ -176,14 +178,22 @@ Escribe un color HEX (`#RRGGBB` o `#RGB`; si omites `#`, se añade), ponle un no
 | Ocultar cuando hay una ventana maximizada | Con autoocultar activo, una ventana maximizada en el monitor del dock permite que se oculte |
 | Ocultar cuando una ventana se superpone al dock | Con autoocultar activo, una ventana superpuesta al dock permite que se oculte, aunque no esté maximizada |
 
+La ocultación sobre pantalla completa funciona con autoocultar activo o inactivo. Las configuraciones nuevas y el preset Predeterminado la activan; al cargar una configuración existente que la tenga guardada como apagada, se conserva esa elección.
+
 Las dos condiciones de ventana están desactivadas por defecto. Activar una desactiva la otra. En modo intersección, el dock permanece visible cuando ninguna ventana se superpone con él, incluso si hay una ventana maximizada que no lo toca. Sin ninguna activada, funciona el autoocultado normal. El cursor sigue mostrando el dock según el modo y los retrasos elegidos. Las ventanas minimizadas u ocultas, el escritorio y la barra de tareas no activan estas condiciones.
 
 Con autoocultar activo también puedes ajustar:
 
-- **Mostrar dock al…** tocar el borde, o acercar el cursor (proximidad).
-- Distancia de activación, en centímetros: 1–400 píxeles lógicos (aproximadamente 0,03–10,58 cm), independiente del radio del hover. Fábrica: unos 1,6 cm (60 px lógicos a 96 DPI).
+- **Mostrar dock al…**: **Tocar el borde** o **Acercar el cursor al borde** (proximidad).
+- Distancia de activación para proximidad, en centímetros: 1–400 píxeles lógicos (aproximadamente 0,03–10,58 cm), independiente del radio del hover. Fábrica: unos 1,6 cm (60 px lógicos a 96 DPI).
 - Animación de deslizamiento y su duración (0–1200 ms; fábrica 150).
 - Espera para mostrar (0–4000 ms; fábrica 150) y para ocultar (fábrica 250).
+
+**Tocar el borde** exige que el punto activo del cursor (normalmente la punta de la flecha) alcance el píxel físico extremo del borde elegido en el monitor del dock, dentro de su tramo de activación. Se usa el borde de la pantalla completa, incluso cuando la barra de tareas reduce el área de trabajo. Pasar sobre la franja visible del dock oculto no activa este modo.
+
+Mantén el cursor en ese borde durante el retraso para mostrar. Si lo apartas, se cancela la aparición pendiente; al volver a tocarlo, el retraso empieza de nuevo. Arrastrar archivos al dock y usar **Poner encima** desde la bandeja o el atajo **Poner el dock encima** siguen funcionando.
+
+Con la escala de pantalla al 100 %, una distancia de proximidad de 1 píxel lógico puede coincidir con el contacto exacto en el borde inferior o derecho. El modo de tocar el borde siempre exige el píxel físico extremo, independientemente de la escala.
 
 ### Detalles
 
@@ -197,9 +207,11 @@ No edita nada. Muestra, para el monitor y el DPI actuales, el tamaño efectivo d
 | Generar registro detallado | Crea un `.txt` con configuración, monitores, DPI y estado del dock, para adjuntar a un informe |
 | Borrar todos los colores personalizados | Elimina `Colors_TD.json`. Los colores integrados siguen |
 | Borrar todos los presets personalizados | Elimina `Presets_TD.json` y aplica el preset Predeterminado |
-| Restablecer esta instancia | Cierra esta instancia, elimina su configuración y la vuelve a abrir en Ajustes. No pide confirmación |
-| Restablecer todas las instancias | Cierra todas, elimina la configuración de cada una y las vuelve a abrir. Ajustes no se abre. No pide confirmación |
-| Reinicio completo | Cierra la aplicación y envía a la Papelera todos los JSON de su carpeta, y las carpetas Backups_TD y Temp_TD. Después abre una instancia. Pide confirmación |
+| Restablecer esta instancia | Cierra esta instancia, elimina su configuración y las copias de seguridad asociadas, y la vuelve a abrir en Ajustes. No pide confirmación |
+| Restablecer todas las instancias | Cierra todas las instancias de este ejecutable, elimina todas las configuraciones de instancia de su carpeta y sus copias de seguridad, y vuelve a abrir el mismo número de instancias. Ajustes no se abre. No pide confirmación |
+| Reinicio completo | Cierra todas las instancias de este ejecutable y envía a la Papelera todos los JSON de su carpeta, junto con `Backups_TD/` y `Temp_TD/`. Después abre una instancia sin Ajustes. Pide confirmación |
+
+Los restablecimientos de instancias eliminan los ajustes y las listas de accesos afectados; al restablecer todas, también se eliminan configuraciones de instancias que no estén ejecutándose. Se conservan los presets guardados, los colores personalizados y los archivos de accesos exportados. El reinicio completo también incluye los JSON que otras herramientas hayan colocado en la carpeta del programa; usa una carpeta propia para ToolDock.
 
 ## Presets
 
@@ -211,6 +223,8 @@ Un preset guarda tamaño, posición, apariencia, iconos (tamaño y hover, no la 
 - **Borrar preajuste** elimina el preset seleccionado, si es uno tuyo.
 
 Los presets antiguos, de cuando las medidas no estaban en píxeles lógicos, se descartan al leer `Presets_TD.json`.
+
+Cambiar de preset recalcula el tamaño y la posición del dock junto al borde, incluso al volver a Predeterminado. La corrección del desplazamiento tras cambiar de preset no requiere borrar ni recrear los presets compatibles.
 
 ## Archivos de la aplicación
 
@@ -224,9 +238,12 @@ Todos viven en la misma carpeta que `ToolDock.exe`:
 | `Colors_TD.json` | Colores con nombre |
 | `Shortcuts_TD.json` | Solo si exportas la lista de accesos; puedes guardarlo con otro nombre |
 | `Backups_TD/` | Copia anterior de la configuración, guardada como `.bak`. Si un JSON queda a medias (por ejemplo al apagar el equipo), ToolDock intenta recuperar esta copia |
+| `Temp_TD/` | Archivos temporales usados al guardar JSON; se elimina al quedar vacía |
 | `*.corrupt-*` | Archivo ilegible apartado para no pisar la copia de seguridad |
 
 Hacer una copia de esa carpeta guarda la configuración. No hace falta copiar el `.exe` si solo quieres el respaldo de los datos.
+
+Al iniciar, ToolDock elimina de `Temp_TD/` los `.tmp` sobrantes de guardados interrumpidos. Los archivos que otra instancia todavía tenga abiertos se conservan. Esta carpeta temporal no es necesaria en una copia de seguridad.
 
 ## Varias instancias
 

@@ -41,6 +41,7 @@ ToolDock/
     AppPaths.cs            data folder = process directory, not the single-file temp dir
     ConfigService.cs       config.json
     DurableFile.cs         retried reads, atomic write, .bak, quarantine
+    TroubleshootingReset.cs instance reset worker, file deletion/recycling, relaunch
     PresetService.cs       Presets_TD.json
     CustomColorService.cs  Colors_TD.json
     DockShortcutsFileService.cs
@@ -60,7 +61,7 @@ ToolDock/
 
 `ShutdownMode` is `OnExplicitShutdown`: closing the dock window does not exit. Exit is the tray menu, which calls `SaveNow` before `Shutdown`.
 
-Arguments (`App.ParseStartupOptions`):
+Arguments (`App.ParseStartupOptions`; reset requests are handled first by `TroubleshootingReset.TryRunWorker`):
 
 | Argument | Effect |
 |---|---|
@@ -72,6 +73,8 @@ Arguments (`App.ParseStartupOptions`):
 Instances take a local `Mutex` whose name includes a hash of the data folder. The first uses `config.json`; instance N (≥ 2) uses `config.instanceN.json`. Practical cap: 32.
 
 The tray icon is native (`NativeTrayIcon`), not the WinForms `NotifyIcon`. Left-click opens Hotkeys. The context menu is themed with the light/dark theme.
+
+Reset workers run from the same executable before reserving an instance slot. They wait for the affected processes to exit before changing files. Instance resets remove the configuration family through `DurableFile.DeleteFamily`; reset-all finds every `config.json` / `config.instanceN.json` in the data folder and relaunches the number of running instances. Hard reset uses `SHFileOperationW` to send every top-level JSON plus `Backups_TD/` and `Temp_TD/` to the Recycle Bin, then relaunches one instance. Process discovery is limited to the same executable path. Only hard reset asks for confirmation.
 
 ## Configuration model
 
@@ -103,6 +106,8 @@ Ranges enforced by the model (not only by the UI):
 
 Other factory values: top edge, centered alignment, rounded corners on all four sides, background `#1F1F1F`, white outline on all four sides, hover on, autohide off, proximity reveal, always-on-top on. English language, dark theme.
 
+`DoNotShowOverFullscreen` defaults to `true` in new configurations, `ResetBehaviour`, and the Default preset. A saved `false` value in an existing configuration is preserved on load.
+
 Combinations the model rejects outside of load:
 
 - Hide-behind-taskbar requires autohide and always-on-top.
@@ -118,6 +123,8 @@ Invalid HEX is not applied: `NormalizeColorInput` adds `#` and `IsValidHexColor`
 `DurableFile` retries reads when the file is briefly locked (typical at sign-in). It writes to a temp file and then replaces the target. The previous configuration is kept as a `.bak` in `Backups_TD`, next to the executable. An empty or unreadable JSON is quarantined before the backup is restored, so a good `.bak` is not overwritten. If the file exists but cannot be read, `ConfigService` refuses to persist over it: a save at that moment would replace the configuration with factory defaults.
 
 The main window saves on a 250 ms debounce, plus an explicit save on exit or before a restart.
+
+JSON write temps use `Temp_TD/.<filename>.<pid>.tmp` inside the destination's data folder. The temp directory is removed when empty. Startup calls `DurableFile.ClearStaleTemps` before loading the instance configuration; it deletes leftover `.tmp` files and leaves files locked by another writer alone.
 
 Presets (`PresetService`): entries whose `DataSchemaVersion` is below 3 are ignored. That drops older units instead of reinterpreting them.
 
@@ -146,6 +153,8 @@ External drop: `.exe` and `.lnk` only, no duplicate paths. The file picker offer
 Icons: `IconService` picks an extraction size from DPI and hover. `HighQualityIcons` raises that to 256 px. Resolution order is custom icon, UWP logo, the `.lnk` `IconLocation`, the shortcut target's icon, a `.ico` beside the executable, then the shell associated icon. An optional `IconPath` (`.ico`, `.png`, `.jpg`, `.exe`, `.dll`) replaces the target's icon.
 
 Global hotkeys: three ids (`0xB001` show/hide, `0xB002` bring forward, `0xB003` disable). Modifiers use the `RegisterHotKey` flags (Alt 1, Control 2, Shift 4, Win 8).
+
+`ShowHideHotkey` remains editable and saved while autohide is on, but `RegisterHotkeys` skips registering it. Only its label is dimmed in Settings; the assign and clear buttons stay enabled. The other two hotkeys are registered independently of autohide.
 
 ## Settings UI that is not active
 
@@ -192,11 +201,42 @@ When a change affects behavior, persistence, or limits, add a dated entry. Do no
 - Risks: none at runtime. Links that pointed at the root markdown files should use `Docs/English/` or `Docs/Español/`.
 - Validation: checked against `DockConfig`, `App.xaml.cs`, `SettingsWindow.xaml`, `LocalizationService`, and the persistence services. The app was not run for this documentation pass.
 
+## 2026-10-27 — Documentation and UI terminology
+
+- Commit: `d1914f8`. Updated English UI names, removed the obsolete claim that the repository had no license, and ignored local `graphify-out/` artifacts. The READMEs identify the MIT license; these edits do not change runtime behavior.
+- Validation: reviewed the commit diff and current documentation during this documentation pass.
+
 ## 2026-10-28 — Window overlap and independent distances
 
+- Commit: `4ffc2e8`.
 - Changes: added optional hide-on-intersection alongside hide-on-maximize; lowered activation distance to 1 DIP and removed its cap on hover radius. Both settings keep their own bounds. The configuration and preset schemas stay at version 3; existing files default the new condition to off.
 - Files: configuration and preset models, main/settings windows, Win32 interop, localization, preset reset, and `tests/ToolDock.RegressionTests`.
 - Risks: window geometry across displays and slide animation need interactive checks; overlap must use the resting frame to avoid hide/reveal oscillation.
 - Validation command from the repository root: `dotnet run --project tests/ToolDock.RegressionTests` (no external test packages).
 - Follow-up: made the window conditions mutually exclusive and reordered Behaviour toggles. Regression checks cover switching from either checkbox, legacy conflicting JSON/presets, the requested row order, and maximized windows without intersection.
 - Result: Debug and Release rebuilds passed with 0 warnings and 0 errors; all 8 regression groups passed, including native window filters, condition combinations, edge contact, and stable visible/hidden bounds on all four edges. Mixed-DPI hardware and visual animation remain manual checks.
+
+## 2026-10-28 — Hotkeys, temporary saves, fullscreen defaults, and resets
+
+- `a060cda`: made the Show/hide hotkey assign/clear buttons available with autohide on. The saved combination still remains unregistered until autohide is off; dimming applies only to the label.
+- `2245c35`: translated source, XAML, and project comments to English. Spanish UI strings and documentation stayed in Spanish; no runtime behavior changed.
+- `1c5b719`: moved JSON write temps into `Temp_TD/`, removed the folder when empty, and added startup cleanup of leftover `.tmp` files while retaining files still open by another instance.
+- `1672b14`: enabled fullscreen suppression for new configurations, model behaviour resets, and the Default preset. Existing configurations explicitly saving `false` keep that value.
+- `fcda0cf`: replaced the old soft/hard/ultra-hard reset actions with Reset this instance, Reset all instances, and Hard reset. Instance resets delete configuration families and preserve shared presets/colors/exports. Hard reset recycles all JSON in the application folder, including files not created by ToolDock, plus the backup and temp folders. The same-executable worker closes affected instances before modifying files; this-instance reopens Settings, reset-all restores the running count without Settings, and hard reset opens one instance without Settings.
+- Files: app lifecycle, `TroubleshootingReset`, `DurableFile`, settings UI, configuration/preset defaults, localization, and the regression runner; comment translation also touched other source files.
+- Validation: changes checked against commit diffs and current source. The commit records report 8/8 Debug regression groups for temporary saves and 9/9 for the reset update. Automated reset coverage checks filename classification, not the full close/delete/recycle/relaunch sequence. No resets were executed for this documentation pass.
+
+## 2026-10-29 — Stable edge alignment after preset changes
+
+- Commit: `ad36e81`.
+- Changes: `UpdateDockVisualsAndLayout` guards against reentrant WPF layout updates and queues a nested request until the current pass finishes. This prevents a preset changing several size settings from leaving the dock displaced from its edge, including after returning to Default with zero edge gap. Supported preset JSON does not need migration or replacement.
+- Files: `ToolDock/MainWindow.xaml.cs`.
+- Validation: checked the commit and the current guard/deferred update. Visual preset switching remains an interactive check; no new runtime validation was performed for this documentation pass.
+
+## 2026-10-29 — Exact screen-edge reveal
+
+- Commit: `b69fb96`.
+- Changes: `EdgeTouch` replaces the 4-DIP activation margin with a comparison of the raw `GetCursorPos` position against `MonitorInfo.BoundsPx`: `Left`, `Top`, `Right - 1`, or `Bottom - 1`. Detection uses the full monitor bounds and the resting dock frame's span plus its existing padding. `MouseEnter` on the hidden strip cannot bypass this check; leaving the edge cancels the reveal timer, which also rechecks contact before showing. Proximity and explicit reveal actions retain their behavior.
+- Files: `ToolDock/MainWindow.xaml.cs`, `tests/ToolDock.RegressionTests/NativeAutoHideTests.cs`, and its README. Both root READMEs and user guides describe the updated behavior.
+- Risks: visual behavior on real mixed-DPI monitors remains a manual check. At 100% scaling, 1-DIP proximity can coincide with exact contact on the bottom/right edge.
+- Validation: Debug build and portable Release publish succeeded; all 9 regression groups passed. Coverage includes four edges, inward/outward pixels, negative monitor coordinates, reserved work areas, simulated 96/120/144/192 DPI metrics, mouse-enter handling, and delayed reveal. Native checks ran outside the sandbox to read the cursor without moving it. NuGet reported `NU1900` while querying vulnerability data; it did not prevent building or testing. This documentation update was checked against the implementation; tests were not rerun for text-only edits.
