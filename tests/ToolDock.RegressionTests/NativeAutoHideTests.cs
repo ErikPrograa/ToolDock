@@ -30,6 +30,7 @@ internal static class NativeAutoHideTests
             CheckWindowFilters(dock, config, self);
             CheckDockGeometry(dock, config);
             CheckScreenEdgeReveal(dock, config);
+            CheckAutohideWhileDragging(dock, config);
             Check(!dock.IsVisible, "The test never displays the dock");
         }
         finally
@@ -108,6 +109,7 @@ internal static class NativeAutoHideTests
         SetWindowLong(hwnd, -16, VisiblePopup);
         Check(Requires(overlap), "Intersection mode accepts an overlapping non-maximized window");
         Check(!Requires(Rect.Empty), "No intersection means remain visible");
+        CheckDelayedIntersectionReveal(dock, config, hwnd, bounds);
         SetWindowLong(hwnd, -16, VisiblePopup | 0x20000000);
         Check(!Requires(overlap), "Minimized windows are excluded");
 
@@ -116,6 +118,63 @@ internal static class NativeAutoHideTests
         {
             Check(!(bool)Call(dock, "WindowRequiresAutohide", shell, self, monitor,
                 new Rect(-100000, -100000, 200000, 200000)), "The desktop is excluded");
+        }
+    }
+
+    private static void CheckDelayedIntersectionReveal(MainWindow dock, DockConfig config, IntPtr candidate, Rect bounds)
+    {
+        config.AutoHideRevealMode = AutoHideRevealMode.Proximity;
+        config.AutoHideProximityDistance = 1;
+        config.AutoHideRevealDelayMs = 175;
+        var monitorField = typeof(MainWindow).GetField("_activeMonitor", PrivateInstance)!;
+        var hiddenField = typeof(MainWindow).GetField("_isHiddenByAutohide", PrivateInstance)!;
+        var showTimer = (DispatcherTimer)typeof(MainWindow).GetField("_autoShowTimer", PrivateInstance)!.GetValue(dock)!;
+        var monitor = (MonitorInfo)monitorField.GetValue(dock)!;
+        var scale = DisplayService.GlobalDipScale();
+        var logicalBounds = new Rect(bounds.Left / scale, bounds.Top / scale, bounds.Width / scale, bounds.Height / scale);
+        try
+        {
+            // Put the hidden dock at the existing off-desktop fixture; no desktop window or cursor moves.
+            monitorField.SetValue(dock, new MonitorInfo
+            {
+                DeviceName = monitor.DeviceName,
+                FriendlyName = monitor.FriendlyName,
+                BoundsPx = bounds,
+                WorkAreaPx = bounds,
+                BoundsDip = logicalBounds,
+                WorkAreaDip = logicalBounds
+            });
+            Call(dock, "PositionDockWindow", false);
+            Check(GetCursorPos(out var cursor) && !bounds.Contains(new Point(cursor.X, cursor.Y)),
+                "The live cursor stays outside the off-desktop reveal region");
+            Check((bool)Call(dock, "ShouldAutohideHideForWindows"), "The native fixture overlaps the resting dock frame");
+            Call(dock, "AutoHideTimer_Tick", null!, EventArgs.Empty);
+            Check((bool)hiddenField.GetValue(dock)!, "The hide callback hides an intersecting dock");
+
+            SetWindowLong(candidate, -16, VisiblePopup & ~0x10000000);
+            Check(!(bool)Call(dock, "ShouldAutohideHideForWindows"), "Removing the native fixture clears intersection");
+            Call(dock, "UpdateAutohideState", false, false, true);
+            Check(showTimer.IsEnabled, "Leaving the intersection arms the reveal timer during a drag");
+
+            SetWindowLong(candidate, -16, VisiblePopup);
+            Check((bool)Call(dock, "ShouldAutohideHideForWindows"), "Intersection returns before the next pointer tick");
+            Call(dock, "AutoShowTimer_Tick", null!, EventArgs.Empty);
+            Check((bool)hiddenField.GetValue(dock)! && !showTimer.IsEnabled,
+                "Proximity: the reveal callback rejects an intersection that returned before the next pointer tick");
+
+            SetWindowLong(candidate, -16, VisiblePopup & ~0x10000000);
+            Call(dock, "UpdateAutohideState", false, false, true);
+            Call(dock, "AutoShowTimer_Tick", null!, EventArgs.Empty);
+            Check(!(bool)hiddenField.GetValue(dock)! && !showTimer.IsEnabled,
+                "Proximity: the reveal callback shows the dock once intersection clears");
+        }
+        finally
+        {
+            SetWindowLong(candidate, -16, VisiblePopup);
+            showTimer.Stop();
+            hiddenField.SetValue(dock, false);
+            monitorField.SetValue(dock, monitor);
+            Call(dock, "PositionDockWindow", false);
         }
     }
 
@@ -300,6 +359,73 @@ internal static class NativeAutoHideTests
         {
             DockMetrics.GetDpiPixelsPerInchX = previousDpi;
         }
+    }
+
+    private static void CheckAutohideWhileDragging(MainWindow dock, DockConfig config)
+    {
+        var hiddenField = typeof(MainWindow).GetField("_isHiddenByAutohide", PrivateInstance)!;
+        var hideTimer = (DispatcherTimer)typeof(MainWindow).GetField("_autoHideTimer", PrivateInstance)!.GetValue(dock)!;
+        var showTimer = (DispatcherTimer)typeof(MainWindow).GetField("_autoShowTimer", PrivateInstance)!.GetValue(dock)!;
+        config.HideWhenWindowIntersects = true;
+        config.AutoHideHideDelayMs = 375;
+
+        foreach (var revealMode in Enum.GetValues<AutoHideRevealMode>())
+        {
+            config.AutoHideRevealMode = revealMode;
+            config.AutoHideRevealDelayMs = 175;
+            hiddenField.SetValue(dock, false);
+            hideTimer.Stop();
+            showTimer.Stop();
+
+            Call(dock, "UpdateAutohideState", true, false, true);
+            Check(hideTimer.IsEnabled && hideTimer.Interval == TimeSpan.FromMilliseconds(375),
+                $"{revealMode}: overlap starts the configured hide delay before releasing the mouse");
+            Check(!(bool)hiddenField.GetValue(dock)!, $"{revealMode}: overlap preserves the hide delay");
+
+            Call(dock, "UpdateAutohideState", false, false, true);
+            Check(!hideTimer.IsEnabled, $"{revealMode}: moving clear before the hide delay cancels hiding");
+
+            hiddenField.SetValue(dock, true);
+            Call(dock, "UpdateAutohideState", false, false, true);
+            Check(showTimer.IsEnabled && showTimer.Interval == TimeSpan.FromMilliseconds(175),
+                $"{revealMode}: moving clear starts the configured reveal delay before releasing the mouse");
+            Check((bool)hiddenField.GetValue(dock)!, $"{revealMode}: moving clear preserves the reveal delay");
+
+            Call(dock, "UpdateAutohideState", true, false, true);
+            Check(!showTimer.IsEnabled && (bool)hiddenField.GetValue(dock)!,
+                $"{revealMode}: moving back over the dock cancels a pending reveal");
+
+            Call(dock, "UpdateAutohideState", true, true, true);
+            Check(showTimer.IsEnabled, $"{revealMode}: pointer activation still requests reveal during overlap");
+            showTimer.Stop();
+            hiddenField.SetValue(dock, false);
+            Call(dock, "UpdateAutohideState", true, false, true);
+            Check(hideTimer.IsEnabled, $"{revealMode}: hiding can start again during the same drag");
+            Call(dock, "UpdateAutohideState", true, true, true);
+            Check(!hideTimer.IsEnabled, $"{revealMode}: pointer activation still keeps the dock visible");
+
+            hiddenField.SetValue(dock, true);
+            config.AutoHideRevealDelayMs = 0;
+            Call(dock, "UpdateAutohideState", false, false, true);
+            Check(!(bool)hiddenField.GetValue(dock)! && !showTimer.IsEnabled && !hideTimer.IsEnabled,
+                $"{revealMode}: zero-delay reveal works without releasing the mouse");
+        }
+
+        config.HideWhenWindowIntersects = false;
+        foreach (var maximizedOnly in new[] { false, true })
+        {
+            config.HideWhenMaximized = maximizedOnly;
+            hiddenField.SetValue(dock, false);
+            hideTimer.Stop();
+            showTimer.Stop();
+            Call(dock, "UpdateAutohideState", true, false, true);
+            Check(!hideTimer.IsEnabled,
+                $"Maximized-only={maximizedOnly}: other autohide modes still wait for mouse release");
+            Call(dock, "UpdateAutohideState", true, false, false);
+            Check(hideTimer.IsEnabled,
+                $"Maximized-only={maximizedOnly}: other autohide modes can hide after mouse release");
+        }
+        hideTimer.Stop();
     }
 
     private static object Call(MainWindow dock, string method, params object[] arguments) =>

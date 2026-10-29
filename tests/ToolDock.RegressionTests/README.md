@@ -16,4 +16,8 @@ Native checks also create a temporary window outside the virtual desktop without
 
 Screen-edge reveal checks cover the final physical pixel, rejection of a pixel inward or on an adjacent monitor, the dock's activation span, reserved work-area boundaries, negative monitor origins, the hidden-strip mouse-enter path, and delayed reveal after leaving the edge. Geometry is checked with 96/120/144/192 DPI metric providers and synthetic monitor bounds; this does not emulate a real mixed-DPI desktop. The tests never move the cursor.
 
+Drag-state checks pass overlap, pointer-reveal, and held-button states directly to the autohide decision method. Both reveal modes must start hiding or revealing while the button remains down, respect configured delays, and cancel pending transitions when overlap changes. Pointer activation retains priority, and ordinary/maximized-only autohide still waits for button release before starting to hide. These checks do not synthesize mouse input or perform a real window drag.
+
+An additional native check positions the hidden dock beside the existing off-desktop fixture and toggles the fixture's visibility to simulate intersection returning between a pointer tick and the reveal callback. The callback must keep the dock hidden until that intersection clears, including in Proximity mode.
+
 If stale WPF intermediates cause missing `*.g.cs` errors after switching build configurations, regenerate them with `dotnet build tests/ToolDock.RegressionTests -c Debug -t:Rebuild`, then run the checks again.

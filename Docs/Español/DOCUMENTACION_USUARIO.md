@@ -182,6 +182,8 @@ La ocultación sobre pantalla completa funciona con autoocultar activo o inactiv
 
 Las dos condiciones de ventana están desactivadas por defecto. Activar una desactiva la otra. En modo intersección, el dock permanece visible cuando ninguna ventana se superpone con él, incluso si hay una ventana maximizada que no lo toca. Sin ninguna activada, funciona el autoocultado normal. El cursor sigue mostrando el dock según el modo y los retrasos elegidos. Las ventanas minimizadas u ocultas, el escritorio y la barra de tareas no activan estas condiciones.
 
+**Ocultar cuando una ventana se superpone al dock** también se actualiza mientras arrastras una ventana: ocultar y mostrar no esperan a que sueltes el botón del ratón. Se respetan los retrasos configurados. Si la ventana vuelve a superponerse antes de terminar el retraso de aparición, se cancela la aparición pendiente, salvo que el cursor esté en la zona de revelado del dock.
+
 Con autoocultar activo también puedes ajustar:
 
 - **Mostrar dock al…**: **Tocar el borde** o **Acercar el cursor al borde** (proximidad).

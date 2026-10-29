@@ -1043,11 +1043,21 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private void AutoShowTimer_Tick(object? sender, EventArgs e)
     {
         _autoShowTimer.Stop();
-        if (Config.AutoHideRevealMode == AutoHideRevealMode.EdgeTouch && ShouldAutohideHideForWindows() &&
-            (!User32.GetCursorPos(out var pointer) ||
-             !IsPointerTouchingScreenEdge(new WpfPoint(pointer.X, pointer.Y))))
+        if ((Config.AutoHideRevealMode == AutoHideRevealMode.EdgeTouch || Config.HideWhenWindowIntersects) &&
+            ShouldAutohideHideForWindows())
         {
-            return;
+            if (!TryGetPointerPoints(out var pointerWindow, out _, out var pointerScreenPx))
+            {
+                return;
+            }
+
+            var wantReveal = Config.AutoHideRevealMode == AutoHideRevealMode.Proximity
+                ? IsPointerInAutoHideProximity(pointerWindow)
+                : IsPointerTouchingScreenEdge(pointerScreenPx);
+            if (!wantReveal)
+            {
+                return;
+            }
         }
 
         EnsureVisibleFromAutohide(animate: true);
@@ -1978,43 +1988,10 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         if (Config.AutoHide)
         {
             var shouldHideForWindows = ShouldAutohideHideForWindows();
-            if (!shouldHideForWindows)
-            {
-                if (_isHiddenByAutohide)
-                {
-                    RequestRevealFromAutohide();
-                }
-
-                _autoHideTimer.Stop();
-            }
-            else
-            {
-                var buttonHeld = User32.IsLeftOrRightMouseButtonDown();
-
-                var wantReveal = Config.AutoHideRevealMode == AutoHideRevealMode.Proximity
-                    ? IsPointerInDockEdgeRegion(pointerScreen, Config.AutoHideProximityDistance)
-                    : IsPointerTouchingScreenEdge(pointerScreenPx);
-
-                if (_isHiddenByAutohide)
-                {
-                    if (wantReveal)
-                    {
-                        RequestRevealFromAutohide();
-                    }
-                    else if (Config.AutoHideRevealMode == AutoHideRevealMode.EdgeTouch)
-                    {
-                        _autoShowTimer.Stop();
-                    }
-                }
-                else if (IsMouseOver || wantReveal)
-                {
-                    _autoHideTimer.Stop();
-                }
-                else if (!buttonHeld && !_autoHideTimer.IsEnabled)
-                {
-                    StartAutoHideCountdown();
-                }
-            }
+            var wantReveal = shouldHideForWindows && (Config.AutoHideRevealMode == AutoHideRevealMode.Proximity
+                ? IsPointerInDockEdgeRegion(pointerScreen, Config.AutoHideProximityDistance)
+                : IsPointerTouchingScreenEdge(pointerScreenPx));
+            UpdateAutohideState(shouldHideForWindows, wantReveal, User32.IsLeftOrRightMouseButtonDown());
         }
 
         if (_isHiddenByAutohide || _isDraggingInternal || Items.Count == 0)
@@ -2040,6 +2017,39 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         }
 
         _pointerTrackerInHoverZone = inHoverZone;
+    }
+
+    private void UpdateAutohideState(bool shouldHideForWindows, bool wantReveal, bool buttonHeld)
+    {
+        if (!shouldHideForWindows)
+        {
+            if (_isHiddenByAutohide)
+            {
+                RequestRevealFromAutohide();
+            }
+
+            _autoHideTimer.Stop();
+        }
+        else if (_isHiddenByAutohide)
+        {
+            if (wantReveal)
+            {
+                RequestRevealFromAutohide();
+            }
+            else if (Config.AutoHideRevealMode == AutoHideRevealMode.EdgeTouch || Config.HideWhenWindowIntersects)
+            {
+                _autoShowTimer.Stop();
+            }
+        }
+        else if (IsMouseOver || wantReveal)
+        {
+            _autoHideTimer.Stop();
+        }
+        // Moving an intersecting window must not wait for the mouse button to be released.
+        else if ((Config.HideWhenWindowIntersects || !buttonHeld) && !_autoHideTimer.IsEnabled)
+        {
+            StartAutoHideCountdown();
+        }
     }
 
     private void SetPointerTrackerInterval(bool hovering)

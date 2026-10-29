@@ -182,6 +182,8 @@ Fullscreen suppression works with autohide on or off. New configurations and the
 
 Both window conditions are off by default. Enabling one turns the other off. In intersection mode, the dock stays visible when no window overlaps it, including when a maximized window does not touch it. With neither enabled, normal autohide applies. The pointer can still reveal the dock using the selected mode and delays. Minimized or hidden windows, the desktop, and the taskbar do not trigger these conditions.
 
+**Hide when a window intersects the dock** also updates while you drag a window: hiding and revealing do not wait for you to release the mouse button. The configured delays still apply. If the window overlaps again before the reveal delay finishes, the pending reveal is canceled unless the pointer is in the dock's reveal area.
+
 With autohide on you can also set:
 
 - **Reveal dock when…**: **Touch screen edge** or **Cursor near screen edge** (proximity).
