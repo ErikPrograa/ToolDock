@@ -33,9 +33,8 @@ Anchor the dock to the top, bottom, left, or right edge of the monitor. On the l
 
 ### Autohide
 
-The dock can hide at its edge and come back when the pointer gets close or touches the exact screen edge, depending on the selected reveal mode. **Touch screen edge** requires the outermost pixel of the dock's monitor; keep the pointer there for the configured reveal delay.
+The dock can hide at its edge and come back when the pointer gets close or touches the exact screen edge, depending on the selected reveal mode. It can also stay visible until a window on that monitor is maximized or a window overlaps the dock.
 
-It can also stay visible until a window on that monitor is maximized or a window overlaps the dock. These modes are mutually exclusive: enabling one turns the other off.
 
 <img width="854" height="480" alt="Autohide" src="https://github.com/user-attachments/assets/360231a9-adbf-4870-a3ab-2db91700c661" />
 
@@ -62,9 +61,7 @@ Launching a shortcut can move that window onto the monitor where the dock is.
 - Color, opacity, per-side outline, rounded corners, and presets.
 - Autohide, always on top, work-area reservation, and hiding over fullscreen, maximized, or overlapping windows.
 - Multiple instances, global hotkeys, and a Spanish / English interface.
-- Resets for one or all instances, plus a confirmed hard reset that sends application data to the Recycle Bin.
 
-New configurations and the Default preset enable **Do not show over fullscreen apps**. An existing configuration that has this option turned off keeps that choice.
 
 ## Requirements
 
@@ -124,15 +121,13 @@ The full guide is in [Docs/English/USER_DOCUMENTATION_EN.md](Docs/English/USER_D
 | `config.instanceN.json` | Settings for instance N (N ≥ 2) |
 | `Presets_TD.json` | Presets saved by the user |
 | `Colors_TD.json` | Custom colors |
-| `Shortcuts_TD.json` | Suggested name when exporting shortcuts only |
-| `Backups_TD/` | Previous copy of `config.json` (and of `config.instanceN.json`), saved as `.bak` |
+| `Shortcuts_TD.json` | Suggested nsaved by the user ame when exporting shortcuts only |
+| `Backups_TD/` | Previous copy of `confor the file created fig.jsaving of `configarrangement anceN.json`), saved as `.bak` |
 | `Temp_TD/` | Temporary JSON saves; removed when empty, with leftover `.tmp` files cleaned up on launch |
-
-`config.json` is listed in `.gitignore`. The other files appear when you use the app and are not part of the source tree either. If a configuration file is cut off, ToolDock tries to recover the copy in `Backups_TD`.
 
 ## Starting with Windows
 
-ToolDock has no “start with Windows” option. Turning that on from inside an app usually means writing a Registry key, creating a Task Scheduler job, installing a Windows service, or adding another startup hook. ToolDock does not do any of that. It never registers itself with Windows, so it stays portable and leaves nothing behind: move or delete its folder and the app is gone.
+TooLaunch on startupith Windows” option. Turning that on from inside an app usually means writing a Registry key, creating a Task Scheduler job, installing a Windows service, or adding another startup hook. ToolDock does not do any of that. It never registers itself with Windows, so it stays portable and leaves nothing behind: move or delete its folder and the app is gone.
 
 To launch it when you sign in, create the shortcut yourself:
 
