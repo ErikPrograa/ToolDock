@@ -2,7 +2,7 @@
 
 Guía de uso de la versión actual. ToolDock es un trabajo en progreso: pueden quedar errores o detalles inestables.
 
-Índice: [qué es](#qué-es), [primeros pasos](#primeros-pasos), [el dock](#el-dock), [bandeja](#bandeja-del-sistema), [configuración](#configuración), [archivos](#archivos-de-la-aplicación), [varias instancias](#varias-instancias), [inicio con Windows](#inicio-con-windows), [problemas](#solución-de-problemas), [límites](#límites-actuales).
+Índice: [qué es](#qué-es), [primeros pasos](#primeros-pasos), [el dock](#el-dock), [bandeja](#bandeja-del-sistema), [configuración](#configuración), [archivos](#archivos-de-la-aplicación), [varias instancias](#varias-instancias), [arrancar al inicio](#arrancar-al-inicio), [problemas](#solución-de-problemas), [límites](#límites-actuales).
 
 ## Qué es
 
@@ -32,7 +32,7 @@ El idioma de la interfaz se cambia en **General**. Por defecto está en inglés 
 
 Clic izquierdo sobre el icono. Si la ruta ya no existe, ToolDock avisa y no la abre.
 
-Con **Abrir las apps en la pantalla del dock** (Comportamiento), ToolDock intenta mover la ventana nueva al monitor donde está el dock. Windows decide el monitor al crear el proceso; el traslado ocurre después y no siempre es posible, sobre todo en apps de la Store.
+Con **Abrir las apps en la pantalla del dock** (Comportamiento), ToolDock intenta mover la ventana nueva a la pantalla donde está el dock. Windows decide la pantalla al crear el proceso; el traslado ocurre después y no siempre es posible, sobre todo en apps de la Store.
 
 ### Agregar accesos
 
@@ -86,7 +86,7 @@ Si hay más de una instancia, el icono de la bandeja muestra el número, por eje
 
 ## Configuración
 
-La ventana tiene una barra lateral. Cada sección, salvo Información y Detalles, tiene un botón **Restablecer** que devuelve solo esa sección a los valores del preset de referencia.
+La ventana tiene una barra lateral. En **Tamaño y posición**, **Apariencia**, **Accesos de apps** y **Comportamiento**, **Restablecer** devuelve esa sección al preset de referencia. En **General**, restaura el idioma inglés y el tema oscuro.
 
 El preset de referencia es el seleccionado. Si el preset actual es **Personalizado**, se usa el último preset real que habías elegido (por defecto, **Predeterminado**).
 
@@ -101,14 +101,14 @@ Abajo de la ventana:
 
 ### Información
 
-Resume el uso, lista los archivos de configuración y muestra cómo iniciar con Windows y abrir más de una instancia. No cambia ajustes.
+Resume el uso y los archivos de configuración. **Arrancar al inicio** explica cómo crear un acceso directo en Inicio; no es un interruptor de arranque automático. Información también explica cómo abrir varias instancias.
 
 ### General
 
 - **Idioma:** español o inglés. También cambia los textos de la bandeja.
 - **Modo oscuro:** tema de Configuración y de los menús. El color del propio dock se elige en Apariencia.
 - **Desactivar dock:** igual que la opción de la bandeja. No se guarda: al reiniciar, el dock vuelve.
-- **Pantalla:** monitor donde se ancla el dock. **Predeterminado (principal)** sigue al monitor principal.
+- **Pantalla:** pantalla donde se ancla el dock. **Predeterminado (principal)** sigue a la pantalla principal.
 - **Presets de configuración:** ver [Presets](#presets).
 
 ### Atajos de teclado
@@ -123,35 +123,37 @@ Tres atajos globales. Pulsa el botón, luego la combinación (puede incluir Ctrl
 
 Con autoocultar activo, solo se atenúa la etiqueta **Mostrar/Ocultar dock**. Puedes asignar, cambiar o borrar la combinación, pero no estará activa hasta desactivar autoocultar. **Poner el dock encima** y **Desactivar dock** siguen disponibles.
 
+**Poner el dock encima** muestra y trae el dock al frente una vez. No alterna su visibilidad ni activa la opción permanente **Siempre encima**.
+
 Si otra aplicación ya registró la misma combinación, ToolDock no puede usarla.
 
 ### Tamaño y posición
 
-Las medidas de la interfaz están en píxeles lógicos (los mismos que usa Windows al escalar la pantalla). En un monitor al 150 %, un valor de 48 px lógicos ocupa más píxeles físicos. La pestaña **Detalles** muestra la equivalencia.
+Las medidas de la interfaz están en píxeles lógicos (los mismos que usa Windows al escalar la pantalla). En una pantalla con escala al 150 %, un valor de 48 px lógicos ocupa más píxeles físicos. La pestaña **Detalles** muestra la equivalencia.
 
 | Control | Qué hace | Intervalo habitual |
 |---|---|---|
-| Posición | Borde: arriba, abajo, izquierda, derecha. En los laterales el dock pasa a vertical | — |
-| Ajustar ancho automáticamente | El largo del dock sigue al número de iconos | — |
-| Ancho general | Largo a lo largo del borde | Mínimo según iconos; máximo, el área de trabajo |
-| Alto general | Grosor del dock | 32–64 |
-| Offset de alineación | Desplaza el grupo de iconos a lo largo del borde | −1500 a 1500 en el deslizador |
-| Separación del borde | Hueco entre el dock y el borde de la pantalla | 0–600 |
+| Posición del dock | Borde: arriba, abajo, izquierda, derecha. En los laterales el dock pasa a vertical | — |
+| Ajustar ancho del dock automáticamente | El largo del dock sigue al número de iconos | — |
+| Ancho del dock (px) | Largo a lo largo del borde | Mínimo según iconos; máximo, el área de trabajo |
+| Alto del dock (px) | Grosor del dock | 32–64 |
+| Offset de alineación (px) | Desplaza el dock a lo largo del borde | −1500 a 1500 en el deslizador |
+| Separación del borde (px) | Hueco entre el dock y el borde de la pantalla | 0–600 |
 
 ### Apariencia
 
-**Fondo**
+**Background (fondo)**
 
-- Esquinas redondeadas, con radio de 0 a 32 y casillas independientes para cada esquina.
-- Color de fondo, con una lista de colores integrados.
-- Opacidad del dock, de 0 (transparente) a 100 (opaco). El valor de fábrica es 60.
+- **Esquinas redondeadas** y **Radio de las esquinas (px)**, de 0 a 32, con casillas independientes para cada esquina.
+- **Color de fondo**, con una lista de colores integrados.
+- **Opacidad del dock**, de 0 (transparente) a 100 (opaco). El valor de fábrica es 60.
 
-**Contorno**
+**Outline (contorno)**
 
-- Se puede activar o apagar, y elegir cada lado por separado (superior, inferior, izquierdo, derecho). Los lados son del propio dock, no de la pantalla. Con el dock arriba, el borde inferior es el que mira al escritorio.
-- Color, opacidad (fábrica: 20) y grosor de 0,25 a 6. 1 px es el trazo más fino que cabe en un píxel físico. Por debajo de 1 el contorno se dibuja con antialias y se ve más fino.
+- **Mostrar contorno** lo activa o desactiva; **Contorno en los bordes** permite elegir cada lado por separado (superior, inferior, izquierdo, derecho). Los lados son del propio dock, no de la pantalla. Con el dock arriba, el borde inferior es el que mira al escritorio.
+- Color, opacidad (fábrica: 20) y **Grosor del contorno (px)** de 0,25 a 6 píxeles lógicos. Los valores fraccionarios usan antialias; el aspecto depende de la escala de pantalla.
 
-**Colores personalizados**
+**Custom Colors (colores personalizados)**
 
 Escribe un color HEX (`#RRGGBB` o `#RGB`; si omites `#`, se añade), ponle un nombre y guárdalo. Queda en `Colors_TD.json` y puedes volver a elegirlo o borrarlo. Sirve tanto para el fondo como para el contorno.
 
@@ -160,53 +162,54 @@ Escribe un color HEX (`#RRGGBB` o `#RGB`; si omites `#`, se añade), ponle un no
 - **Guardar accesos** exporta solo la lista de iconos (rutas, nombres, icono personalizado y apps UWP). No exporta colores ni el resto de ajustes. El nombre sugerido es `Shortcuts_TD.json`.
 - **Cargar accesos** sustituye la lista actual por la del archivo. Se ignoran los `.exe` y `.lnk` que ya no existan.
 - **Quitar todos los accesos** vacía el dock. Pide confirmación y no se puede deshacer.
-- Alineación de los iconos: inicio, centro o final del dock (izquierda/centro/derecha, o arriba/centro/abajo si es vertical).
-- Tamaño de icono: 16–32. Fábrica: 24.
-- Espaciado: 5–44. Fábrica: 19.
-- Iconos de alta calidad y efecto hover, descritos más arriba.
+- En **Buttons (botones)**, **Alineación de botones** coloca los iconos: **Izquierda**, **Centro** o **Derecha**; **Arriba**, **Medio** o **Abajo** si el dock es vertical.
+- **Tamaño de icono (px)**: 16–32. Fábrica: 24.
+- **Espaciado entre iconos (px)**: 5–44. Fábrica: 19.
+- **Iconos de alta calidad** y **Hover effects (efectos al pasar el cursor)**, descritos más arriba.
 
 ### Comportamiento
 
 | Opción | Efecto |
 |---|---|
 | Siempre encima | El dock queda por encima de las ventanas normales |
-| No mostrar sobre apps en pantalla completa | Oculta el dock mientras una app a pantalla completa tiene el foco en el monitor del dock; activa por defecto |
-| Abrir las apps en la pantalla del dock | Intenta mover la ventana abierta al monitor del dock |
+| No mostrar sobre apps en pantalla completa | Oculta el dock mientras una app a pantalla completa tiene el foco en la pantalla del dock; activa por defecto |
+| Abrir las apps en la pantalla del dock | Intenta mover la ventana abierta a la pantalla del dock |
 | Reservar espacio en el área de trabajo | Windows trata el dock como una barra: las ventanas maximizadas no lo cubren. No se puede combinar con autoocultar |
 | Autoocultar | El dock se esconde en su borde y vuelve a salir según el modo elegido |
 | Ocultar detrás de la barra de tareas | Solo si autoocultar y siempre encima están activos |
-| Ocultar cuando hay una ventana maximizada | Con autoocultar activo, una ventana maximizada en el monitor del dock permite que se oculte |
+| Ocultar cuando hay una ventana maximizada | Con autoocultar activo, una ventana maximizada en la pantalla del dock permite que se oculte |
 | Ocultar cuando una ventana se superpone al dock | Con autoocultar activo, una ventana superpuesta al dock permite que se oculte, aunque no esté maximizada |
 
-La ocultación sobre pantalla completa funciona con autoocultar activo o inactivo. Las configuraciones nuevas y el preset Predeterminado la activan; al cargar una configuración existente que la tenga guardada como apagada, se conserva esa elección.
+La ocultación sobre pantalla completa funciona con autoocultar activo o inactivo.
 
-Las dos condiciones de ventana están desactivadas por defecto. Activar una desactiva la otra. En modo intersección, el dock permanece visible cuando ninguna ventana se superpone con él, incluso si hay una ventana maximizada que no lo toca. Sin ninguna activada, funciona el autoocultado normal. El cursor sigue mostrando el dock según el modo y los retrasos elegidos. Las ventanas minimizadas u ocultas, el escritorio y la barra de tareas no activan estas condiciones.
+Las dos condiciones de ventana están desactivadas por defecto y son excluyentes. Al activar una, el dock permanece visible mientras no se cumpla esa condición. La superposición se comprueba incluso mientras arrastras una ventana, con los retrasos configurados para mostrar y ocultar. Las ventanas minimizadas u ocultas, el escritorio y la barra de tareas no activan estas condiciones. Sin ninguna activada, funciona el autoocultado normal.
 
-**Ocultar cuando una ventana se superpone al dock** también se actualiza mientras arrastras una ventana: ocultar y mostrar no esperan a que sueltes el botón del ratón. Se respetan los retrasos configurados. Si la ventana vuelve a superponerse antes de terminar el retraso de aparición, se cancela la aparición pendiente, salvo que el cursor esté en la zona de revelado del dock.
+**Mostrar dock al...** selecciona cómo mostrar el dock con el cursor:
 
-Con autoocultar activo también puedes ajustar:
+| Modo | Cómo mostrarlo |
+|---|---|
+| Tocar el borde | Toca el píxel físico extremo del borde elegido de la pantalla, dentro del tramo de activación del dock, y permanece ahí durante el retraso para mostrar. Se usa el borde completo, incluso cuando la barra de tareas reduce el área de trabajo |
+| Acercar el cursor al borde | Acerca el cursor al dock dentro de la distancia de activación configurada |
 
-- **Mostrar dock al…**: **Tocar el borde** o **Acercar el cursor al borde** (proximidad).
-- Distancia de activación para proximidad, en centímetros: 1–400 píxeles lógicos (aproximadamente 0,03–10,58 cm), independiente del radio del hover. Fábrica: unos 1,6 cm (60 px lógicos a 96 DPI).
-- Animación de deslizamiento y su duración (0–1200 ms; fábrica 150).
-- Espera para mostrar (0–4000 ms; fábrica 150) y para ocultar (fábrica 250).
+Otros controles de autoocultado:
 
-**Tocar el borde** exige que el punto activo del cursor (normalmente la punta de la flecha) alcance el píxel físico extremo del borde elegido en el monitor del dock, dentro de su tramo de activación. Se usa el borde de la pantalla completa, incluso cuando la barra de tareas reduce el área de trabajo. Pasar sobre la franja visible del dock oculto no activa este modo.
+- **Distancia de activación (cm)**: distancia de proximidad, independiente del radio del hover. Rango: unos 0,03–10,58 cm (1–400 píxeles lógicos); valor de fábrica: unos 1,6 cm.
+- **Animar autoocultado (deslizamiento)**: activa la animación de deslizamiento.
+- **Velocidad del deslizamiento (ms)**: duración de la animación, de 0–1200 ms (fábrica: 150). Los valores mayores hacen el deslizamiento más lento.
+- **Delay para mostrar dock (ms)** y **Delay para ocultar dock (ms)**: 0–4000 ms; valores de fábrica: 150 y 250, respectivamente.
 
-Mantén el cursor en ese borde durante el retraso para mostrar. Si lo apartas, se cancela la aparición pendiente; al volver a tocarlo, el retraso empieza de nuevo. Arrastrar archivos al dock y usar **Poner encima** desde la bandeja o el atajo **Poner el dock encima** siguen funcionando.
-
-Con la escala de pantalla al 100 %, una distancia de proximidad de 1 píxel lógico puede coincidir con el contacto exacto en el borde inferior o derecho. El modo de tocar el borde siempre exige el píxel físico extremo, independientemente de la escala.
+El cursor puede seguir mostrando el dock cuando se cumple una condición de ventana. Arrastrar archivos al dock, **Poner encima** de la bandeja y el atajo **Poner el dock encima** también lo muestran.
 
 ### Detalles
 
-No edita nada. Muestra, para el monitor y el DPI actuales, el tamaño efectivo del dock, de los iconos y del hover, además del área de trabajo y la resolución.
+No edita nada. Muestra, para la pantalla y el DPI actuales, el tamaño efectivo del dock, de los iconos y del hover, además del área de trabajo y la resolución.
 
 ### Solución de problemas
 
 | Acción | Qué borra o cambia |
 |---|---|
 | Abrir carpeta del programa | Abre la carpeta del `.exe` en el Explorador |
-| Generar registro detallado | Crea un `.txt` con configuración, monitores, DPI y estado del dock, para adjuntar a un informe |
+| Generar registro detallado | Crea un `.txt` con configuración, pantallas, DPI y estado del dock, para adjuntar a un informe |
 | Borrar todos los colores personalizados | Elimina `Colors_TD.json`. Los colores integrados siguen |
 | Borrar todos los presets personalizados | Elimina `Presets_TD.json` y aplica el preset Predeterminado |
 | Restablecer esta instancia | Cierra esta instancia, elimina su configuración y las copias de seguridad asociadas, y la vuelve a abrir en Ajustes. No pide confirmación |
@@ -226,8 +229,6 @@ Un preset guarda tamaño, posición, apariencia, iconos (tamaño y hover, no la 
 
 Los presets antiguos, de cuando las medidas no estaban en píxeles lógicos, se descartan al leer `Presets_TD.json`.
 
-Cambiar de preset recalcula el tamaño y la posición del dock junto al borde, incluso al volver a Predeterminado. La corrección del desplazamiento tras cambiar de preset no requiere borrar ni recrear los presets compatibles.
-
 ## Archivos de la aplicación
 
 Todos viven en la misma carpeta que `ToolDock.exe`:
@@ -241,15 +242,15 @@ Todos viven en la misma carpeta que `ToolDock.exe`:
 | `Shortcuts_TD.json` | Solo si exportas la lista de accesos; puedes guardarlo con otro nombre |
 | `Backups_TD/` | Copia anterior de la configuración, guardada como `.bak`. Si un JSON queda a medias (por ejemplo al apagar el equipo), ToolDock intenta recuperar esta copia |
 | `Temp_TD/` | Archivos temporales usados al guardar JSON; se elimina al quedar vacía |
-| `*.corrupt-*` | Archivo ilegible apartado para no pisar la copia de seguridad |
+| `*.corrupt` | Archivo ilegible apartado para no pisar la copia de seguridad |
 
 Hacer una copia de esa carpeta guarda la configuración. No hace falta copiar el `.exe` si solo quieres el respaldo de los datos.
 
-Al iniciar, ToolDock elimina de `Temp_TD/` los `.tmp` sobrantes de guardados interrumpidos. Los archivos que otra instancia todavía tenga abiertos se conservan. Esta carpeta temporal no es necesaria en una copia de seguridad.
+`Temp_TD/` se gestiona automáticamente y no es necesaria en una copia de seguridad.
 
 ## Varias instancias
 
-Puedes abrir ToolDock más de una vez, hasta 32. Cada instancia tiene su propio JSON y su propio icono de bandeja.
+Puedes abrir ToolDock más de una vez, hasta 32. Cada instancia tiene sus propios ajustes, accesos e icono de bandeja. Los presets guardados y los colores personalizados comparten los mismos archivos en la carpeta de la aplicación.
 
 Para lanzar varias de golpe:
 
@@ -257,11 +258,11 @@ Para lanzar varias de golpe:
 ToolDock.exe --instances 2
 ```
 
-También vale `--instances=2`. Las instancias extra reciben `--spawned` para no volver a multiplicarse.
+También vale `--instances=2`.
 
-## Inicio con Windows
+## Arrancar al inicio
 
-ToolDock no ofrece un interruptor de «iniciar con Windows», para no tocar el Registro, el Programador de tareas ni servicios del sistema.
+ToolDock sigue siendo portable y no se registra para arrancar automáticamente. Usa un acceso directo en la carpeta de Inicio de Windows para abrirlo al iniciar sesión.
 
 Si quieres que arranque al iniciar sesión:
 
@@ -274,6 +275,5 @@ Si quieres que arranque al iniciar sesión:
 - Orientado a Windows 11.
 - Al soltar archivos solo entran `.exe` y `.lnk`. El resto se ignora. Las apps de la Store se agregan desde el selector UWP.
 - El efecto visual y el contorno fino dependen del DPI y de cómo compone Windows la pantalla.
-- Mover una app al monitor del dock no es garantizado: algunas ventanas eligen su monitor ellas mismas.
+- Mover una app a la pantalla del dock no está garantizado: algunas ventanas eligen su pantalla ellas mismas.
 - **Desactivar dock** dura solo hasta cerrar la aplicación.
-- El sistema de «fijar» opciones en un panel de acceso rápido existe en el código, pero está oculto en la interfaz.

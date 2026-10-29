@@ -33,7 +33,7 @@ ToolDock/
   FluentChrome.cs          Segoe Fluent glyphs on buttons
   Models/
     DockConfig.cs          persistent state, ranges, factory values
-    DockMetrics.cs         DIPs, cm, monitor span percent, DPI
+    DockMetrics.cs         DIPs, cm, display span percent, DPI
     DockItemViewModel.cs   on-screen icon (hover scale and offset)
     PresetModels.cs        preset snapshot (schema 3)
     DockShortcutsFileExport.cs   shortcut-only export/import
@@ -49,13 +49,33 @@ ToolDock/
     LocalizationService.cs ES/EN strings in one place
     IconService.cs         Win32 extraction (PrivateExtractIcons / SHGetFileInfo)
     UwpAppService.cs       shell:AppsFolder, AUMID, package icon
-    DisplayService.cs      monitors
-    DockLaunchPlacement.cs moves the new window onto the dock monitor
+    DisplayService.cs      displays
+    DockLaunchPlacement.cs moves the new window onto the dock display
     NativeTrayIcon.cs      native tray icon
     DockContextMenuTheme.cs
   Interop/
     User32.cs, Shell32.cs, DisplayConfig.cs
 ```
+
+## UI terminology and internal names
+
+User documentation follows the visible labels from `LocalizationService` and their use in `SettingsWindow` and the tray menu. Internal identifiers are not always the same as those labels; keep them when referring to code or serialized configuration fields.
+
+| English UI | Spanish UI | Internal name / meaning |
+|---|---|---|
+| Display | Pantalla | `MonitorSelect`, `MonitorDeviceName`, `MonitorInfo`; code and Windows APIs still use “monitor” |
+| Open apps on dock's display | Abrir las apps en la pantalla del dock | `OpenAppsOnDockMonitor` |
+| Show/Hide dock | Mostrar/Ocultar dock | `HotkeyShowHide`, `ShowHideHotkey`; toggles visibility, inactive with autohide |
+| Set dock on top | Poner el dock encima | `HotkeyShowDock`, `ShowDockHotkey`; shows and raises the dock once |
+| Set on top | Poner encima | `TrayShowDock`, `ShowDock()`; tray action for the same operation |
+| Always on top | Siempre encima | `AlwaysOnTop`; persistent z-order preference, separate from the one-off action |
+| Alignment offset (px) | Offset de alineación (px) | `Offset`; moves the dock along the selected edge |
+| Offset from edge (px) | Separación del borde (px) | `AlignmentOffset`; moves the dock away from that edge |
+| Button alignment | Alineación de botones | `ButtonAlignment`; alignment of the shortcut icons inside the dock |
+| Hotkeys | Atajos de teclado | `CategoryQuickAccess` / `QuickAccess`; this category also contains the hidden pinned-settings panel |
+| Launch on startup | Arrancar al inicio | `InfoHeadingStartup`; instructions for a Startup-folder shortcut, not a setting |
+
+`Background`, `Outline`, `Custom Colors`, `Buttons`, and `Hover effects` are currently English headings in both interface languages. The Spanish guide preserves those labels and adds Spanish explanations. Use UI labels in user-facing instructions and internal names when explaining implementation details; a label change does not imply a configuration-field rename.
 
 ## Startup
 
@@ -78,9 +98,9 @@ Reset workers run from the same executable before reserving an instance slot. Th
 
 ## Configuration model
 
-`DockConfig` implements `INotifyPropertyChanged`. The current `ConfigSchemaVersion` is **3**: canonical measurements are logical pixels (DIPs at 96). WPF scales them with the monitor DPI. Centimeters and span percentages are presentation only (`JsonIgnore`) and are recomputed in `DockMetrics`.
+`DockConfig` implements `INotifyPropertyChanged`. The current `ConfigSchemaVersion` is **3**: canonical measurements are logical pixels (DIPs at 96). WPF scales them with the display DPI. Centimeters and span percentages are presentation only (`JsonIgnore`) and are recomputed in `DockMetrics`.
 
-`DockConfig.IsLoading` stops setters from clamping while the JSON is still incomplete. `ArmStartupWidthGuard` delays width clamping for about 12 seconds when the work area may still be wrong (shell still starting, or a monitor that is off).
+`DockConfig.IsLoading` stops setters from clamping while the JSON is still incomplete. `ArmStartupWidthGuard` delays width clamping for about 12 seconds when the work area may still be wrong (shell still starting, or a display that is off).
 
 `DockDisabled` is not serialized. `LockShortcuts` is saved, but it is not part of `ResetBehaviour` or `ResetToDefaults`.
 
@@ -132,7 +152,7 @@ Presets (`PresetService`): entries whose `DataSchemaVersion` is below 3 are igno
 
 ## On-screen dock
 
-`MainWindow` is a borderless window, excluded from Alt+Tab. Position comes from the chosen edge, the monitor (`MonitorDeviceName` or the primary), the offset, and the edge gap. Left and right switch the `ItemsPanel` to vertical.
+`MainWindow` is a borderless window, excluded from Alt+Tab. Position comes from the chosen edge, the display (`MonitorDeviceName` or the primary), the offset, and the edge gap. Left and right switch the `ItemsPanel` to vertical.
 
 Z-order (`ApplyZOrder` / `SetDockWindowZOrder`):
 
@@ -144,9 +164,9 @@ Autohide: show and hide timers, edge or proximity mode, optional slide animation
 
 `HideWhenMaximized` and `HideWhenWindowIntersects` are mutually exclusive opt-in modes: selecting one clears the other in the model. Legacy configurations and presets with both enabled prefer intersection, regardless of JSON property order. With neither enabled, normal autohide applies. Window detection ignores invisible, minimized, cloaked, and shell windows. Intersection uses the visible dock frame at its resting position, even while its content is hidden or sliding, and compares screen coordinates so it also handles windows spanning displays. Without overlap, this mode keeps the dock visible even if a window is maximized.
 
-Hover is not a `Storyboard`. On `MouseMove`, each icon gets a scale from its distance to the pointer and an offset so growth does not overlap (`UpdateFisheyeScale`). Its radius has a fixed 20–400 DIP range, independent of the 1–400 DIP autohide activation distance, including after loading settings, applying presets, or refreshing DPI metrics.
+Hover is not a `Storyboard`. `MouseMove` and `PointerTrackerTimer_Tick` update each icon's scale from its distance to the pointer and offset it so growth does not overlap (`UpdateFisheyeScale`). Its radius has a fixed 20–400 DIP range, independent of the 1–400 DIP autohide activation distance, including after loading settings, applying presets, or refreshing DPI metrics.
 
-Launch: `UseShellExecute` for disk paths. UWP uses `shell:AppsFolder\<AUMID>`. When `OpenAppsOnDockMonitor` is on, `DockLaunchPlacement` watches new top-level windows (or the one that becomes foreground) for 5 seconds and moves them to the dock monitor, at most twice per window.
+Launch: `UseShellExecute` for disk paths. UWP uses `shell:AppsFolder\<AUMID>`. When `OpenAppsOnDockMonitor` is on, `DockLaunchPlacement` watches new top-level windows (or the one that becomes foreground) for 5 seconds and moves them to the dock display, at most twice per window.
 
 External drop: `.exe` and `.lnk` only, no duplicate paths. The file picker offers the same filter plus “all files”, but `TryAddDockItem` still rejects other extensions. UWP items come from `UwpAppService.GetInstalledApps` (`shell:AppsFolder` items whose path contains `!`).
 
@@ -164,9 +184,9 @@ The settings window's Close button is hidden as well; the window close button do
 
 ## Decisions worth not reverting casually
 
-1. **Actually portable.** Data sits next to the executable, with no Registry use and no in-app “start with Windows”. The user creates a `shell:startup` shortcut if they want one.
+1. **Actually portable.** Data sits next to the executable, with no Registry use or automatic startup registration. **Launch on startup** explains how the user can create a `shell:startup` shortcut.
 2. **Durable writes.** A `WriteAllText` cut off when Windows shuts down left a half-written JSON, and the next start overwrote it with factory defaults.
-3. **Logical pixels as the canonical unit (schema 3).** Mixing physical pixels, centimeters, and percentages in JSON made the same file look different after a monitor change. Centimeters and percentages are derived when drawing.
+3. **Logical pixels as the canonical unit (schema 3).** Mixing physical pixels, centimeters, and percentages in JSON made the same file look different after a display change. Centimeters and percentages are derived when drawing.
 4. **Do not save when the file is locked.** Showing in-memory defaults is better than destroying the JSON.
 5. **Startup width guard.** The work area can be wrong for the first few seconds. Clamping the saved width then left it narrow permanently.
 6. **One string service.** Spanish and English both come from `LocalizationService`. A new string needs both `switch` branches.
@@ -179,12 +199,12 @@ This is not a commitment. It is what the code still leaves open:
 - Pinning options to a quick-access panel is implemented and hidden.
 - Invalid HEX has no visual error; the box simply does not apply the change.
 - `DockLaunchPlacement` is heuristic: not every app can be moved.
-- Hover has no configurable easing; scale is assigned on mouse move.
+- Hover has no configurable easing; scale follows the tracked pointer position.
 - Focused regression checks are available in `tests/ToolDock.RegressionTests`; interactive checks on real displays remain necessary for window movement and animation.
 
 ## How to extend this log
 
-When a change affects behavior, persistence, or limits, add a dated entry. Do not rewrite the map above for a small change: the entry is enough, and the map should be updated when the structure no longer matches.
+Keep the sections above aligned with the current app. When a change affects behavior, persistence, or limits, add a dated entry for its implementation history and validation. Keep the READMEs focused on the app overview and the user guides focused on current usage; commit-specific fixes belong here.
 
 ```md
 ## YYYY-MM-DD — Short title
@@ -218,7 +238,7 @@ When a change affects behavior, persistence, or limits, add a dated entry. Do no
 
 ## 2026-10-28 — Hotkeys, temporary saves, fullscreen defaults, and resets
 
-- `a060cda`: made the Show/hide hotkey assign/clear buttons available with autohide on. The saved combination still remains unregistered until autohide is off; dimming applies only to the label.
+- `a060cda`: made the Show/Hide dock hotkey assign/clear buttons available with autohide on. The saved combination still remains unregistered until autohide is off; dimming applies only to the label.
 - `2245c35`: translated source, XAML, and project comments to English. Spanish UI strings and documentation stayed in Spanish; no runtime behavior changed.
 - `1c5b719`: moved JSON write temps into `Temp_TD/`, removed the folder when empty, and added startup cleanup of leftover `.tmp` files while retaining files still open by another instance.
 - `1672b14`: enabled fullscreen suppression for new configurations, model behaviour resets, and the Default preset. Existing configurations explicitly saving `false` keep that value.
@@ -236,14 +256,14 @@ When a change affects behavior, persistence, or limits, add a dated entry. Do no
 ## 2026-10-29 — Exact screen-edge reveal
 
 - Commit: `b69fb96`.
-- Changes: `EdgeTouch` replaces the 4-DIP activation margin with a comparison of the raw `GetCursorPos` position against `MonitorInfo.BoundsPx`: `Left`, `Top`, `Right - 1`, or `Bottom - 1`. Detection uses the full monitor bounds and the resting dock frame's span plus its existing padding. `MouseEnter` on the hidden strip cannot bypass this check; leaving the edge cancels the reveal timer, which also rechecks contact before showing. Proximity and explicit reveal actions retain their behavior.
+- Changes: `EdgeTouch` replaces the 4-DIP activation margin with a comparison of the raw `GetCursorPos` position against `MonitorInfo.BoundsPx`: `Left`, `Top`, `Right - 1`, or `Bottom - 1`. Detection uses the full display bounds and the resting dock frame's span plus its existing padding. `MouseEnter` on the hidden strip cannot bypass this check; leaving the edge cancels the reveal timer, which also rechecks contact before showing. Proximity and explicit reveal actions retain their behavior.
 - Files: `ToolDock/MainWindow.xaml.cs`, `tests/ToolDock.RegressionTests/NativeAutoHideTests.cs`, and its README. Both root READMEs and user guides describe the updated behavior.
-- Risks: visual behavior on real mixed-DPI monitors remains a manual check. At 100% scaling, 1-DIP proximity can coincide with exact contact on the bottom/right edge.
-- Validation: Debug build and portable Release publish succeeded; all 9 regression groups passed. Coverage includes four edges, inward/outward pixels, negative monitor coordinates, reserved work areas, simulated 96/120/144/192 DPI metrics, mouse-enter handling, and delayed reveal. Native checks ran outside the sandbox to read the cursor without moving it. NuGet reported `NU1900` while querying vulnerability data; it did not prevent building or testing. This documentation update was checked against the implementation; tests were not rerun for text-only edits.
+- Risks: visual behavior on real mixed-DPI displays remains a manual check. At 100% scaling, 1-DIP proximity can coincide with exact contact on the bottom/right edge.
+- Validation: Debug build and portable Release publish succeeded; all 9 regression groups passed. Coverage includes four edges, inward/outward pixels, negative display coordinates, reserved work areas, simulated 96/120/144/192 DPI metrics, mouse-enter handling, and delayed reveal. Native checks ran outside the sandbox to read the cursor without moving it. NuGet reported `NU1900` while querying vulnerability data; it did not prevent building or testing. This documentation update was checked against the implementation; tests were not rerun for text-only edits.
 
 ## 2026-10-29 — Intersection autohide during window dragging
 
 - Changes: intersection mode can start its hide countdown while a mouse button is held. Leaving the overlap requests reveal without waiting for release; returning before the reveal delay finishes cancels that request unless the pointer requests reveal. The reveal timer rechecks intersection and pointer activation when it fires, including in Proximity mode. Existing delays, pointer activation, and the mouse-button guard for ordinary/maximized-only autohide are preserved. The existing decision block is in `UpdateAutohideState` so tests can supply button state without manipulating real input.
 - Files: `ToolDock/MainWindow.xaml.cs`, native regression checks and their README, and both user guides.
 - Validation: the new held-button regression failed with the previous behavior, then all 9 Debug regression groups passed after the fix. Tests cover both reveal modes, pending hide/reveal cancellation, zero-delay reveal, and the other autohide modes. NuGet retained its `NU1900` vulnerability-service warning; compilation and checks completed.
-- Limits: tests simulate the polling inputs; interactive window dragging and animation on real monitors remain manual checks. Pointer activation still takes priority when dragging near the dock's reveal area.
+- Limits: tests simulate the polling inputs; interactive window dragging and animation on real displays remain manual checks. Pointer activation still takes priority when dragging near the dock's reveal area.

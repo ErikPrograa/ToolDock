@@ -26,20 +26,20 @@ Arrastra un `.exe` o un `.lnk` desde el Explorador y suéltalo en el dock para a
 
 ### Posición del dock
 
-Ancla el dock al borde superior, inferior, izquierdo o derecho del monitor. En los laterales pasa a una disposición vertical.
+Ancla el dock al borde superior, inferior, izquierdo o derecho de la pantalla. En los laterales pasa a una disposición vertical.
 
 <img width="854" height="480" alt="ChangePosition" src="https://github.com/user-attachments/assets/248a84ad-e8df-4b1b-8748-f658dd7adaa6" />
 
 
 ### Autoocultar
 
-El dock puede esconderse en su borde y volver cuando el cursor se acerca o toca el borde exacto de la pantalla, según el modo elegido. También puede quedarse visible hasta que una ventana de ese monitor se maximice o una ventana se superponga al dock.
+El dock puede esconderse en su borde y volver cuando el cursor se acerca o toca el borde de la pantalla, según el modo elegido. También puede quedarse visible hasta que una ventana de esa pantalla se maximice o una ventana se superponga al dock.
 
 
 <img width="854" height="480" alt="Autohide" src="https://github.com/user-attachments/assets/e1a67af2-547c-4d2b-b34b-80c84bb6583e" />
 
 
-### Reservar el área de trabajo
+### Reservar espacio en el área de trabajo
 
 El dock puede reservar espacio en el escritorio, como la barra de tareas, para que las ventanas maximizadas se detengan junto a él en lugar de cubrirlo.
 
@@ -48,7 +48,7 @@ El dock puede reservar espacio en el escritorio, como la barra de tareas, para q
 
 ### Abrir las apps en la pantalla del dock
 
-Al abrir un acceso, esa ventana puede moverse al monitor donde está el dock.
+Al abrir un acceso, esa ventana puede moverse a la pantalla donde está el dock.
 
 <img width="1707" height="480" alt="ForceDisplay" src="https://github.com/user-attachments/assets/6e594cd4-5d84-4aa9-b08c-2e50320be2eb" />
 
@@ -122,14 +122,12 @@ La guía completa está en [Docs/Español/DOCUMENTACION_USUARIO.md](Docs/Españo
 | `Presets_TD.json` | Presets guardados por el usuario |
 | `Colors_TD.json` | Colores personalizados |
 | `Shortcuts_TD.json` | Nombre sugerido al exportar solo los accesos |
-| `Backups_TD/` | Copia anterior de `config.json` (y de `config.instanceN.json`), guardada como `.bak` |
-| `Temp_TD/` | Guardados JSON temporales; se elimina al quedar vacía y los `.tmp` sobrantes se limpian al iniciar |
+| `Backups_TD/` | Copias anteriores de las configuraciones de instancia, guardadas como `.bak` |
+| `Temp_TD/` | Archivos temporales usados al guardar los ajustes |
 
-## Inicio con Windows
+## Arrancar al inicio
 
-ToolDock no incluye la opción de «iniciar con Windows». Activar eso desde una aplicación suele significar escribir una clave en el Registro, crear una tarea en el Programador de tareas, instalar un servicio de Windows o añadir otro punto de arranque. ToolDock no hace nada de eso. No se registra en Windows, así que sigue siendo portable y no deja rastro: si mueves o borras su carpeta, la aplicación desaparece.
-
-Para que arranque al iniciar sesión, crea tú el acceso directo:
+ToolDock sigue siendo portable y no se registra para arrancar automáticamente. Para abrirlo al iniciar sesión, añade un acceso directo a la carpeta de Inicio de Windows.
 
 1. Pulsa `Win + R`, escribe `shell:startup` y acepta.
 2. Coloca en esa carpeta un acceso directo a `ToolDock.exe`.

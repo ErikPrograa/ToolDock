@@ -10,11 +10,11 @@ This dependency-free console runner returns a nonzero exit code on failure. It c
 
 The runner also checks the fullscreen-suppression default, that saves leave no loose `.tmp` files beside the JSON, and classification of instance configuration filenames separately from presets, colors, and shortcut exports. It does not execute troubleshooting resets or verify the complete close/delete/recycle/relaunch sequence.
 
-These checks do not replace an interactive check of autohide animation, cursor reveal, or mixed-DPI monitors.
+These checks do not replace an interactive check of autohide animation, cursor reveal, or mixed-DPI displays.
 
 Native checks also create a temporary window outside the virtual desktop without activating it. They exercise window filtering, both hide conditions, overlap versus edge contact, one-DIP activation and stable intersection bounds on all four dock edges. The dock itself is never shown. All test windows are closed afterwards.
 
-Screen-edge reveal checks cover the final physical pixel, rejection of a pixel inward or on an adjacent monitor, the dock's activation span, reserved work-area boundaries, negative monitor origins, the hidden-strip mouse-enter path, and delayed reveal after leaving the edge. Geometry is checked with 96/120/144/192 DPI metric providers and synthetic monitor bounds; this does not emulate a real mixed-DPI desktop. The tests never move the cursor.
+Screen-edge reveal checks cover the final physical pixel, rejection of a pixel inward or on an adjacent display, the dock's activation span, reserved work-area boundaries, negative display origins, the hidden-strip mouse-enter path, and delayed reveal after leaving the edge. Geometry is checked with 96/120/144/192 DPI metric providers and synthetic display bounds; this does not emulate a real mixed-DPI desktop. The tests never move the cursor.
 
 Drag-state checks pass overlap, pointer-reveal, and held-button states directly to the autohide decision method. Both reveal modes must start hiding or revealing while the button remains down, respect configured delays, and cancel pending transitions when overlap changes. Pointer activation retains priority, and ordinary/maximized-only autohide still waits for button release before starting to hide. These checks do not synthesize mouse input or perform a real window drag.
 

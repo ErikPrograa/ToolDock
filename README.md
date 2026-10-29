@@ -26,29 +26,29 @@ Drag an `.exe` or a `.lnk` from File Explorer and drop it on the dock to add it.
 
 ### Dock position
 
-Anchor the dock to the top, bottom, left, or right edge of the monitor. On the left and right it switches to a vertical layout.
+Anchor the dock to the top, bottom, left, or right edge of the display. On the left and right it switches to a vertical layout.
 
 <img width="854" height="480" alt="ChangePosition" src="https://github.com/user-attachments/assets/00b26908-8727-4d99-b4c1-670eaa4530fb" />
 
 
 ### Autohide
 
-The dock can hide at its edge and come back when the pointer gets close or touches the exact screen edge, depending on the selected reveal mode. It can also stay visible until a window on that monitor is maximized or a window overlaps the dock.
+The dock can hide at its edge and come back when the pointer gets close or touches the screen edge, depending on the selected reveal mode. It can also stay visible until a window on that display is maximized or a window overlaps the dock.
 
 
 <img width="854" height="480" alt="Autohide" src="https://github.com/user-attachments/assets/360231a9-adbf-4870-a3ab-2db91700c661" />
 
 
-### Reserve work area
+### Reserve space in work area
 
 The dock can reserve desktop space, like the taskbar, so maximized windows stop beside it instead of covering it.
 
 <img width="854" height="480" alt="ReserveWorkArea" src="https://github.com/user-attachments/assets/0412b0b8-deda-40b6-976c-50d6417a96b4" />
 
 
-### Open apps on the dock's display
+### Open apps on dock's display
 
-Launching a shortcut can move that window onto the monitor where the dock is.
+Launching a shortcut can move that window onto the display where the dock is.
 
 <img width="1707" height="480" alt="ForceDisplay" src="https://github.com/user-attachments/assets/1a860beb-fd46-4db5-b66f-bed0dde7cb76" />
 
@@ -121,15 +121,13 @@ The full guide is in [Docs/English/USER_DOCUMENTATION_EN.md](Docs/English/USER_D
 | `config.instanceN.json` | Settings for instance N (N ≥ 2) |
 | `Presets_TD.json` | Presets saved by the user |
 | `Colors_TD.json` | Custom colors |
-| `Shortcuts_TD.json` | Suggested nsaved by the user ame when exporting shortcuts only |
-| `Backups_TD/` | Previous copy of `confor the file created fig.jsaving of `configarrangement anceN.json`), saved as `.bak` |
-| `Temp_TD/` | Temporary JSON saves; removed when empty, with leftover `.tmp` files cleaned up on launch |
+| `Shortcuts_TD.json` | Suggested name when exporting shortcuts only |
+| `Backups_TD/` | Previous copies of instance configurations, saved as `.bak` |
+| `Temp_TD/` | Temporary files used when saving settings |
 
-## Starting with Windows
+## Launch on startup
 
-TooLaunch on startupith Windows” option. Turning that on from inside an app usually means writing a Registry key, creating a Task Scheduler job, installing a Windows service, or adding another startup hook. ToolDock does not do any of that. It never registers itself with Windows, so it stays portable and leaves nothing behind: move or delete its folder and the app is gone.
-
-To launch it when you sign in, create the shortcut yourself:
+ToolDock stays portable and does not register itself to launch automatically. To launch it when you sign in, add a shortcut to the Windows Startup folder.
 
 1. Press `Win + R`, type `shell:startup`, and confirm.
 2. Place a shortcut to `ToolDock.exe` in that folder.

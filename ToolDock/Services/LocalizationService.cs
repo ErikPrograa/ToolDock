@@ -40,7 +40,7 @@ public static class LocalizationService
             "InfoHeadingGeneralUsage" => "Uso general",
             "InfoBodyGeneralUsage" =>
                 "ToolDock es un dock para Windows que funciona como lanzador de aplicaciones y complementa la barra de tareas nativa: accesos rápidos a programas y archivos, con opciones de posición y apariencia. La mayoría de las acciones están en el icono de la bandeja del sistema y en la ventana de Configuración.",
-            "InfoHeadingStartup" => "Inicio con Windows",
+            "InfoHeadingStartup" => "Arrancar al inicio",
             "InfoBodyStartup" =>
                 "Pulsa Win + R, escribe shell:startup y coloca en esa carpeta un acceso directo a ToolDock.exe.",
             "InfoHeadingInstances" => "Varias instancias y el argumento --instances",
@@ -361,7 +361,7 @@ public static class LocalizationService
             "InfoHeadingGeneralUsage" => "General usage",
             "InfoBodyGeneralUsage" =>
                 "ToolDock is a dock for Windows that acts as an app launcher that complements the native taskbar: quick access to apps and files, with layout and appearance options. Most actions are available from the system tray icon and the Settings window.",
-            "InfoHeadingStartup" => "Start with Windows",
+            "InfoHeadingStartup" => "Launch on startup",
             "InfoBodyStartup" =>
                 "Press Win + R, type shell:startup, and place a shortcut to ToolDock.exe in that folder.",
             "InfoHeadingInstances" => "Multiple instances and the --instances argument",

@@ -2,7 +2,7 @@
 
 Guide for the current build. ToolDock is a work in progress: bugs and rough edges may still show up.
 
-Contents: [what it is](#what-it-is), [getting started](#getting-started), [the dock](#the-dock), [tray](#system-tray), [settings](#settings), [files](#application-files), [multiple instances](#multiple-instances), [startup](#starting-with-windows), [troubleshooting](#troubleshooting), [limits](#current-limits).
+Contents: [what it is](#what-it-is), [getting started](#getting-started), [the dock](#the-dock), [tray](#system-tray), [settings](#settings), [files](#application-files), [multiple instances](#multiple-instances), [launch on startup](#launch-on-startup), [troubleshooting](#troubleshooting), [limits](#current-limits).
 
 ## What it is
 
@@ -32,7 +32,7 @@ The interface language is under **General**. The factory default is English with
 
 Left-click an icon. If the path no longer exists, ToolDock reports that and does not launch it.
 
-With **Open apps on the dock's display** (Behaviour), ToolDock tries to move the new window onto the display that holds the dock. Windows picks a display when the process starts; the move happens afterwards and is not always possible, especially for Store apps.
+With **Open apps on dock's display** (Behaviour), ToolDock tries to move the new window onto the display that holds the dock. Windows picks a display when the process starts; the move happens afterwards and is not always possible, especially for Store apps.
 
 ### Adding shortcuts
 
@@ -44,8 +44,8 @@ Two file types are accepted:
 Ways to add them:
 
 - Drag one or more from File Explorer and drop them on the dock. If the dock is autohidden, dragging a file toward the edge reveals it.
-- In Settings, **App Shortcuts** → **Add shortcut…**
-- In the same section, **Add UWP app…** lists packaged Microsoft Store apps.
+- In Settings, **App Shortcuts** → **Add Shortcut…**
+- In the same section, **Add UWP App…** lists packaged Microsoft Store apps.
 
 The same file is not added twice. A UWP app is identified by its AppUserModelID, not by a disk path.
 
@@ -58,9 +58,9 @@ The same file is not added twice. A UWP app is identified by its AppUserModelID,
   - **Reset icon**, when a custom icon is already set
 - Double-click or right-click an empty part of the dock for a quick menu: settings, reload, edge, icon alignment, autohide, and lock shortcuts.
 
-**Lock shortcuts** stops reordering. You can still launch, remove, and add items. The switch is on the empty-area menu.
+**Lock Shortcuts** stops reordering. You can still launch, remove, and add items. The switch is on the empty-area menu.
 
-**High-quality icons** (App Shortcuts) extracts icons at a higher resolution. Hover looks better on some shortcuts and the app uses a little more memory.
+**High quality icons** (App Shortcuts) extracts icons at a higher resolution. Hover looks better on some shortcuts and the app uses a little more memory.
 
 ### Hover effect
 
@@ -86,7 +86,7 @@ With more than one instance, the tray tooltip includes the number, for example `
 
 ## Settings
 
-The window has a sidebar. Every section except Info and Details has a **Reset** button that restores only that section to the reference preset.
+The window has a sidebar. In **Size & Position**, **Appearance**, **App Shortcuts**, and **Behaviour**, **Reset** restores that section to the reference preset. In **General**, it restores English and the dark theme.
 
 The reference preset is the one currently selected. If the current preset is **Custom**, ToolDock uses the last real preset you had selected (by default, **Default**).
 
@@ -101,7 +101,7 @@ Along the bottom:
 
 ### Info
 
-Summarizes usage, lists the configuration files, and shows how to start with Windows and open more than one instance. It does not change settings.
+Summarizes usage and configuration files. **Launch on startup** explains how to create a Windows Startup shortcut; it is not an automatic startup switch. Info also explains how to open multiple instances.
 
 ### General
 
@@ -117,53 +117,55 @@ Three global hotkeys. Click the button, then press the combination (Ctrl, Alt, S
 
 | Hotkey | Effect |
 |---|---|
-| Show/hide dock | Toggles visibility when autohide is off |
+| Show/Hide dock | Toggles visibility when autohide is off |
 | Set dock on top | Same as tray **Set on top** |
 | Disable dock | Toggles the session-only disabled state |
 
-With autohide on, only the **Show/hide dock** label is dimmed. You can still assign, change, or clear the combination, but it is not active until autohide is turned off. **Set dock on top** and **Disable dock** remain available.
+With autohide on, only the **Show/Hide dock** label is dimmed. You can still assign, change, or clear the combination, but it is not active until autohide is turned off. **Set dock on top** and **Disable dock** remain available.
+
+**Set dock on top** shows and raises the dock once. It does not toggle visibility or enable the persistent **Always on top** option.
 
 If another program already registered the same combination, ToolDock cannot take it.
 
-### Size and position
+### Size & Position
 
-On-screen measurements are logical pixels (the same unit Windows uses when it scales a display). On a 150% monitor, 48 logical pixels cover more physical pixels. The **Details** page shows the conversion.
+On-screen measurements are logical pixels (the same unit Windows uses when it scales a display). On a display scaled to 150%, 48 logical pixels cover more physical pixels. The **Details** page shows the conversion.
 
 | Control | What it does | Typical range |
 |---|---|---|
-| Position | Edge: top, bottom, left, right. Side edges switch the dock to vertical | — |
-| Auto-adjust dock width | Length follows the number of icons | — |
-| Dock width | Length along the edge | Minimum depends on icons; maximum is the work area |
-| Dock height | Thickness of the dock | 32–64 |
-| Alignment offset | Slides the icon group along the edge | −1500 to 1500 on the slider |
-| Edge gap | Space between the dock and the screen edge | 0–600 |
+| Dock Position | Edge: top, bottom, left, right. Side edges switch the dock to vertical | — |
+| Auto adjust dock width | Length follows the number of icons | — |
+| Dock width (px) | Length along the edge | Minimum depends on icons; maximum is the work area |
+| Dock height (px) | Thickness of the dock | 32–64 |
+| Alignment offset (px) | Moves the dock along the edge | −1500 to 1500 on the slider |
+| Offset from edge (px) | Space between the dock and the screen edge | 0–600 |
 
 ### Appearance
 
 **Background**
 
-- Rounded corners, radius 0–32, with a checkbox for each corner.
-- Background color, from a list of built-in colors.
-- Dock opacity, from 0 (transparent) to 100 (opaque). Factory value is 60.
+- **Rounded corners** and **Corner radius (px)**, from 0–32, with a checkbox for each corner.
+- **Background Color**, from a list of built-in colors.
+- **Dock opacity**, from 0 (transparent) to 100 (opaque). Factory value is 60.
 
 **Outline**
 
-- Can be turned on or off, and each side can be chosen separately (top, bottom, left, right). Sides belong to the dock, not the screen. With the dock on top, the bottom edge is the one that faces the desktop.
-- Color, opacity (factory: 20), and thickness from 0.25 to 6. 1 px is the thinnest stroke that fills a physical pixel. Below 1 the outline is antialiased and looks thinner.
+- **Show outline** turns it on or off; **Outline on edges** selects each side separately (top, bottom, left, right). Sides belong to the dock, not the screen. With the dock on top, the bottom edge is the one that faces the desktop.
+- Color, opacity (factory: 20), and **Outline thickness (px)** from 0.25 to 6 logical pixels. Fractional values are antialiased; appearance depends on display scaling.
 
-**Custom colors**
+**Custom Colors**
 
 Type a HEX color (`#RRGGBB` or `#RGB`; a missing `#` is added), give it a name, and save it. It is stored in `Colors_TD.json` and can be selected again or deleted. It works for both the background and the outline.
 
-### App shortcuts
+### App Shortcuts
 
-- **Save shortcuts** exports only the icon list (paths, names, custom icons, and UWP apps). It does not export colors or other settings. The suggested file name is `Shortcuts_TD.json`.
-- **Load shortcuts** replaces the current list with the file. Missing `.exe` and `.lnk` files are skipped.
+- **Save Shortcuts** exports only the icon list (paths, names, custom icons, and UWP apps). It does not export colors or other settings. The suggested file name is `Shortcuts_TD.json`.
+- **Load Shortcuts** replaces the current list with the file. Missing `.exe` and `.lnk` files are skipped.
 - **Remove all shortcuts** clears the dock. It asks for confirmation and cannot be undone.
-- Icon alignment: start, center, or end of the dock (left/center/right, or top/center/bottom when vertical).
-- Icon size: 16–32. Factory: 24.
-- Spacing: 5–44. Factory: 19.
-- High-quality icons and the hover effect, described above.
+- Under **Buttons**, **Button alignment** places the icons: **Left**, **Center**, or **Right**; **Top**, **Middle**, or **Bottom** when vertical.
+- **Icon size (px)**: 16–32. Factory: 24.
+- **Icon spacing (px)**: 5–44. Factory: 19.
+- **High quality icons** and **Hover effects**, described above.
 
 ### Behaviour
 
@@ -171,31 +173,32 @@ Type a HEX color (`#RRGGBB` or `#RGB`; a missing `#` is added), give it a name, 
 |---|---|
 | Always on top | The dock stays above normal windows |
 | Do not show over fullscreen apps | Hides the dock while a fullscreen app has focus on the dock's display; on by default |
-| Open apps on the dock's display | Tries to move the launched window to the dock's display |
-| Reserve work-area space | Windows treats the dock like a bar: maximized windows do not cover it. Cannot be combined with autohide |
+| Open apps on dock's display | Tries to move the launched window to the dock's display |
+| Reserve space in work area | Windows treats the dock like a bar: maximized windows do not cover it. Cannot be combined with autohide |
 | Autohide | The dock slides into its edge and comes back according to the chosen mode |
-| Hide behind the taskbar | Available only when autohide and always-on-top are both on |
+| Hide behind taskbar | Available only when autohide and always-on-top are both on |
 | Hide when a window is maximized | With autohide on, a maximized window on the dock's display allows it to hide |
 | Hide when a window intersects the dock | With autohide on, a window overlapping the dock allows it to hide, even if that window is not maximized |
 
-Fullscreen suppression works with autohide on or off. New configurations and the Default preset enable it; loading an existing configuration with this option saved as off preserves that choice.
+Fullscreen suppression works with autohide on or off.
 
-Both window conditions are off by default. Enabling one turns the other off. In intersection mode, the dock stays visible when no window overlaps it, including when a maximized window does not touch it. With neither enabled, normal autohide applies. The pointer can still reveal the dock using the selected mode and delays. Minimized or hidden windows, the desktop, and the taskbar do not trigger these conditions.
+The two window conditions are off by default and mutually exclusive. When one is enabled, the dock stays visible unless that condition is met. Intersection is checked even while you drag a window, with the configured reveal and hide delays. Minimized or hidden windows, the desktop, and the taskbar do not trigger these conditions. With neither enabled, normal autohide applies.
 
-**Hide when a window intersects the dock** also updates while you drag a window: hiding and revealing do not wait for you to release the mouse button. The configured delays still apply. If the window overlaps again before the reveal delay finishes, the pending reveal is canceled unless the pointer is in the dock's reveal area.
+**Reveal dock when...** selects how the pointer reveals the dock:
 
-With autohide on you can also set:
+| Mode | How to reveal |
+|---|---|
+| Touch screen edge | Touch the outermost physical pixel of the selected display edge, within the dock's activation span, and stay there for the reveal delay. This uses the full screen edge, including when the taskbar reduces the work area |
+| Cursor near screen edge | Move within the configured activation distance near the dock |
 
-- **Reveal dock when…**: **Touch screen edge** or **Cursor near screen edge** (proximity).
-- Activation distance for proximity, in centimeters: 1–400 logical pixels (about 0.03–10.58 cm), independent of hover radius. Factory: about 1.6 cm (60 logical pixels at 96 DPI).
-- Slide animation and its duration (0–1200 ms; factory 150).
-- Delay before show (0–4000 ms; factory 150) and before hide (factory 250).
+Other autohide controls:
 
-**Touch screen edge** requires the pointer's active point (normally the arrow tip) to reach the outermost physical pixel on the selected edge of the dock's monitor, within the dock's activation span. This means the full screen edge, even when the taskbar reduces the work area. Moving over the visible strip of the hidden dock does not trigger this mode.
+- **Activation distance (cm)**: proximity distance, independent of hover radius. Range: about 0.03–10.58 cm (1–400 logical pixels); factory value: about 1.6 cm.
+- **Animate autohide (slide)**: enables the slide animation.
+- **Slide speed (ms)**: animation duration, 0–1200 ms (factory: 150). Higher values make the slide slower.
+- **Reveal delay (ms)** and **Hide delay (ms)**: 0–4000 ms; factory values: 150 and 250 respectively.
 
-Keep the pointer at that edge for the reveal delay. Leaving it cancels the pending reveal; touching it again starts the delay again. Dragging files onto the dock and using **Set on top** from the tray or the **Set dock on top** hotkey still work.
-
-At 100% display scaling, a proximity distance of 1 logical pixel can coincide with exact contact on the bottom or right edge. The screen-edge mode always requires the outermost physical pixel, regardless of scaling.
+The pointer can still reveal the dock when a window condition is met. Dragging files onto it, tray **Set on top**, and the **Set dock on top** hotkey also reveal it.
 
 ### Details
 
@@ -205,7 +208,7 @@ Read-only. For the current display and DPI it shows the effective dock, icon, an
 
 | Action | What it changes |
 |---|---|
-| Open program folder | Opens the `.exe` folder in File Explorer |
+| Open app folder | Opens the `.exe` folder in File Explorer |
 | Generate detailed log | Writes a `.txt` with configuration, displays, DPI, and dock state, for a bug report |
 | Delete all custom colors | Removes `Colors_TD.json`. Built-in colors stay |
 | Delete all custom presets | Removes `Presets_TD.json` and applies the Default preset |
@@ -226,8 +229,6 @@ A preset stores size, position, appearance, icon metrics and hover (not the shor
 
 Older presets, from before measurements were stored as logical pixels, are dropped when `Presets_TD.json` is read.
 
-Switching presets recalculates the dock's size and edge placement, including when returning to Default. The fix for displaced docks after preset changes does not require deleting or recreating supported presets.
-
 ## Application files
 
 All of them live in the same folder as `ToolDock.exe`:
@@ -241,15 +242,15 @@ All of them live in the same folder as `ToolDock.exe`:
 | `Shortcuts_TD.json` | Only if you export the shortcut list; you can save it under another name |
 | `Backups_TD/` | Previous copy of the configuration, saved as `.bak`. If a JSON file is cut off (for example when the PC shuts down), ToolDock tries to recover this copy |
 | `Temp_TD/` | Temporary files used while saving JSON; removed when empty |
-| `*.corrupt-*` | An unreadable file set aside so it does not overwrite the backup |
+| `*.corrupt` | An unreadable file set aside so it does not overwrite the backup |
 
 Copying that folder backs up your configuration. You do not need to copy the `.exe` if you only want the data.
 
-On launch, ToolDock removes leftover `.tmp` files from interrupted saves in `Temp_TD/`. Files still open by another instance are left alone. This temporary folder is not needed in a backup.
+`Temp_TD/` is managed automatically and is not needed in a backup.
 
 ## Multiple instances
 
-You can run ToolDock more than once, up to 32 times. Each instance has its own JSON file and its own tray icon.
+You can run ToolDock more than once, up to 32 times. Each instance has its own settings, shortcuts, and tray icon. Saved presets and custom colors share the same files in the application folder.
 
 To start several at once:
 
@@ -257,11 +258,11 @@ To start several at once:
 ToolDock.exe --instances 2
 ```
 
-`--instances=2` works too. Extra instances are started with `--spawned` so they do not multiply again.
+`--instances=2` works too.
 
-## Starting with Windows
+## Launch on startup
 
-ToolDock does not offer a built-in “start with Windows” switch. That keeps it off the Registry, Task Scheduler, and system services.
+ToolDock stays portable and does not register itself to launch automatically. Use a shortcut in the Windows Startup folder to launch it when you sign in.
 
 If you want it at sign-in:
 
@@ -274,6 +275,5 @@ If you want it at sign-in:
 - Aimed at Windows 11.
 - Dropped files must be `.exe` or `.lnk`. Anything else is ignored. Store apps are added from the UWP picker.
 - Visual effects and the thin outline depend on DPI and on how Windows composes the desktop.
-- Moving an app to the dock's display is not guaranteed: some windows choose their own monitor.
+- Moving an app to the dock's display is not guaranteed: some windows choose their own display.
 - **Disable dock** lasts only until you exit.
-- A “pin settings to a quick-access panel” feature exists in the code, but it is hidden in the interface.
