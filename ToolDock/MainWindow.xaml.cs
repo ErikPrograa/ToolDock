@@ -57,6 +57,8 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private bool _appBarRegistered;
     private bool _hotkeyHidden;
     private bool _hiddenByFullscreen;
+    private bool _isUpdatingDockLayout;
+    private bool _isDockLayoutUpdateQueued;
     private readonly Microsoft.Win32.UserPreferenceChangedEventHandler _userPreferenceChangedHandler;
 
     private DockEdge _reservedEdge;
@@ -606,7 +608,41 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         ApplyZOrder();
     }
 
+    /// <summary>
+    /// Resizing the window makes WPF process the resize synchronously, and that can change settings
+    /// that land here again. A nested pass would size the window while WPF is still finishing the
+    /// previous resize, which leaves the content laid out with the old size, off the edge.
+    /// So the nested request is deferred until the current pass has finished.
+    /// </summary>
     private void UpdateDockVisualsAndLayout()
+    {
+        if (_isUpdatingDockLayout)
+        {
+            if (!_isDockLayoutUpdateQueued)
+            {
+                _isDockLayoutUpdateQueued = true;
+                Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() =>
+                {
+                    _isDockLayoutUpdateQueued = false;
+                    UpdateDockVisualsAndLayout();
+                }));
+            }
+
+            return;
+        }
+
+        _isUpdatingDockLayout = true;
+        try
+        {
+            ApplyDockVisualsAndLayout();
+        }
+        finally
+        {
+            _isUpdatingDockLayout = false;
+        }
+    }
+
+    private void ApplyDockVisualsAndLayout()
     {
         RefreshActiveMonitor();
 
