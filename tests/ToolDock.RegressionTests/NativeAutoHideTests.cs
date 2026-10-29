@@ -29,6 +29,7 @@ internal static class NativeAutoHideTests
             HwndSource.FromHwnd(self)!.RootVisual = dock;
             CheckWindowFilters(dock, config, self);
             CheckDockGeometry(dock, config);
+            CheckScreenEdgeReveal(dock, config);
             Check(!dock.IsVisible, "The test never displays the dock");
         }
         finally
@@ -181,6 +182,126 @@ internal static class NativeAutoHideTests
         }
     }
 
+    private static void CheckScreenEdgeReveal(MainWindow dock, DockConfig config)
+    {
+        var monitorField = typeof(MainWindow).GetField("_activeMonitor", PrivateInstance)!;
+        var hiddenField = typeof(MainWindow).GetField("_isHiddenByAutohide", PrivateInstance)!;
+        var showTimer = (DispatcherTimer)typeof(MainWindow).GetField("_autoShowTimer", PrivateInstance)!.GetValue(dock)!;
+        var previousDpi = DockMetrics.GetDpiPixelsPerInchX;
+        config.HideWhenWindowIntersects = false;
+        config.AutoHideRevealMode = AutoHideRevealMode.EdgeTouch;
+        config.Offset = 0;
+        config.AlignmentOffset = 0;
+        try
+        {
+            foreach (var edge in Enum.GetValues<DockEdge>())
+            {
+                config.Edge = edge;
+                hiddenField.SetValue(dock, true);
+                Call(dock, "PositionDockWindow", false);
+                var monitor = (MonitorInfo)monitorField.GetValue(dock)!;
+                var expanded = new Rect(
+                    new Point(Math.Min(-1920, monitor.BoundsPx.Left - 64), Math.Min(-1080, monitor.BoundsPx.Top - 64)),
+                    new Point(monitor.BoundsPx.Right + 64, monitor.BoundsPx.Bottom + 64));
+
+                foreach (var bounds in new[] { monitor.BoundsPx, expanded })
+                {
+                    // Keep real WPF geometry; varying the full bounds also models reserved work-area edges.
+                    monitorField.SetValue(dock, new MonitorInfo
+                    {
+                        DeviceName = monitor.DeviceName,
+                        FriendlyName = monitor.FriendlyName,
+                        BoundsPx = bounds,
+                        BoundsDip = monitor.BoundsDip,
+                        WorkAreaPx = monitor.WorkAreaPx,
+                        WorkAreaDip = monitor.WorkAreaDip
+                    });
+                    foreach (var dpi in new[] { 96d, 120d, 144d, 192d })
+                    {
+                        DockMetrics.GetDpiPixelsPerInchX = () => dpi;
+                        var frame = (Rect)Call(dock, "GetVisibleDockBounds");
+                        Check(!frame.IsEmpty, $"{edge}: edge-reveal fixture contains the dock");
+                        var middleX = Math.Round(frame.Left + frame.Width / 2);
+                        var middleY = Math.Round(frame.Top + frame.Height / 2);
+                        var touch = edge switch
+                        {
+                            DockEdge.Top => new Point(middleX, bounds.Top),
+                            DockEdge.Bottom => new Point(middleX, bounds.Bottom - 1),
+                            DockEdge.Left => new Point(bounds.Left, middleY),
+                            _ => new Point(bounds.Right - 1, middleY)
+                        };
+                        var inward = edge switch
+                        {
+                            DockEdge.Top => new Vector(0, 1),
+                            DockEdge.Bottom => new Vector(0, -1),
+                            DockEdge.Left => new Vector(1, 0),
+                            _ => new Vector(-1, 0)
+                        };
+                        bool Touches(Point point) => (bool)Call(dock, "IsPointerTouchingScreenEdge", point);
+                        Check(Touches(touch), $"{edge} at {dpi} DPI: final physical pixel reveals");
+                        Check(!Touches(touch + inward), $"{edge} at {dpi} DPI: one physical pixel inward does not reveal");
+                        Check(!Touches(touch - inward), $"{edge} at {dpi} DPI: adjacent monitor does not reveal");
+
+                        var outsideSpan = edge is DockEdge.Top or DockEdge.Bottom
+                            ? new Point(Math.Floor(frame.Left - DockMetrics.LogicalToPhysicalExact(10) - 1), touch.Y)
+                            : new Point(touch.X, Math.Floor(frame.Top - DockMetrics.LogicalToPhysicalExact(10) - 1));
+                        Check(!Touches(outsideSpan), $"{edge}: contact outside the dock span does not reveal");
+
+                        if (bounds == expanded)
+                        {
+                            var work = monitor.WorkAreaPx;
+                            var workEdge = edge switch
+                            {
+                                DockEdge.Top => new Point(middleX, work.Top),
+                                DockEdge.Bottom => new Point(middleX, work.Bottom - 1),
+                                DockEdge.Left => new Point(work.Left, middleY),
+                                _ => new Point(work.Right - 1, middleY)
+                            };
+                            Check(!Touches(workEdge), $"{edge}: a reserved work-area boundary is not the screen edge");
+                        }
+                    }
+                }
+                monitorField.SetValue(dock, monitor);
+            }
+
+            foreach (var delay in new[] { 0, 150 })
+            {
+                config.AutoHideRevealDelayMs = delay;
+                hiddenField.SetValue(dock, true);
+                showTimer.Stop();
+                Call(dock, "Window_MouseEnter", null!, null!);
+                Check((bool)hiddenField.GetValue(dock)! && !showTimer.IsEnabled,
+                    $"EdgeTouch: entering the hidden strip cannot bypass screen-edge detection (delay {delay})");
+            }
+
+            Check(GetCursorPos(out var cursor), "Cursor position is available without moving it");
+            var currentMonitor = (MonitorInfo)monitorField.GetValue(dock)!;
+            monitorField.SetValue(dock, new MonitorInfo
+            {
+                DeviceName = currentMonitor.DeviceName,
+                FriendlyName = currentMonitor.FriendlyName,
+                BoundsPx = new Rect(cursor.X + 100000, cursor.Y + 100000, 1920, 1080),
+                BoundsDip = currentMonitor.BoundsDip,
+                WorkAreaPx = currentMonitor.WorkAreaPx,
+                WorkAreaDip = currentMonitor.WorkAreaDip
+            });
+            showTimer.Start();
+            Call(dock, "AutoShowTimer_Tick", null!, EventArgs.Empty);
+            Check((bool)hiddenField.GetValue(dock)! && !showTimer.IsEnabled,
+                "EdgeTouch: the reveal delay cannot show the dock after the cursor leaves the edge");
+            monitorField.SetValue(dock, currentMonitor);
+
+            config.AutoHideRevealMode = AutoHideRevealMode.Proximity;
+            config.AutoHideRevealDelayMs = 0;
+            Call(dock, "Window_MouseEnter", null!, null!);
+            Check(!(bool)hiddenField.GetValue(dock)!, "Proximity: entering the hidden strip still reveals");
+        }
+        finally
+        {
+            DockMetrics.GetDpiPixelsPerInchX = previousDpi;
+        }
+    }
+
     private static object Call(MainWindow dock, string method, params object[] arguments) =>
         typeof(MainWindow).GetMethod(method, PrivateInstance)!.Invoke(dock, arguments)!;
 
@@ -194,6 +315,13 @@ internal static class NativeAutoHideTests
 
     [StructLayout(LayoutKind.Sequential)]
     private struct NativeRect { public int Left, Top, Right, Bottom; }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct NativePoint { public int X, Y; }
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool GetCursorPos(out NativePoint point);
 
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]

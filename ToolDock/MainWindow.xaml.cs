@@ -968,6 +968,12 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     private void Window_MouseEnter(object sender, WpfMouseEventArgs e)
     {
+        // The pointer tracker handles exact edge contact; the hidden strip is wider.
+        if (_isHiddenByAutohide && Config.AutoHideRevealMode == AutoHideRevealMode.EdgeTouch)
+        {
+            return;
+        }
+
         RequestRevealFromAutohide();
     }
 
@@ -979,7 +985,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         }
 
         if (Config.AutoHideRevealMode == AutoHideRevealMode.Proximity &&
-            TryGetPointerPoints(out var pointerWindow, out _) &&
+            TryGetPointerPoints(out var pointerWindow, out _, out _) &&
             IsPointerInAutoHideProximity(pointerWindow))
         {
             return;
@@ -1037,6 +1043,13 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private void AutoShowTimer_Tick(object? sender, EventArgs e)
     {
         _autoShowTimer.Stop();
+        if (Config.AutoHideRevealMode == AutoHideRevealMode.EdgeTouch && ShouldAutohideHideForWindows() &&
+            (!User32.GetCursorPos(out var pointer) ||
+             !IsPointerTouchingScreenEdge(new WpfPoint(pointer.X, pointer.Y))))
+        {
+            return;
+        }
+
         EnsureVisibleFromAutohide(animate: true);
     }
 
@@ -1923,7 +1936,6 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         return 1.0 + (Math.Max(0, Config.HoverMagnification) / 100.0);
     }
 
-    private const double EdgeTouchDistance = 4.0;
     private const double EdgeRevealSpanPadding = 10.0;
 
     /// <summary>Tracker ticks (~30 fps when idle) between Z-order reassertions.</summary>
@@ -1942,7 +1954,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             MaintainZOrder();
         }
 
-        if (!TryGetPointerPoints(out var pointerWindow, out var pointerDock))
+        if (!TryGetPointerPoints(out var pointerWindow, out var pointerDock, out var pointerScreenPx))
         {
             return;
         }
@@ -1979,16 +1991,19 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             {
                 var buttonHeld = User32.IsLeftOrRightMouseButtonDown();
 
-                var revealDistance = Config.AutoHideRevealMode == AutoHideRevealMode.Proximity
-                    ? Config.AutoHideProximityDistance
-                    : EdgeTouchDistance;
-                var wantReveal = IsPointerInDockEdgeRegion(pointerScreen, revealDistance);
+                var wantReveal = Config.AutoHideRevealMode == AutoHideRevealMode.Proximity
+                    ? IsPointerInDockEdgeRegion(pointerScreen, Config.AutoHideProximityDistance)
+                    : IsPointerTouchingScreenEdge(pointerScreenPx);
 
                 if (_isHiddenByAutohide)
                 {
                     if (wantReveal)
                     {
                         RequestRevealFromAutohide();
+                    }
+                    else if (Config.AutoHideRevealMode == AutoHideRevealMode.EdgeTouch)
+                    {
+                        _autoShowTimer.Stop();
                     }
                 }
                 else if (IsMouseOver || wantReveal)
@@ -2247,17 +2262,49 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         };
     }
 
-    private bool TryGetPointerPoints(out WpfPoint pointerWindow, out WpfPoint pointerDock)
+    private bool IsPointerTouchingScreenEdge(WpfPoint pointerScreenPx)
+    {
+        var bounds = _activeMonitor.BoundsPx;
+        if (pointerScreenPx.X < bounds.Left || pointerScreenPx.X >= bounds.Right ||
+            pointerScreenPx.Y < bounds.Top || pointerScreenPx.Y >= bounds.Bottom)
+        {
+            return false;
+        }
+
+        // Win32's right and bottom bounds are exclusive: the last pixel is one less.
+        var touchesEdge = Config.Edge switch
+        {
+            DockEdge.Top => pointerScreenPx.Y == bounds.Top,
+            DockEdge.Bottom => pointerScreenPx.Y == bounds.Bottom - 1,
+            DockEdge.Left => pointerScreenPx.X == bounds.Left,
+            DockEdge.Right => pointerScreenPx.X == bounds.Right - 1,
+            _ => false
+        };
+        if (!touchesEdge)
+        {
+            return false;
+        }
+
+        var frame = GetVisibleDockBounds();
+        var pad = DockMetrics.LogicalToPhysicalExact(EdgeRevealSpanPadding);
+        return !frame.IsEmpty && (IsVerticalDock
+            ? pointerScreenPx.Y >= frame.Top - pad && pointerScreenPx.Y <= frame.Bottom + pad
+            : pointerScreenPx.X >= frame.Left - pad && pointerScreenPx.X <= frame.Right + pad);
+    }
+
+    private bool TryGetPointerPoints(out WpfPoint pointerWindow, out WpfPoint pointerDock, out WpfPoint pointerScreenPx)
     {
         pointerWindow = default;
         pointerDock = default;
+        pointerScreenPx = default;
 
         if (!User32.GetCursorPos(out var screenPosition))
         {
             return false;
         }
 
-        pointerWindow = PointFromScreen(new WpfPoint(screenPosition.X, screenPosition.Y));
+        pointerScreenPx = new WpfPoint(screenPosition.X, screenPosition.Y);
+        pointerWindow = PointFromScreen(pointerScreenPx);
         var dockOrigin = DockList.TranslatePoint(new WpfPoint(0, 0), this);
         pointerDock = new WpfPoint(pointerWindow.X - dockOrigin.X, pointerWindow.Y - dockOrigin.Y);
         return true;

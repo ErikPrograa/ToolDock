@@ -12,4 +12,6 @@ These checks do not replace an interactive check of autohide animation, cursor r
 
 Native checks also create a temporary window outside the virtual desktop without activating it. They exercise window filtering, both hide conditions, overlap versus edge contact, one-DIP activation and stable intersection bounds on all four dock edges. The dock itself is never shown. All test windows are closed afterwards.
 
+Screen-edge reveal checks cover the final physical pixel, rejection of a pixel inward or on an adjacent monitor, the dock's activation span, reserved work-area boundaries, negative monitor origins, the hidden-strip mouse-enter path, and delayed reveal after leaving the edge. Geometry is checked with 96/120/144/192 DPI metric providers and synthetic monitor bounds; this does not emulate a real mixed-DPI desktop. The tests never move the cursor.
+
 If stale WPF intermediates cause missing `*.g.cs` errors after switching build configurations, regenerate them with `dotnet build tests/ToolDock.RegressionTests -c Debug -t:Rebuild`, then run the checks again.
