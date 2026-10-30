@@ -77,9 +77,7 @@ Clic izquierdo abre **Atajos de teclado**. Clic derecho abre el menú:
 | Configuración | Abre la ventana de ajustes |
 | Poner encima | Muestra el dock y lo trae al frente |
 | Desactivar dock | Lo oculta solo en esta sesión. Al cerrar y volver a abrir, vuelve a estar activo |
-| Recargar dock | Vuelve a leer iconos, DPI y posición sin cerrar la aplicación |
-| Recargar app | Guarda, cierra y vuelve a abrir ToolDock (abre Configuración al arrancar) |
-| Solución de problemas | Carpeta del programa y los tres reinicios |
+| Solución de problemas | Carpeta del programa, Recargar dock, Recargar app y los tres reinicios. Recargar dock vuelve a leer iconos, DPI y posición sin cerrar la aplicación. Recargar app guarda, cierra y vuelve a abrir ToolDock (abre Configuración al arrancar) |
 | Salir | Guarda y cierra |
 
 Si hay más de una instancia, el icono de la bandeja muestra el número, por ejemplo `ToolDock (2)`.
@@ -96,8 +94,7 @@ Abajo de la ventana:
 
 - **Restablecer preajuste**: vuelve a cargar el preset de referencia.
 - **Restablecer todo a predeterminado**: idioma inglés, tema oscuro y el resto de valores de fábrica. No borra los accesos del dock, ni los presets guardados, ni los colores personalizados.
-- **Refrescar ventana**: actualiza la ventana de configuración.
-- **Recargar app**: reinicia ToolDock.
+- **Desactivar dock**: oculta el dock en esta sesión. Mientras está oculto, el botón dice **Activar dock** y queda resaltado. No se guarda: al reiniciar, el dock vuelve.
 
 ### Información
 
@@ -107,7 +104,6 @@ Resume el uso y los archivos de configuración. **Arrancar al inicio** explica c
 
 - **Idioma:** español o inglés. También cambia los textos de la bandeja.
 - **Modo oscuro:** tema de Configuración y de los menús. El color del propio dock se elige en Apariencia.
-- **Desactivar dock:** igual que la opción de la bandeja. No se guarda: al reiniciar, el dock vuelve.
 - **Pantalla:** pantalla donde se ancla el dock. **Predeterminado (principal)** sigue a la pantalla principal.
 - **Presets de configuración:** ver [Presets](#presets).
 
@@ -209,6 +205,8 @@ No edita nada. Muestra, para la pantalla y el DPI actuales, el tamaño efectivo 
 | Acción | Qué borra o cambia |
 |---|---|
 | Abrir carpeta del programa | Abre la carpeta del `.exe` en el Explorador |
+| Refrescar ventana | Actualiza la ventana de ajustes sin reiniciar la aplicación |
+| Recargar app | Guarda, cierra y vuelve a abrir ToolDock. Ajustes se abre al arrancar |
 | Generar registro detallado | Crea un `.txt` con configuración, pantallas, DPI y estado del dock, para adjuntar a un informe |
 | Borrar todos los colores personalizados | Elimina `Colors_TD.json`. Los colores integrados siguen |
 | Borrar todos los presets personalizados | Elimina `Presets_TD.json` y aplica el preset Predeterminado |

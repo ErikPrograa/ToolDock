@@ -192,6 +192,11 @@
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="Root" Property="Background" Value="{DynamicResource ControlHoverBrush}" />
                             </Trigger>
+                            <Trigger Property="chrome:FluentChrome.IsActive" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource AccentBrush}" />
+                                <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+                                <Setter Property="Foreground" Value="{DynamicResource CheckGlyphBrush}" />
+                            </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="Root" Property="Background" Value="{DynamicResource ControlPressedBrush}" />
                             </Trigger>
@@ -682,10 +687,8 @@
                                 <StackPanel>
                                     <TextBlock x:Name="ThemeLabel" Style="{StaticResource CardTitle}" />
                                     <CheckBox x:Name="DarkModeCheck"
-                                              Margin="0,2,0,8"
+                                              Margin="0,2,0,0"
                                               IsChecked="{Binding IsDarkMode}" />
-                                    <CheckBox x:Name="DisableDockCheck"
-                                              IsChecked="{Binding Config.DockDisabled}" />
                                 </StackPanel>
                             </Border>
                             <Border Style="{StaticResource SettingsCard}">
@@ -1660,6 +1663,32 @@
                                     Margin="0,0,0,8"
                                     Click="OpenExeFolderButton_Click"
                                     chrome:FluentChrome.Icon="&#xE8B7;" />
+                            <Button x:Name="RefreshWindowButton"
+                                    Width="Auto"
+                                    MinWidth="220"
+                                    HorizontalAlignment="Left"
+                                    Padding="12,6"
+                                    Margin="0,0,0,6"
+                                    Click="RefreshWindowButton_Click"
+                                    chrome:FluentChrome.Icon="&#xE7F4;" />
+                            <TextBlock x:Name="RefreshWindowDescriptionText"
+                                       TextWrapping="Wrap"
+                                       Opacity="0.82"
+                                       FontSize="12"
+                                       Margin="0,0,0,14" />
+                            <Button x:Name="ReloadAppButton"
+                                    Width="Auto"
+                                    MinWidth="220"
+                                    HorizontalAlignment="Left"
+                                    Padding="12,6"
+                                    Margin="0,0,0,6"
+                                    Click="ReloadAppButton_Click"
+                                    chrome:FluentChrome.Icon="&#xE72C;" />
+                            <TextBlock x:Name="ReloadAppDescriptionText"
+                                       TextWrapping="Wrap"
+                                       Opacity="0.82"
+                                       FontSize="12"
+                                       Margin="0,0,0,14" />
                             <Button x:Name="GenerateDetailedLogButton"
                                     Width="Auto"
                                     MinWidth="220"
@@ -1762,18 +1791,12 @@
                             Margin="3,2"
                             Click="ResetDefaultsButton_Click"
                             chrome:FluentChrome.Icon="&#xE777;" />
-                    <Button x:Name="RefreshWindowButton"
+                    <Button x:Name="DisableDockButton"
                             FontSize="12"
                             Padding="10,5"
                             Margin="3,2"
-                            Click="RefreshWindowButton_Click"
-                            chrome:FluentChrome.Icon="&#xE7F4;" />
-                    <Button x:Name="ReloadAppButton"
-                            FontSize="12"
-                            Padding="10,5"
-                            Margin="3,2"
-                            Click="ReloadAppButton_Click"
-                            chrome:FluentChrome.Icon="&#xE72C;" />
+                            Click="DisableDockButton_Click"
+                            chrome:FluentChrome.Icon="&#xE7E8;" />
                     <!-- Hidden: the window close button does the same thing. The button and its handler are kept. -->
                     <Button x:Name="CloseButton"
                             Visibility="Collapsed"

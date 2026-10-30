@@ -314,6 +314,10 @@ public partial class SettingsWindow : Window, INotifyPropertyChanged
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsDockWidthSliderEnabled)));
             SyncAllNumericBoxes();
         }
+        else if (e.PropertyName == nameof(DockConfig.DockDisabled))
+        {
+            RefreshDisableDockButton();
+        }
 
         if (_presetStateReady && !_isApplyingPresetData && IsPresetTrackedProperty(e.PropertyName))
         {
@@ -2036,7 +2040,7 @@ public partial class SettingsWindow : Window, INotifyPropertyChanged
         EnglishOption.Content = LocalizationService.Get(l, "English");
         ThemeLabel.Text = LocalizationService.Get(l, "Theme");
         DarkModeCheck.Content = LocalizationService.Get(l, "DarkMode");
-        DisableDockCheck.Content = LocalizationService.Get(l, "DisableDock");
+        RefreshDisableDockButton();
         InfoTabButton.Content = LocalizationService.Get(l, "CategoryInfo");
         GeneralTabButton.Content = LocalizationService.Get(l, "CategoryGeneral");
         QuickAccessTabButton.Content = LocalizationService.Get(l, "CategoryQuickAccess");
@@ -2068,6 +2072,8 @@ public partial class SettingsWindow : Window, INotifyPropertyChanged
         DetailsPanelTitle.Text = LocalizationService.Get(l, "CategoryDetails");
         TroubleshootingPanelTitle.Text = LocalizationService.Get(l, "CategoryTroubleshooting");
         OpenExeFolderButton.Content = LocalizationService.Get(l, "TroubleshootingOpenExeFolder");
+        RefreshWindowDescriptionText.Text = LocalizationService.Get(l, "SettingsRefreshWindowDescription");
+        ReloadAppDescriptionText.Text = LocalizationService.Get(l, "SettingsReloadAppDescription");
         ResetThisInstanceButton.Content = LocalizationService.Get(l, "TroubleshootingResetThisInstance");
         ResetThisInstanceDescriptionText.Text = LocalizationService.Get(l, "TroubleshootingResetThisInstanceDescription");
         ResetAllInstancesButton.Content = LocalizationService.Get(l, "TroubleshootingResetAllInstances");
@@ -2296,7 +2302,6 @@ public partial class SettingsWindow : Window, INotifyPropertyChanged
         QuickAccessEmptyText.Foreground = new SolidColorBrush(isDark ? System.Windows.Media.Colors.White : System.Windows.Media.Colors.Black);
 
         DarkModeCheck.Foreground = Foreground;
-        DisableDockCheck.Foreground = Foreground;
         ShowOutlineCheck.Foreground = Foreground;
         OutlineEdgeTopCheck.Foreground = Foreground;
         OutlineEdgeBottomCheck.Foreground = Foreground;
@@ -2322,6 +2327,19 @@ public partial class SettingsWindow : Window, INotifyPropertyChanged
     private void SetThemeResource(string key, System.Windows.Media.Color color)
     {
         Resources[key] = new SolidColorBrush(color);
+    }
+
+    private void DisableDockButton_Click(object sender, RoutedEventArgs e)
+    {
+        Config.DockDisabled = !Config.DockDisabled;
+    }
+
+    private void RefreshDisableDockButton()
+    {
+        var disabled = Config.DockDisabled;
+        DisableDockButton.Content = LocalizationService.Get(Config.Language, disabled ? "EnableDock" : "DisableDock");
+        FluentChrome.SetIcon(DisableDockButton, disabled ? "\uE7B3" : "\uE7E8");
+        FluentChrome.SetIsActive(DisableDockButton, disabled);
     }
 
     private void ResetDefaultsButton_Click(object sender, RoutedEventArgs e)

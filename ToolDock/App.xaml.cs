@@ -306,20 +306,20 @@ public partial class App : System.Windows.Application
         _disableDockItem.Click += (_, _) => ToggleDockDisabledFromTray();
         _trayMenu.Items.Add(_disableDockItem);
 
-        _reloadDockItem = new MenuItem();
-        _reloadDockItem.Click += (_, _) => _mainWindow?.ReloadDock();
-        _trayMenu.Items.Add(_reloadDockItem);
-
-        _reloadAppItem = new MenuItem();
-        _reloadAppItem.Click += (_, _) => RestartApplication(openSettingsAfterRestart: true);
-        _trayMenu.Items.Add(_reloadAppItem);
-
         _trayMenu.Items.Add(new Separator());
 
         _troubleshootingRootItem = new MenuItem();
         _troubleshootingOpenFolderItem = new MenuItem();
         _troubleshootingOpenFolderItem.Click += (_, _) => OpenExecutableFolder();
         _troubleshootingRootItem.Items.Add(_troubleshootingOpenFolderItem);
+
+        _reloadDockItem = new MenuItem();
+        _reloadDockItem.Click += (_, _) => _mainWindow?.ReloadDock();
+        _troubleshootingRootItem.Items.Add(_reloadDockItem);
+
+        _reloadAppItem = new MenuItem();
+        _reloadAppItem.Click += (_, _) => RestartApplication(openSettingsAfterRestart: true);
+        _troubleshootingRootItem.Items.Add(_reloadAppItem);
 
         _troubleshootingResetThisInstanceItem = new MenuItem();
         _troubleshootingResetThisInstanceItem.Click += (_, _) => BeginResetThisInstance();

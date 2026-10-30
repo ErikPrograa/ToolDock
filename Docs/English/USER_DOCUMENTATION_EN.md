@@ -77,9 +77,7 @@ Left-click opens **Hotkeys**. Right-click opens the menu:
 | Settings | Opens the settings window |
 | Set on top | Shows the dock and brings it forward |
 | Disable dock | Hides it for this session only. It comes back the next time you start the app |
-| Reload dock | Reloads icons, DPI, and position without exiting |
-| Reload app | Saves, exits, and starts ToolDock again (settings open on startup) |
-| Troubleshooting | Program folder and the three reset levels |
+| Troubleshooting | Program folder, Reload dock, Reload app, and the three reset levels. Reload dock reloads icons, DPI, and position without exiting. Reload app saves, exits, and starts ToolDock again (settings open on startup) |
 | Exit | Saves and quits |
 
 With more than one instance, the tray tooltip includes the number, for example `ToolDock (2)`.
@@ -96,8 +94,7 @@ Along the bottom:
 
 - **Reset preset** reloads the reference preset.
 - **Reset all to default** sets English, the dark theme, and the rest of the factory values. It does not clear dock shortcuts, saved presets, or custom colors.
-- **Refresh window** redraws the settings window.
-- **Reload app** restarts ToolDock.
+- **Disable dock** hides the dock for this session. While it is hidden the button reads **Enable dock** and stays highlighted. It is not saved: the dock is active again after a restart.
 
 ### Info
 
@@ -107,7 +104,6 @@ Summarizes usage and configuration files. **Launch on startup** explains how to 
 
 - **Language:** Spanish or English. Tray text follows the same choice.
 - **Dark mode:** theme for Settings and menus. The dock's own color is chosen under Appearance.
-- **Disable dock:** same as the tray item. It is not saved: the dock is active again after a restart.
 - **Display:** which display the dock anchors to. **Default (primary)** follows the primary display.
 - **Configuration presets:** see [Presets](#presets).
 
@@ -209,6 +205,8 @@ Read-only. For the current display and DPI it shows the effective dock, icon, an
 | Action | What it changes |
 |---|---|
 | Open app folder | Opens the `.exe` folder in File Explorer |
+| Refresh window | Redraws the settings window without restarting the app |
+| Reload app | Saves, closes, and starts ToolDock again. Settings opens on startup |
 | Generate detailed log | Writes a `.txt` with configuration, displays, DPI, and dock state, for a bug report |
 | Delete all custom colors | Removes `Colors_TD.json`. Built-in colors stay |
 | Delete all custom presets | Removes `Presets_TD.json` and applies the Default preset |
