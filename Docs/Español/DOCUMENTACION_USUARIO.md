@@ -70,7 +70,7 @@ El radio del hover es independiente de la distancia de activación del autoocult
 
 ## Bandeja del sistema
 
-Clic izquierdo abre **Atajos de teclado**. Clic derecho abre el menú:
+Clic izquierdo abre Configuración en **General**. **Configuración** en el menú contextual del dock o de la bandeja abre la misma sección. Clic derecho en el icono de la bandeja abre su menú:
 
 | Opción | Qué hace |
 |---|---|
@@ -152,6 +152,8 @@ Las medidas de la interfaz están en píxeles lógicos (los mismos que usa Windo
 **Custom Colors (colores personalizados)**
 
 Escribe un color HEX (`#RRGGBB` o `#RGB`; si omites `#`, se añade), ponle un nombre y guárdalo. Queda en `Colors_TD.json` y puedes volver a elegirlo o borrarlo. Sirve tanto para el fondo como para el contorno.
+
+**Seleccionar color**, junto al campo HEX, abre un selector visual con un espectro de color, un deslizador de valor, vistas previas y campos HEX, RGB o HSV editables. **Listo** copia el color elegido al campo HEX; **Cancelar** lo deja como estaba. Escribe un nombre y usa **Guardar color** para guardarlo como siempre.
 
 ### Accesos de apps
 

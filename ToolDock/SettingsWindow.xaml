@@ -1182,13 +1182,21 @@
                                 <StackPanel>
                             <TextBlock x:Name="CustomColorsSectionLabel" Style="{StaticResource CardTitle}" />
                             <TextBlock x:Name="CustomHexLabel" />
+                            <Grid Margin="0,4,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
                             <TextBox x:Name="HexTextBox"
-                                     Margin="0,4,0,10"
                                      TextChanged="ColorHexTextBox_TextChanged"
                                      LostFocus="ColorHexTextBox_LostFocus"
                                      KeyDown="ColorHexTextBox_KeyDown"
                                      DataObject.Pasting="ColorHexTextBox_Pasting"
                                      Text="#" />
+                                <Button x:Name="SelectColorButton" Grid.Column="1"
+                                        Margin="8,0,0,0" Padding="12,6"
+                                        Click="SelectColorButton_Click" />
+                            </Grid>
                             <TextBlock x:Name="CustomColorNameLabel" />
                             <TextBox x:Name="CustomColorNameTextBox"
                                      Margin="0,4,0,8" />

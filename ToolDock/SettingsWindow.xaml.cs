@@ -1483,6 +1483,15 @@ public partial class SettingsWindow : Window, INotifyPropertyChanged
         DeleteCustomColorButton.IsEnabled = true;
     }
 
+    private void SelectColorButton_Click(object sender, RoutedEventArgs e)
+    {
+        var picker = new ColorPickerWindow(this, Config.Language, HexTextBox.Text);
+        if (picker.ShowDialog() == true)
+        {
+            HexTextBox.Text = picker.SelectedHex;
+        }
+    }
+
     private void SaveCustomColorButton_Click(object sender, RoutedEventArgs e)
     {
         SaveNamedColor(CustomColorNameTextBox.Text, HexTextBox.Text);
@@ -2114,6 +2123,7 @@ public partial class SettingsWindow : Window, INotifyPropertyChanged
         BackgroundSectionLabel.Text = LocalizationService.Get(l, "BackgroundSection");
         SolidPresetLabel.Text = LocalizationService.Get(l, "SolidPreset");
         CustomHexLabel.Text = LocalizationService.Get(l, "CustomHex");
+        SelectColorButton.Content = LocalizationService.Get(l, "SelectColor");
         CustomColorNameLabel.Text = LocalizationService.Get(l, "CustomColorName");
         CustomColorsSectionLabel.Text = LocalizationService.Get(l, "CustomColorsSection");
         CustomSavedColorsLabel.Text = LocalizationService.Get(l, "SavedColors");

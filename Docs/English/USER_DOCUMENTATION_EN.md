@@ -70,7 +70,7 @@ Hover radius is independent of the autohide activation distance. Its range is 20
 
 ## System tray
 
-Left-click opens **Hotkeys**. Right-click opens the menu:
+Left-click opens Settings in **General**. **Settings** in either the dock's context menu or the tray menu opens the same section. Right-click the tray icon to open its menu:
 
 | Item | What it does |
 |---|---|
@@ -152,6 +152,8 @@ On-screen measurements are logical pixels (the same unit Windows uses when it sc
 **Custom Colors**
 
 Type a HEX color (`#RRGGBB` or `#RGB`; a missing `#` is added), give it a name, and save it. It is stored in `Colors_TD.json` and can be selected again or deleted. It works for both the background and the outline.
+
+**Select color**, beside the HEX field, opens a visual picker with a color spectrum, a value slider, previews, and editable HEX, RGB, or HSV values. **Done** copies the selected color into the HEX field; **Cancel** leaves it unchanged. Enter a name and use **Save color** to save it as usual.
 
 ### App Shortcuts
 

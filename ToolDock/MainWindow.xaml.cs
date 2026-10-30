@@ -1255,7 +1255,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         {
             Header = LocalizationService.Get(Config.Language, "TraySettings")
         };
-        settingsItem.Click += (_, _) => OpenSettings(SettingsCategory.QuickAccess);
+        settingsItem.Click += (_, _) => OpenSettings();
         menu.Items.Add(settingsItem);
 
         var reloadItem = new MenuItem

@@ -29,6 +29,7 @@ ToolDock/
   App.xaml.cs              lifecycle, tray, instances, arguments, resets
   MainWindow.xaml(.cs)     dock: layout, z-order, autohide, drag & drop, hover, hotkeys, launch
   SettingsWindow.xaml(.cs) settings by category
+  ColorPickerWindow.xaml(.cs) modal HEX/RGB/HSV picker; returns a color without saving
   UwpAppPickerWindow.cs    Store-app picker
   FluentChrome.cs          Segoe Fluent glyphs on buttons
   Models/
@@ -92,7 +93,7 @@ Arguments (`App.ParseStartupOptions`; reset requests are handled first by `Troub
 
 Instances take a local `Mutex` whose name includes a hash of the data folder. The first uses `config.json`; instance N (≥ 2) uses `config.instanceN.json`. Practical cap: 32.
 
-The tray icon is native (`NativeTrayIcon`), not the WinForms `NotifyIcon`. Left-click opens Hotkeys. The context menu is themed with the light/dark theme.
+The tray icon is native (`NativeTrayIcon`), not the WinForms `NotifyIcon`. Left-click and the Settings items in the dock and tray menus call `OpenSettings()` with its default category, General. The context menu is themed with the light/dark theme.
 
 Reset workers run from the same executable before reserving an instance slot. They wait for the affected processes to exit before changing files. Instance resets remove the configuration family through `DurableFile.DeleteFamily`; reset-all finds every `config.json` / `config.instanceN.json` in the data folder and relaunches the number of running instances. Hard reset uses `SHFileOperationW` to send every top-level JSON plus `Backups_TD/` and `Temp_TD/` to the Recycle Bin, then relaunches one instance. Process discovery is limited to the same executable path. Only hard reset asks for confirmation.
 
@@ -267,3 +268,9 @@ Keep the sections above aligned with the current app. When a change affects beha
 - Files: `ToolDock/MainWindow.xaml.cs`, native regression checks and their README, and both user guides.
 - Validation: the new held-button regression failed with the previous behavior, then all 9 Debug regression groups passed after the fix. Tests cover both reveal modes, pending hide/reveal cancellation, zero-delay reveal, and the other autohide modes. NuGet retained its `NU1900` vulnerability-service warning; compilation and checks completed.
 - Limits: tests simulate the polling inputs; interactive window dragging and animation on real displays remain manual checks. Pointer activation still takes priority when dragging near the dock's reveal area.
+
+## 2026-10-29 — Custom color picker
+
+- Changes: **Select color** opens an owned WPF dialog with a hue/saturation spectrum, value slider, previews, and HEX/RGB/HSV editors. Confirmation copies HEX into Settings; cancellation leaves it unchanged. Saving still uses the existing named-color flow. The dialog reuses Settings resources and fits its initial size to the owner's display work area.
+- Files: `ColorPickerWindow.xaml(.cs)`, Settings integration, localization, and `ColorPickerTests.cs`. No new dependencies or persistence changes.
+- Validation: all 10 regression groups passed, including color conversion, invalid input, spectrum coordinates, and modal confirmation/cancellation. Light and dark layouts were rendered and inspected. NuGet reported `NU1900` for its unavailable vulnerability service; the build completed. Interactive use across physical displays remains a manual check.

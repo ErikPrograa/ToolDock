@@ -606,7 +606,7 @@ public partial class App : System.Windows.Application
         }
     }
 
-    private void OnTrayLeftClick() => _mainWindow?.OpenSettings(SettingsCategory.QuickAccess);
+    private void OnTrayLeftClick() => _mainWindow?.OpenSettings();
 
     private void OnTrayRightClick()
     {

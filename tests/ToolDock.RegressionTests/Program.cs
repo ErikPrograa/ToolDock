@@ -27,6 +27,7 @@ internal static class Program
             ("Preset JSON and application preserve independent values", PresetRoundtrip),
             ("Settings sliders, numeric editors and checkbox bindings", SettingsControls),
             ("Settings preset tracking, copying and translations", SettingsPresetsAndTranslations),
+            ("Color picker conversion, validation and dialog actions", ColorPickerTests.Run),
             ("Native window filters and visible-frame geometry", NativeAutoHideTests.Run),
             ("Instance configuration files stay separate from the other JSON", InstanceConfigFiles)
         ];

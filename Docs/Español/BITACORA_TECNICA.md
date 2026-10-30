@@ -29,6 +29,7 @@ ToolDock/
   App.xaml.cs              ciclo de vida, bandeja, instancias, argumentos, reinicios
   MainWindow.xaml(.cs)     dock: layout, z-order, autohide, drag & drop, hover, hotkeys, lanzamiento
   SettingsWindow.xaml(.cs) configuración por categorías
+  ColorPickerWindow.xaml(.cs) selector modal HEX/RGB/HSV; devuelve un color sin guardarlo
   UwpAppPickerWindow.cs    selector de apps de la Store
   FluentChrome.cs          iconos Segoe Fluent en botones
   Models/
@@ -92,7 +93,7 @@ Argumentos (`App.ParseStartupOptions`; `TroubleshootingReset.TryRunWorker` atien
 
 Las instancias se reservan con un `Mutex` local cuyo nombre incluye un hash de la carpeta de datos. La primera usa `config.json`; la N (≥ 2) usa `config.instanceN.json`. Tope práctico: 32.
 
-La bandeja es un icono nativo (`NativeTrayIcon`), no `NotifyIcon` de WinForms. El clic izquierdo abre Atajos de teclado. El menú contextual se tematiza con el tema claro/oscuro.
+La bandeja es un icono nativo (`NativeTrayIcon`), no `NotifyIcon` de WinForms. El clic izquierdo y las opciones Configuración de los menús del dock y la bandeja llaman a `OpenSettings()` con su categoría predeterminada, General. El menú contextual se tematiza con el tema claro/oscuro.
 
 El proceso auxiliar de restablecimiento usa el mismo ejecutable y actúa antes de reservar una instancia. Espera a que salgan los procesos afectados antes de modificar archivos. Los restablecimientos de instancia eliminan la familia de configuración mediante `DurableFile.DeleteFamily`; el de todas busca cada `config.json` / `config.instanceN.json` de la carpeta de datos y vuelve a abrir el número de instancias que estaban ejecutándose. El reinicio completo usa `SHFileOperationW` para enviar a la Papelera todos los JSON de esa carpeta y `Backups_TD/` y `Temp_TD/`, y abre una instancia. La búsqueda de procesos se limita a la misma ruta del ejecutable. Solo el reinicio completo pide confirmación.
 
@@ -267,3 +268,9 @@ Mantén las secciones anteriores alineadas con la aplicación actual. Cuando un 
 - Archivos: `ToolDock/MainWindow.xaml.cs`, pruebas nativas de regresión y su README, y ambas guías de usuario.
 - Validación: la nueva regresión con botón pulsado falló con el comportamiento anterior; después de corregirlo pasaron los 9 grupos Debug. Las pruebas cubren ambos modos de revelado, cancelación de ocultación/aparición pendientes, aparición sin retraso y los otros modos de autoocultado. NuGet conservó la advertencia `NU1900` de su servicio de vulnerabilidades; la compilación y las comprobaciones terminaron.
 - Límites: las pruebas simulan las entradas del seguimiento; el arrastre interactivo de ventanas y la animación en pantallas reales siguen siendo comprobaciones manuales. La activación por cursor conserva la prioridad al arrastrar cerca de la zona de revelado del dock.
+
+## 2026-10-29 — Selector de color personalizado
+
+- Cambios: **Seleccionar color** abre un diálogo WPF dependiente de Configuración con espectro de tono/saturación, deslizador de valor, vistas previas y editores HEX/RGB/HSV. Confirmar copia el HEX a Configuración; cancelar lo conserva. El guardado sigue usando el flujo existente de colores con nombre. El diálogo reutiliza los recursos de Configuración y adapta su tamaño inicial al área útil de la pantalla de esa ventana.
+- Archivos: `ColorPickerWindow.xaml(.cs)`, integración en Configuración, localización y `ColorPickerTests.cs`. Sin nuevas dependencias ni cambios de persistencia.
+- Validación: pasaron los 10 grupos de regresión, incluidas conversiones, entradas inválidas, coordenadas del espectro y confirmación/cancelación modal. Se renderizaron y revisaron los temas claro y oscuro. NuGet emitió `NU1900` por su servicio de vulnerabilidades no disponible; la compilación terminó. El uso interactivo entre pantallas físicas queda como comprobación manual.

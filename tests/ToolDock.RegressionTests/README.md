@@ -10,6 +10,8 @@ This dependency-free console runner returns a nonzero exit code on failure. It c
 
 The runner also checks the fullscreen-suppression default, that saves leave no loose `.tmp` files beside the JSON, and classification of instance configuration filenames separately from presets, colors, and shortcut exports. It does not execute troubleshooting resets or verify the complete close/delete/recycle/relaunch sequence.
 
+Color-picker checks cover HEX/RGB/HSV roundtrips, numeric limits, invalid input, spectrum coordinates, and brightness changes through black. Integration checks automatically close or confirm the modal picker before rendering and verify that only confirmation copies the color into Settings; they do not save a custom color or use real mouse input.
+
 These checks do not replace an interactive check of autohide animation, cursor reveal, or mixed-DPI displays.
 
 Native checks also create a temporary window outside the virtual desktop without activating it. They exercise window filtering, both hide conditions, overlap versus edge contact, one-DIP activation and stable intersection bounds on all four dock edges. The dock itself is never shown. All test windows are closed afterwards.
